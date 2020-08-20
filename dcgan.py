@@ -174,7 +174,7 @@ torch.manual_seed(manualSeed)
 #
 
 # Root directory for dataset
-dataroot = "data/celeba"
+dataroot = "/home/abhagwan/datasets/celeba"
 
 # Number of workers for dataloader
 workers = 2
