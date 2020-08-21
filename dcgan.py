@@ -128,6 +128,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from IPython.display import HTML
+from torch.utils.tensorboard import SummaryWriter
 
 # Set random seed for reproducibility
 manualSeed = 999
@@ -136,6 +137,8 @@ print("Random Seed: ", manualSeed)
 random.seed(manualSeed)
 torch.manual_seed(manualSeed)
 
+# Create tensorboard writer object
+writer = SummaryWriter('runs/celeba')
 
 ######################################################################
 # Inputs
@@ -260,12 +263,13 @@ device = torch.device("cuda:0" if (torch.cuda.is_available() and ngpu > 0) else 
 
 # Plot some training images
 real_batch = next(iter(dataloader))
+img_grid = np.transpose(vutils.make_grid(real_batch[0].to(device)[:64], padding=2, normalize=True).cpu(),(1,2,0))
 plt.figure(figsize=(8,8))
 plt.axis("off")
 plt.title("Training Images")
-plt.imshow(np.transpose(vutils.make_grid(real_batch[0].to(device)[:64], padding=2, normalize=True).cpu(),(1,2,0)))
+plt.imshow(img_grid)
 
-
+writer.add_image("Training images", img_grid)
 
 ######################################################################
 # Implementation
