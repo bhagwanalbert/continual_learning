@@ -178,6 +178,7 @@ writer = SummaryWriter('runs/celeba')
 
 # Root directory for dataset
 dataroot = "/home/abhagwan/datasets/celeba"
+# dataroot = "/home/deepak/datasets/celeba"
 
 # Number of workers for dataloader
 workers = 2
@@ -263,13 +264,13 @@ device = torch.device("cuda:0" if (torch.cuda.is_available() and ngpu > 0) else 
 
 # Plot some training images
 real_batch = next(iter(dataloader))
-img_grid = np.transpose(vutils.make_grid(real_batch[0].to(device)[:64], padding=2, normalize=True).cpu(),(1,2,0))
-plt.figure(figsize=(8,8))
-plt.axis("off")
-plt.title("Training Images")
-plt.imshow(img_grid)
+# img_grid = np.transpose(vutils.make_grid(real_batch[0].to(device)[:64], padding=2, normalize=True).cpu(),(1,2,0))
+# plt.axis("off")
+# plt.title("Training Images")
+# plt.imshow(img_grid)
 
-writer.add_image("Training images", img_grid)
+writer.add_image("Training images", vutils.make_grid(real_batch[0].to(device)[:64], padding=2, normalize=True).cpu())
+writer.close()
 
 ######################################################################
 # Implementation
@@ -381,7 +382,6 @@ netG.apply(weights_init)
 
 # Print the model
 print(netG)
-
 
 ######################################################################
 # Discriminator
@@ -501,6 +501,12 @@ fake_label = 0.
 # Setup Adam optimizers for both G and D
 optimizerD = optim.Adam(netD.parameters(), lr=lr, betas=(beta1, 0.999))
 optimizerG = optim.Adam(netG.parameters(), lr=lr, betas=(beta1, 0.999))
+
+writer.add_graph(netG, fixed_noise)
+writer.close()
+
+writer.add_graph(netD, real_batch[0].to(device)[:64])
+writer.close()
 
 
 ######################################################################
@@ -644,6 +650,16 @@ for epoch in range(num_epochs):
         # Save Losses for plotting later
         G_losses.append(errG.item())
         D_losses.append(errD.item())
+
+        writer.add_scalar('generator/training loss',
+                            errG.item(),
+                            epoch * len(dataloader) + i)
+
+        writer.add_scalar('discriminator/training loss',
+                            errD.item(),
+                            epoch * len(dataloader) + i)
+
+        writer.close()
 
         # Check how the generator is doing by saving G's output on fixed_noise
         if (iters % 500 == 0) or ((epoch == num_epochs-1) and (i == len(dataloader)-1)):
