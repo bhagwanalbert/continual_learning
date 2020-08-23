@@ -139,6 +139,8 @@ torch.manual_seed(manualSeed)
 
 # Create tensorboard writer object
 writer = SummaryWriter('runs/celeba')
+writerG = SummaryWriter('runs/celeba/generator')
+writerD = SummaryWriter('runs/celeba/discriminator')
 
 ######################################################################
 # Inputs
@@ -502,11 +504,11 @@ fake_label = 0.
 optimizerD = optim.Adam(netD.parameters(), lr=lr, betas=(beta1, 0.999))
 optimizerG = optim.Adam(netG.parameters(), lr=lr, betas=(beta1, 0.999))
 
-writer.add_graph(netG, fixed_noise)
-writer.close()
+writerG.add_graph(netG, fixed_noise)
+writerG.close()
 
-writer.add_graph(netD, real_batch[0].to(device)[:64])
-writer.close()
+writerD.add_graph(netD, real_batch[0].to(device)[:64])
+writerD.close()
 
 
 ######################################################################
