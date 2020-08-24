@@ -667,6 +667,8 @@ for epoch in range(num_epochs):
             with torch.no_grad():
                 fake = netG(fixed_noise).detach().cpu()
             img_list.append(vutils.make_grid(fake, padding=2, normalize=True))
+            writer.add_image("Generated images", vutils.make_grid(fake, padding=2, normalize=True))
+            writer.close()
 
         iters += 1
 
