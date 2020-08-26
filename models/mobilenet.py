@@ -90,6 +90,7 @@ class MyMobilenetV1(nn.Module):
         x = x.view(x.size(0), -1)
         logits = self.output(x)
         source = self.sig(self.rf(x))
+        source = source.view(source.shape[0])
 
         if return_lat_acts:
             return logits, source, orig_acts
