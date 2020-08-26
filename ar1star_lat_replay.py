@@ -267,7 +267,7 @@ for i, train_batch in enumerate(dataset):
             correct_cnt += (pred_label == y_mb).sum()
 
             source_loss = source_obj(source, real_label)
-            class_loss = class_obj(logits, y_mb)
+            class_loss = class_obj(pred_label, y_mb)
             loss_real = source_loss + class_loss
 
             if reg_lambda !=0:
@@ -313,12 +313,14 @@ for i, train_batch in enumerate(dataset):
             logits, source = model(
                     noise_image.detach(), latent_input=None, return_lat_acts=False)
 
+            _, pred_label = torch.max(logits, 1)
+
             print(source.shape)
             print(fake_label.shape)
-            print(logits.shape)
+            print(pred_label.shape)
             print(y_mb.shape)
             source_loss = source_obj(source, fake_label)
-            class_loss = class_obj(logits, label)
+            class_loss = class_obj(pred_label, label)
 
             loss_fake = source_loss + class_loss
 
@@ -331,8 +333,10 @@ for i, train_batch in enumerate(dataset):
             logits, source = model(
                     noise_image, latent_input=None, return_lat_acts=False)
 
+            _, pred_label = torch.max(logits, 1)
+
             source_loss = source_obj(source, real_label) #The generator tries to pass its images as real---so we pass the images as real to the cost function
-            class_loss = class_obj(logits, label)
+            class_loss = class_obj(pred_label, label)
 
             loss_gen = source_loss + class_loss
 
