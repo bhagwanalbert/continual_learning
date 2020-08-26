@@ -300,13 +300,13 @@ for i, train_batch in enumerate(dataset):
 
             label = np.random.randint(0,50,mb_size)#generating labels for the entire batch
 
-    		noise = ((torch.from_numpy(noise_)).float())
-    		noise = noise.cuda()#converting to tensors in order to work with pytorch
+            noise = ((torch.from_numpy(noise_)).float())
+            noise = noise.cuda()#converting to tensors in order to work with pytorch
 
-    		label = ((torch.from_numpy(label)).long())
-    		label = label.cuda()#converting to tensors in order to work with pytorch
+            label = ((torch.from_numpy(label)).long())
+            label = label.cuda()#converting to tensors in order to work with pytorch
 
-    		noise_image = gen(noise)
+            noise_image = gen(noise)
 
             logits, source = model(
                     noise_image.detach(), latent_input=None, return_lat_acts=False)
