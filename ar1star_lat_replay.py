@@ -316,13 +316,12 @@ for i, train_batch in enumerate(dataset):
 
             loss_fake = source_loss + class_loss
 
-    		loss_fake.backward()
-    		optimD.step()
+            loss_fake.backward()
+            optimD.step()
 
             ## Train the generator
             optimG.zero_grad()
 
-            ### REVISAR...
             logits, source = model(
                     noise_image, latent_input=None, return_lat_acts=False)
 
