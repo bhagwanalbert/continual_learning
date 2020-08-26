@@ -144,7 +144,7 @@ optimG = torch.optim.Adam(gen.parameters(), lr=init_lr, weight_decay=l2)
 # criterion = torch.nn.CrossEntropyLoss()
 
 source_obj = torch.nn.BCELoss()#source-loss
-class_obj = torch.nn.NLLLoss()#class-loss
+class_obj = torch.nn.CrossEntropyLoss()#class-loss
 
 # --------------------------------- Training -----------------------------------
 
