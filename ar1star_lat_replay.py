@@ -25,6 +25,7 @@ import copy
 import os
 import json
 from models.mobilenet import MyMobilenetV1
+from models.generator import generator
 from utils import *
 import configparser
 import argparse
@@ -70,6 +71,7 @@ l2 = eval(exp_config['l2'])
 freeze_below_layer = eval(exp_config['freeze_below_layer'])
 latent_layer_num = eval(exp_config['latent_layer_num'])
 reg_lambda = eval(exp_config['reg_lambda'])
+nz = eval(exp_config['nz'])
 
 # setting up log dir for tensorboard
 log_dir = 'logs/' + exp_name
@@ -90,8 +92,30 @@ preproc = preprocess_imgs
 # Get the fixed test set
 test_x, test_y = dataset.get_test_set()
 
+# Labels indicating source of the image
+real_label = torch.FloatTensor(mb_size).cuda()
+real_label.fill_(1)
+
+fake_label = torch.FloatTensor(mb_size).cuda()
+fake_label.fill_(0)
+
+# Fix noise to view generated images
+eval_noise = torch.FloatTensor(mb_size, nz, 1, 1).normal_(0, 1)
+eval_noise_ = np.random.normal(0, 1, (mb_size, nz))
+eval_label = np.random.randint(0, 50, mb_size)
+eval_onehot = np.zeros((mb_size, 50))
+eval_onehot[np.arange(mb_size), eval_label] = 1
+eval_noise_[np.arange(mb_size), :50] = eval_onehot[np.arange(mb_size)]
+eval_noise_ = (torch.from_numpy(eval_noise_))
+eval_noise.data.copy_(eval_noise_.view(mb_size, nz, 1, 1))
+eval_noise=eval_noise.cuda()
+
 # Model setup
 model = MyMobilenetV1(pretrained=True, latent_layer_num=latent_layer_num)
+gen = generator(nz)
+
+gen.apply(weights_init)
+
 # we replace BN layers with Batch Renormalization layers
 # ABB: take into account when defining new nets
 replace_bn_with_brn(
@@ -109,11 +133,18 @@ if reg_lambda != 0:
 
 # Optimizer setup
 # ABB: change optimizer to Adam
-optimizer = torch.optim.SGD(
-    model.parameters(), lr=init_lr, momentum=momentum, weight_decay=l2
-)
+# optimizer = torch.optim.SGD(
+#     model.parameters(), lr=init_lr, momentum=momentum, weight_decay=l2
+# )
+
+optimD = torch.optim.Adam(model.parameters(), lr=init_lr, weight_decay=l2)
+optimG = torch.optim.Adam(gen.parameters(), lr=init_lr, weight_decay=l2)
+
 # ABB: change loss to BCELoss and NLLLoss
-criterion = torch.nn.CrossEntropyLoss()
+# criterion = torch.nn.CrossEntropyLoss()
+
+source_obj = torch.nn.BCELoss()#source-loss
+class_obj = torch.nn.NLLLoss()#class-loss
 
 # --------------------------------- Training -----------------------------------
 
@@ -131,9 +162,11 @@ for i, train_batch in enumerate(dataset):
         change_brn_pars(
             model, momentum=inc_update_rate, r_d_max_inc_step=0,
             r_max=max_r_max, d_max=max_d_max)
-        optimizer = torch.optim.SGD(
-            model.parameters(), lr=inc_lr, momentum=momentum, weight_decay=l2
-        )
+        # optimizer = torch.optim.SGD(
+        #     model.parameters(), lr=inc_lr, momentum=momentum, weight_decay=l2
+        # )
+        optimD = torch.optim.Adam(model.parameters(), lr=inc_lr, weight_decay=l2)
+        optimG = torch.optim.Adam(gen.parameters(), lr=inc_lr, weight_decay=l2)
 
     train_x, train_y = train_batch
     train_x = preproc(train_x)
@@ -198,7 +231,7 @@ for i, train_batch in enumerate(dataset):
             start = it * (mb_size - n2inject)
             end = (it + 1) * (mb_size - n2inject)
 
-            optimizer.zero_grad()
+            optimD.zero_grad()
 
             x_mb = maybe_cuda(train_x[start:end], use_cuda=use_cuda)
 
@@ -216,8 +249,8 @@ for i, train_batch in enumerate(dataset):
 
             # if lat_mb_x is not None, this tensor will be concatenated in
             # the forward pass on-the-fly in the latent replay layer
-            logits, lat_acts = model(
-                x_mb, latent_input=lat_mb_x, return_lat_acts=True)
+            logits, source, lat_acts = model(
+                    x_mb, latent_input=lat_mb_x, return_lat_acts=True)
 
             # collect latent volumes only for the first ep
             # we need to store them to eventually add them into the external
@@ -232,13 +265,16 @@ for i, train_batch in enumerate(dataset):
             _, pred_label = torch.max(logits, 1)
             correct_cnt += (pred_label == y_mb).sum()
 
-            loss = criterion(logits, y_mb)
-            if reg_lambda !=0:
-                loss += compute_ewc_loss(model, ewcData, lambd=reg_lambda)
-            ave_loss += loss.item()
+            source_loss = source_obj(source, real_label)
+            class_loss = class_obj(logits, y_mb)
+            loss_real = source_loss + class_loss
 
-            loss.backward()
-            optimizer.step()
+            if reg_lambda !=0:
+                loss_real += compute_ewc_loss(model, ewcData, lambd=reg_lambda)
+            ave_loss += loss_real.item()
+
+            loss_real.backward()
+            optimD.step()
 
             if reg_lambda !=0:
                 post_update(model, synData)
@@ -258,6 +294,45 @@ for i, train_batch in enumerate(dataset):
             tot_it_step +=1
             writer.add_scalar('train_loss', ave_loss, tot_it_step)
             writer.add_scalar('train_accuracy', acc, tot_it_step)
+
+            ## Training with fake data now
+            noise_ = np.random.normal(0, 1, (mb_size, nz))#generating noise by random sampling from a normal distribution
+
+    		label = np.random.randint(0,50,mb_size)#generating labels for the entire batch
+
+    		noise = ((torch.from_numpy(noise_)).float())
+    		noise = noise.cuda()#converting to tensors in order to work with pytorch
+
+    		label = ((torch.from_numpy(label)).long())
+    		label = label.cuda()#converting to tensors in order to work with pytorch
+
+    		noise_image = gen(noise)
+
+            logits, source = model(
+                    noise_image.detach(), latent_input=None, return_lat_acts=False)
+
+            source_loss = source_obj(source, fake_label)
+            class_loss = class_obj(logits, label)
+
+            loss_fake = source_loss + class_loss
+
+    		loss_fake.backward()
+    		optimD.step()
+
+            ## Train the generator
+            optimG.zero_grad()
+
+            ### REVISAR...
+            logits, source = model(
+                    noise_image, latent_input=None, return_lat_acts=False)
+
+            source_loss = source_obj(source, real_label) #The generator tries to pass its images as real---so we pass the images as real to the cost function
+            class_loss = class_obj(logits, label)
+
+            loss_gen = source_loss + class_loss
+
+    		loss_gen.backward()
+    		optimG.step()
 
         cur_ep += 1
 
@@ -293,7 +368,7 @@ for i, train_batch in enumerate(dataset):
 
     set_consolidate_weights(model)
     ave_loss, acc, accs = get_accuracy(
-        model, criterion, mb_size, test_x, test_y, preproc=preproc
+        model, class_obj, mb_size, test_x, test_y, preproc=preproc
     )
 
     # Log scalar values (scalar summary) to TB

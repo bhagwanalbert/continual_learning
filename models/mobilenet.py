@@ -74,6 +74,9 @@ class MyMobilenetV1(nn.Module):
         self.end_features = nn.Sequential(*end_list)
 
         self.output = nn.Linear(1024, 50, bias=False)
+        self.rf = nn.Linear(1024, 1, bias=False)
+
+        self.sig = nn.Sigmoid()
 
     def forward(self, x, latent_input=None, return_lat_acts=False):
 
@@ -86,11 +89,12 @@ class MyMobilenetV1(nn.Module):
         x = self.end_features(lat_acts)
         x = x.view(x.size(0), -1)
         logits = self.output(x)
+        source = self.sig(self.rf(x))
 
         if return_lat_acts:
-            return logits, orig_acts
+            return logits, source, orig_acts
         else:
-            return logits
+            return logits, source
 
 
 if __name__ == "__main__":
