@@ -298,7 +298,7 @@ for i, train_batch in enumerate(dataset):
             ## Training with fake data now
             noise_ = np.random.normal(0, 1, (mb_size, nz))#generating noise by random sampling from a normal distribution
 
-    		label = np.random.randint(0,50,mb_size)#generating labels for the entire batch
+            label = np.random.randint(0,50,mb_size)#generating labels for the entire batch
 
     		noise = ((torch.from_numpy(noise_)).float())
     		noise = noise.cuda()#converting to tensors in order to work with pytorch
