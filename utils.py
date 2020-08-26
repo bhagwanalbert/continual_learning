@@ -350,10 +350,10 @@ def freeze_up_to(model, freeze_below_layer, only_conv=False):
         if only_conv:
             if "conv" in name:
                 param.requires_grad = False
-                print("Freezing parameter " + name)
+                #print("Freezing parameter " + name)
         else:
             param.requires_grad = False
-            print("Freezing parameter " + name)
+            #print("Freezing parameter " + name)
 
         if name == freeze_below_layer:
             break
