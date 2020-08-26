@@ -150,7 +150,7 @@ def get_accuracy(model, criterion, batch_size, test_x, test_y, use_cuda=True,
         x = maybe_cuda(test_x[start:end], use_cuda=use_cuda)
         y = maybe_cuda(test_y[start:end], use_cuda=use_cuda)
 
-        logits = model(x)
+        logits, source = model(x)
 
         if mask is not None:
             # we put an high negative number so that after softmax that prob
