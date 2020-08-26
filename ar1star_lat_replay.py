@@ -330,8 +330,8 @@ for i, train_batch in enumerate(dataset):
 
             loss_gen = source_loss + class_loss
 
-    		loss_gen.backward()
-    		optimG.step()
+            loss_gen.backward()
+            optimG.step()
 
         cur_ep += 1
 
