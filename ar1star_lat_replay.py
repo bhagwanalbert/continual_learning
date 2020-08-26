@@ -313,10 +313,6 @@ for i, train_batch in enumerate(dataset):
             logits, source = model(
                     noise_image.detach(), latent_input=None, return_lat_acts=False)
 
-            print(source.shape)
-            print(fake_label.shape)
-            print(logits.shape)
-            print(y_mb.shape)
             source_loss = source_obj(source, fake_label)
             class_loss = class_obj(logits, label)
 
