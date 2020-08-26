@@ -194,6 +194,7 @@ for i, train_batch in enumerate(dataset):
     shuffle_in_unison([train_x, train_y], in_place=True)
 
     model = maybe_cuda(model, use_cuda=use_cuda)
+    gen = maybe_cuda(gen, use_cuda=use_cuda)
     acc = None
     ave_loss = 0
 
