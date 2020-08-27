@@ -133,11 +133,11 @@ if reg_lambda != 0:
 
 # Optimizer setup
 # ABB: change optimizer to Adam
-optimD = torch.optim.SGD(
-    model.parameters(), lr=init_lr, momentum=momentum, weight_decay=l2
-)
+# optimizer = torch.optim.SGD(
+#     model.parameters(), lr=init_lr, momentum=momentum, weight_decay=l2
+# )
 
-# optimD = torch.optim.Adam(model.parameters(), lr=init_lr, weight_decay=l2)
+optimD = torch.optim.Adam(model.parameters(), lr=init_lr, weight_decay=l2)
 optimG = torch.optim.Adam(gen.parameters(), lr=init_lr, weight_decay=l2)
 
 # ABB: change loss to BCELoss and NLLLoss
