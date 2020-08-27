@@ -296,6 +296,7 @@ for i, train_batch in enumerate(dataset):
             writer.add_scalar('train_loss', ave_loss, tot_it_step)
             writer.add_scalar('train_accuracy', acc, tot_it_step)
 
+            '''
             ## Training with fake data now
             noise = torch.FloatTensor(mb_size, nz, 1, 1).normal_(0, 1)
             noise_ = np.random.normal(0, 1, (mb_size, nz))
@@ -336,6 +337,7 @@ for i, train_batch in enumerate(dataset):
 
             loss_gen.backward()
             optimG.step()
+            '''
 
         cur_ep += 1
 
