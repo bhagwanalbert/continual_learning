@@ -298,11 +298,13 @@ for i, train_batch in enumerate(dataset):
 
             ## Training with fake data now
             noise = torch.FloatTensor(mb_size, nz, 1, 1).normal_(0, 1)
-            noise_ = np.random.normal(0, 1, (mb_size, nz))#generating noise by random sampling from a normal distribution
-
-            label = np.random.randint(0,50,mb_size)#generating labels for the entire batch
-
-            noise.data.copy_(eval_noise_.view(mb_size, nz, 1, 1))
+            noise_ = np.random.normal(0, 1, (mb_size, nz))
+            label = np.random.randint(0, 50, mb_size)
+            onehot = np.zeros((mb_size, 50))
+            onehot[np.arange(mb_size), label] = 1
+            noise_[np.arange(mb_size), :50] = onehot[np.arange(mb_size)]
+            noise_ = (torch.from_numpy(noise_))
+            noise.data.copy_(noise_.view(mb_size, nz, 1, 1))
             noise = noise.cuda()#converting to tensors in order to work with pytorch
 
             label = ((torch.from_numpy(label)).long())
