@@ -90,6 +90,13 @@ preproc = preprocess_imgs
 # Get the fixed test set
 test_x, test_y = dataset.get_test_set()
 
+# Labels indicating source of the image
+real_label = torch.FloatTensor(mb_size).cuda()
+real_label.fill_(1)
+
+fake_label = torch.FloatTensor(mb_size).cuda()
+fake_label.fill_(0)
+
 # Model setup
 model = MyMobilenetV1(pretrained=True, latent_layer_num=latent_layer_num)
 # we replace BN layers with Batch Renormalization layers
@@ -117,6 +124,7 @@ optimizer = torch.optim.Adam(model.parameters(), lr=init_lr, weight_decay=l2)
 
 # ABB: change loss to BCELoss and NLLLoss
 criterion = torch.nn.CrossEntropyLoss()
+criterion_source = torch.nn.BCELoss()
 
 # --------------------------------- Training -----------------------------------
 
@@ -237,7 +245,11 @@ for i, train_batch in enumerate(dataset):
             _, pred_label = torch.max(logits, 1)
             correct_cnt += (pred_label == y_mb).sum()
 
-            loss = criterion(logits, y_mb)
+            pred_source = torch.round(source)
+            correct_src += (pred_source == 1).sum()
+
+            loss = criterion(logits, y_mb) + criterion_source(source, real_label)
+
             if reg_lambda !=0:
                 loss += compute_ewc_loss(model, ewcData, lambd=reg_lambda)
             ave_loss += loss.item()
@@ -251,18 +263,22 @@ for i, train_batch in enumerate(dataset):
             acc = correct_cnt.item() / \
                   ((it + 1) * y_mb.size(0))
             ave_loss /= ((it + 1) * y_mb.size(0))
+            source_acc = correct_src.item() / \
+                  ((it + 1) * y_mb.size(0))
 
             if it % 10 == 0:
                 print(
                     '==>>> it: {}, avg. loss: {:.6f}, '
                     'running train acc: {:.3f}'
-                        .format(it, ave_loss, acc)
+                    'running source acc: {:.3f}'
+                        .format(it, ave_loss, acc, source_acc)
                 )
 
             # Log scalar values (scalar summary) to TB
             tot_it_step +=1
             writer.add_scalar('train_loss', ave_loss, tot_it_step)
             writer.add_scalar('train_accuracy', acc, tot_it_step)
+            writer.add_scalar('source_accuracy', source_acc, tot_it_step)
 
         cur_ep += 1
 
@@ -297,13 +313,14 @@ for i, train_batch in enumerate(dataset):
     ###
 
     set_consolidate_weights(model)
-    ave_loss, acc, accs = get_accuracy(
-        model, criterion, mb_size, test_x, test_y, preproc=preproc
+    ave_loss, acc, accs, source_acc = get_accuracy(
+        model, criterion, mb_size, test_x, test_y, source, preproc=preproc
     )
 
     # Log scalar values (scalar summary) to TB
     writer.add_scalar('test_loss', ave_loss, i)
     writer.add_scalar('test_accuracy', acc, i)
+    writer.add_scalar('test_source', source_acc, i)
 
     # update number examples encountered over time
     for c, n in model.cur_j.items():
