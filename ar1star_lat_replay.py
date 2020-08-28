@@ -188,7 +188,7 @@ for i, train_batch in enumerate(dataset):
     for ep in range(train_ep):
 
         print("training ep: ", ep)
-        correct_cnt, ave_loss, correct_src, ave_loss_gen = 0, 0, 0, 0
+        correct_cnt, ave_loss, correct_src, correct_src_fake, ave_loss_gen = 0, 0, 0, 0
 
         # computing how many patterns to inject in the latent replay layer
         if i > 0:
