@@ -274,14 +274,14 @@ for i, train_batch in enumerate(dataset):
                   ((it + 1) * y_mb.size(0))
 
              ## Training with fake data now
-            noise = torch.FloatTensor(mb_size, nz, 1, 1).normal_(0, 1)
-            noise_ = np.random.normal(0, 1, (mb_size, nz))
-            label = np.random.randint(0, 50, mb_size)
-            onehot = np.zeros((mb_size, 50))
-            onehot[np.arange(mb_size), label] = 1
-            noise_[np.arange(mb_size), :50] = onehot[np.arange(mb_size)]
+            noise = torch.FloatTensor(y_mb.size(0), nz, 1, 1).normal_(0, 1)
+            noise_ = np.random.normal(0, 1, (y_mb.size(0), nz))
+            label = np.random.randint(0, 50, y_mb.size(0))
+            onehot = np.zeros((y_mb.size(0), 50))
+            onehot[np.arange(y_mb.size(0)), label] = 1
+            noise_[np.arange(y_mb.size(0)), :50] = onehot[np.arange(y_mb.size(0))]
             noise_ = (torch.from_numpy(noise_))
-            noise.data.copy_(noise_.view(mb_size, nz, 1, 1))
+            noise.data.copy_(noise_.view(y_mb.size(0), nz, 1, 1))
             noise = noise.cuda()#converting to tensors in order to work with pytorch
 
             label = ((torch.from_numpy(label)).long())
