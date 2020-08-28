@@ -25,6 +25,7 @@ import copy
 import os
 import json
 from models.mobilenet import MyMobilenetV1
+ from models.generator import generator
 from utils import *
 import configparser
 import argparse
@@ -70,6 +71,7 @@ l2 = eval(exp_config['l2'])
 freeze_below_layer = eval(exp_config['freeze_below_layer'])
 latent_layer_num = eval(exp_config['latent_layer_num'])
 reg_lambda = eval(exp_config['reg_lambda'])
+nz = eval(exp_config['nz'])
 
 # setting up log dir for tensorboard
 log_dir = 'logs/' + exp_name
@@ -92,6 +94,10 @@ test_x, test_y = dataset.get_test_set()
 
 # Model setup
 model = MyMobilenetV1(pretrained=True, latent_layer_num=latent_layer_num)
+gen = generator(nz)
+
+gen.apply(weights_init)
+
 # we replace BN layers with Batch Renormalization layers
 # ABB: take into account when defining new nets
 replace_bn_with_brn(
@@ -113,7 +119,7 @@ optimizer = torch.optim.SGD(
     model.parameters(), lr=init_lr, momentum=momentum, weight_decay=l2
 )
 
-# optimizer = torch.optim.Adam(model.parameters(), lr=init_lr, weight_decay=l2)
+optimG = torch.optim.Adam(gen.parameters(), lr=init_lr, weight_decay=l2)
 
 # ABB: change loss to BCELoss and NLLLoss
 criterion = torch.nn.CrossEntropyLoss()
@@ -139,7 +145,7 @@ for i, train_batch in enumerate(dataset):
             model.parameters(), lr=inc_lr, momentum=momentum, weight_decay=l2
         )
 
-        # optimizer = torch.optim.Adam(model.parameters(), lr=inc_lr, weight_decay=l2)
+        optimG = torch.optim.Adam(gen.parameters(), lr=inc_lr, weight_decay=l2)
 
     train_x, train_y = train_batch
     train_x = preproc(train_x)
@@ -167,6 +173,7 @@ for i, train_batch in enumerate(dataset):
     shuffle_in_unison([train_x, train_y], in_place=True)
 
     model = maybe_cuda(model, use_cuda=use_cuda)
+    gen = maybe_cuda(gen, use_cuda=use_cuda)
     acc = None
     ave_loss = 0
 
@@ -181,7 +188,7 @@ for i, train_batch in enumerate(dataset):
     for ep in range(train_ep):
 
         print("training ep: ", ep)
-        correct_cnt, ave_loss, correct_src = 0, 0, 0
+        correct_cnt, ave_loss, correct_src, ave_loss_gen = 0, 0, 0, 0
 
         # computing how many patterns to inject in the latent replay layer
         if i > 0:
@@ -266,12 +273,61 @@ for i, train_batch in enumerate(dataset):
             source_acc = correct_src.item() / \
                   ((it + 1) * y_mb.size(0))
 
+             ## Training with fake data now
+            noise = torch.FloatTensor(mb_size, nz, 1, 1).normal_(0, 1)
+            noise_ = np.random.normal(0, 1, (mb_size, nz))
+            label = np.random.randint(0, 50, mb_size)
+            onehot = np.zeros((mb_size, 50))
+            onehot[np.arange(mb_size), label] = 1
+            noise_[np.arange(mb_size), :50] = onehot[np.arange(mb_size)]
+            noise_ = (torch.from_numpy(noise_))
+            noise.data.copy_(noise_.view(mb_size, nz, 1, 1))
+            noise = noise.cuda()#converting to tensors in order to work with pytorch
+
+            label = ((torch.from_numpy(label)).long())
+            label = label.cuda()#converting to tensors in order to work with pytorch
+
+            noise_image = gen(noise)
+
+            logits, source = model(
+                    noise_image.detach(), latent_input=None, return_lat_acts=False)
+
+            pred_source = torch.round(source)
+            correct_src_fake += (pred_source == 0).sum()
+
+            loss_fake = source_obj(source, fake_label) + class_obj(logits, label)
+
+            loss_fake.backward()
+            optimizer.step()
+
+            source_acc_fake = correct_src.item() / \
+                  ((it + 1) * y_mb.size(0))
+
+            ## Train the generator
+            optimG.zero_grad()
+
+            logits, source = model(
+                    noise_image, latent_input=None, return_lat_acts=False)
+
+            source_loss = source_obj(source, real_label) #The generator tries to pass its images as real---so we pass the images as real to the cost function
+            class_loss = class_obj(logits, label)
+
+            loss_gen = source_loss + class_loss
+
+            loss_gen.backward()
+            optimG.step()
+
+            ave_loss_gen += loss_gen.item()
+            ave_loss_gen /= ((it + 1) * y_mb.size(0))
+
             if it % 10 == 0:
                 print(
                     '==>>> it: {}, avg. loss: {:.6f}, '
                     'running train acc: {:.3f}, '
-                    'running source acc: {:.3f}'
-                        .format(it, ave_loss, acc, source_acc)
+                    'running source acc: {:.3f}, '
+                    'running source acc fake: {:.3f}, '
+                    'running avg. loss gen: {:.3f}'
+                        .format(it, ave_loss, acc, source_acc, source_acc_fake, ave_loss_gen)
                 )
 
             # Log scalar values (scalar summary) to TB
@@ -279,6 +335,8 @@ for i, train_batch in enumerate(dataset):
             writer.add_scalar('train_loss', ave_loss, tot_it_step)
             writer.add_scalar('train_accuracy', acc, tot_it_step)
             writer.add_scalar('source_accuracy', source_acc, tot_it_step)
+            writer.add_scalar('source_fake_accuracy', source_acc_fake, tot_it_step)
+            writer.add_scalar('gen_loss', ave_loss_gen, tot_it_step)
 
         cur_ep += 1
 
