@@ -226,7 +226,7 @@ for i, train_batch in enumerate(dataset):
                 x_mb, latent_input=lat_mb_x, return_lat_acts=True)
 
             # Labels indicating source of the image
-            real_label = torch.FloatTensor(y_mb.size(0).cuda()
+            real_label = torch.FloatTensor(y_mb.size(0)).cuda()
             real_label.fill_(1)
 
             fake_label = torch.FloatTensor(y_mb.size(0)).cuda()
