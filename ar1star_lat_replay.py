@@ -90,13 +90,6 @@ preproc = preprocess_imgs
 # Get the fixed test set
 test_x, test_y = dataset.get_test_set()
 
-# Labels indicating source of the image
-real_label = torch.FloatTensor(mb_size).cuda()
-real_label.fill_(1)
-
-fake_label = torch.FloatTensor(mb_size).cuda()
-fake_label.fill_(0)
-
 # Model setup
 model = MyMobilenetV1(pretrained=True, latent_layer_num=latent_layer_num)
 # we replace BN layers with Batch Renormalization layers
@@ -231,6 +224,13 @@ for i, train_batch in enumerate(dataset):
             # the forward pass on-the-fly in the latent replay layer
             logits, source, lat_acts = model(
                 x_mb, latent_input=lat_mb_x, return_lat_acts=True)
+
+            # Labels indicating source of the image
+            real_label = torch.FloatTensor(y_mb.size[0]).cuda()
+            real_label.fill_(1)
+
+            fake_label = torch.FloatTensor(y_mb.size[0]).cuda()
+            fake_label.fill_(0)
 
             # collect latent volumes only for the first ep
             # we need to store them to eventually add them into the external
