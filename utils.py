@@ -150,7 +150,7 @@ def get_accuracy(model, criterion, batch_size, test_x, test_y, use_cuda=True,
         x = maybe_cuda(test_x[start:end], use_cuda=use_cuda)
         y = maybe_cuda(test_y[start:end], use_cuda=use_cuda)
 
-        logits = model(x)
+        logits, source = model(x)
 
         if mask is not None:
             # we put an high negative number so that after softmax that prob
@@ -350,10 +350,10 @@ def freeze_up_to(model, freeze_below_layer, only_conv=False):
         if only_conv:
             if "conv" in name:
                 param.requires_grad = False
-                print("Freezing parameter " + name)
+                #print("Freezing parameter " + name)
         else:
             param.requires_grad = False
-            print("Freezing parameter " + name)
+            #print("Freezing parameter " + name)
 
         if name == freeze_below_layer:
             break
@@ -470,5 +470,3 @@ if __name__ == "__main__":
 
     ewcData, synData = create_syn_data(model)
     extract_weights(model, ewcData[0])
-
-

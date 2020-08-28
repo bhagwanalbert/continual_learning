@@ -216,7 +216,7 @@ for i, train_batch in enumerate(dataset):
 
             # if lat_mb_x is not None, this tensor will be concatenated in
             # the forward pass on-the-fly in the latent replay layer
-            logits, lat_acts = model(
+            logits, source, lat_acts = model(
                 x_mb, latent_input=lat_mb_x, return_lat_acts=True)
 
             # collect latent volumes only for the first ep
