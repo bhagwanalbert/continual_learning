@@ -109,11 +109,11 @@ if reg_lambda != 0:
 
 # Optimizer setup
 # ABB: change optimizer to Adam
-# optimizer = torch.optim.SGD(
-#     model.parameters(), lr=init_lr, momentum=momentum, weight_decay=l2
-# )
+optimizer = torch.optim.SGD(
+    model.parameters(), lr=init_lr, momentum=momentum, weight_decay=l2
+)
 
-optimizer = torch.optim.Adam(model.parameters(), lr=init_lr, weight_decay=l2)
+# optimizer = torch.optim.Adam(model.parameters(), lr=init_lr, weight_decay=l2)
 
 # ABB: change loss to BCELoss and NLLLoss
 criterion = torch.nn.CrossEntropyLoss()
@@ -135,11 +135,11 @@ for i, train_batch in enumerate(dataset):
         change_brn_pars(
             model, momentum=inc_update_rate, r_d_max_inc_step=0,
             r_max=max_r_max, d_max=max_d_max)
-        # optimizer = torch.optim.SGD(
-        #     model.parameters(), lr=inc_lr, momentum=momentum, weight_decay=l2
-        # )
+        optimizer = torch.optim.SGD(
+            model.parameters(), lr=inc_lr, momentum=momentum, weight_decay=l2
+        )
 
-        optimizer = torch.optim.Adam(model.parameters(), lr=inc_lr, weight_decay=l2)
+        # optimizer = torch.optim.Adam(model.parameters(), lr=inc_lr, weight_decay=l2)
 
     train_x, train_y = train_batch
     train_x = preproc(train_x)
