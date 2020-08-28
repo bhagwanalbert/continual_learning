@@ -269,7 +269,7 @@ for i, train_batch in enumerate(dataset):
             if it % 10 == 0:
                 print(
                     '==>>> it: {}, avg. loss: {:.6f}, '
-                    'running train acc: {:.3f}'
+                    'running train acc: {:.3f}, '
                     'running source acc: {:.3f}'
                         .format(it, ave_loss, acc, source_acc)
                 )
