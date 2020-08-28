@@ -74,7 +74,7 @@ class MyMobilenetV1(nn.Module):
         self.end_features = nn.Sequential(*end_list)
 
         self.output = nn.Linear(1024, 50, bias=False)
-        self.rf = n.Linear(1024, 1, bias=False)
+        self.rf = nn.Linear(1024, 1, bias=False)
 
         self.sig = nn.Sigmoid()
 
