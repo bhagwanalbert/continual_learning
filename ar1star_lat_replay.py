@@ -25,7 +25,7 @@ import copy
 import os
 import json
 from models.mobilenet import MyMobilenetV1
- from models.generator import generator
+from models.generator import generator
 from utils import *
 import configparser
 import argparse
