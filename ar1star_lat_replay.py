@@ -295,7 +295,7 @@ for i, train_batch in enumerate(dataset):
             pred_source = torch.round(source)
             correct_src_fake += (pred_source == 0).sum()
 
-            loss_fake = source_obj(source, fake_label) + class_obj(logits, label)
+            loss_fake = criterion_source(source, fake_label) + criterion(logits, label)
 
             loss_fake.backward()
             optimizer.step()
@@ -309,8 +309,8 @@ for i, train_batch in enumerate(dataset):
             logits, source = model(
                     noise_image, latent_input=None, return_lat_acts=False)
 
-            source_loss = source_obj(source, real_label) #The generator tries to pass its images as real---so we pass the images as real to the cost function
-            class_loss = class_obj(logits, label)
+            source_loss = criterion_source(source, real_label) #The generator tries to pass its images as real---so we pass the images as real to the cost function
+            class_loss = criterion(logits, label)
 
             loss_gen = source_loss + class_loss
 
