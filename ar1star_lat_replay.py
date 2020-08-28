@@ -248,7 +248,7 @@ for i, train_batch in enumerate(dataset):
             pred_source = torch.round(source)
             correct_src += (pred_source == 1).sum()
 
-            loss = criterion(logits, y_mb) + 0*criterion_source(source, real_label)
+            loss = criterion(logits, y_mb) # + criterion_source(source, real_label)
 
             if reg_lambda !=0:
                 loss += compute_ewc_loss(model, ewcData, lambd=reg_lambda)
