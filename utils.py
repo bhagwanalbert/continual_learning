@@ -107,7 +107,7 @@ def pad_data(dataset, mb_size):
     return dataset, it
 
 
-def get_accuracy(model, criterion, batch_size, test_x, test_y, source, use_cuda=True,
+def get_accuracy(model, criterion, batch_size, test_x, test_y, use_cuda=True,
                  mask=None, preproc=None):
     """
     Test accuracy given a model and the test data.
@@ -164,8 +164,8 @@ def get_accuracy(model, criterion, batch_size, test_x, test_y, source, use_cuda=
         correct_cnt += (pred_label == y.data).sum()
         ave_loss += loss.item()
 
-        pred_source = torch.round(source)
-        correct_src += (pred_source == 1).sum()
+        # pred_source = torch.round(source)
+        # correct_src += (pred_source == 1).sum()
 
         for label in y.data:
             pattern_per_class[int(label)] += 1
@@ -179,11 +179,11 @@ def get_accuracy(model, criterion, batch_size, test_x, test_y, source, use_cuda=
 
     acc = correct_cnt.item() * 1.0 / test_y.size(0)
 
-    source_acc = correct_src.item() * 1.0 / test_y.size(0)
+    # source_acc = correct_src.item() * 1.0 / test_y.size(0)
 
     ave_loss /= test_y.size(0)
 
-    return ave_loss, acc, accs, source_acc
+    return ave_loss, acc, accs#, source_acc
 
 
 def preprocess_imgs(img_batch, scale=True, norm=True, channel_first=True):
