@@ -268,7 +268,7 @@ for i, train_batch in enumerate(dataset):
 
             source_loss = source_obj(source, real_label)
             class_loss = class_obj(logits, y_mb)
-            loss_real = 0*source_loss + class_loss
+            loss_real = source_loss + class_loss
 
             if reg_lambda !=0:
                 loss_real += compute_ewc_loss(model, ewcData, lambd=reg_lambda)
