@@ -128,7 +128,7 @@ def get_accuracy(model, criterion, batch_size, test_x, test_y, source, use_cuda=
 
     model.eval()
 
-    correct_cnt, ave_loss = 0, 0
+    correct_cnt, ave_loss, correct_src = 0, 0, 0
     model = maybe_cuda(model, use_cuda=use_cuda)
 
     num_class = int(np.max(test_y) + 1)
