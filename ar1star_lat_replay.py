@@ -344,6 +344,11 @@ for i, train_batch in enumerate(dataset):
                 )
 
             # writer.add_image("Training images", vutils.make_grid(x_mb, padding=2, normalize=True))
+            vutils.save_image(
+				vutils.make_grid(x_mb, padding=2, normalize=True),
+				'%s/training_minibatch_%03d_%03d.png' % ('images/', i, it)
+				)
+
 
             # Log scalar values (scalar summary) to TB
             tot_it_step +=1
@@ -405,6 +410,10 @@ for i, train_batch in enumerate(dataset):
 
     with torch.no_grad():
         fake = gen(eval_noise).detach().cpu()
-    writer.add_image("Generated images", vutils.make_grid(fake, padding=2, normalize=True))
+    vutils.save_image(
+        vutils.make_grid(fake, padding=2, normalize=True),
+        '%s/generated_batch_%03d.png' % ('images/', i)
+        )
+    # writer.add_image("Generated images", vutils.make_grid(fake, padding=2, normalize=True))
 
 writer.close()
