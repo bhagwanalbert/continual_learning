@@ -31,6 +31,8 @@ import configparser
 import argparse
 from pprint import pprint
 from torch.utils.tensorboard import SummaryWriter
+import torchvision.utils as vutils
+
 
 # --------------------------------- Setup --------------------------------------
 
@@ -124,6 +126,17 @@ optimG = torch.optim.Adam(gen.parameters(), lr=init_lr, weight_decay=l2)
 # ABB: change loss to BCELoss and NLLLoss
 criterion = torch.nn.CrossEntropyLoss()
 criterion_source = torch.nn.BCELoss()
+
+# Fix noise to view generated images
+eval_noise = torch.FloatTensor(mb_size, nz, 1, 1).normal_(0, 1)
+eval_noise_ = np.random.normal(0, 1, (mb_size, nz))
+eval_label = np.random.randint(0, 50, mb_size)
+eval_onehot = np.zeros((mb_size, 50))
+eval_onehot[np.arange(mb_size), eval_label] = 1
+eval_noise_[np.arange(mb_size), :50] = eval_onehot[np.arange(mb_size)]
+eval_noise_ = (torch.from_numpy(eval_noise_))
+eval_noise.data.copy_(eval_noise_.view(mb_size, nz, 1, 1))
+eval_noise = eval_noise.cuda()
 
 # --------------------------------- Training -----------------------------------
 
@@ -329,6 +342,12 @@ for i, train_batch in enumerate(dataset):
                     'running avg. loss gen: {:.3f}'
                         .format(it, ave_loss, acc, source_acc, source_acc_fake, ave_loss_gen)
                 )
+
+            writer.add_image("Training images", vutils.make_grid(x_mb, padding=2, normalize=True))
+
+            with torch.no_grad():
+                fake = gen(eval_noise).detach().cpu()
+            writer.add_image("Generated images", vutils.make_grid(fake, padding=2, normalize=True))
 
             # Log scalar values (scalar summary) to TB
             tot_it_step +=1
