@@ -343,11 +343,7 @@ for i, train_batch in enumerate(dataset):
                         .format(it, ave_loss, acc, source_acc, source_acc_fake, ave_loss_gen)
                 )
 
-            writer.add_image("Training images", vutils.make_grid(x_mb, padding=2, normalize=True))
-
-            with torch.no_grad():
-                fake = gen(eval_noise).detach().cpu()
-            writer.add_image("Generated images", vutils.make_grid(fake, padding=2, normalize=True))
+            # writer.add_image("Training images", vutils.make_grid(x_mb, padding=2, normalize=True))
 
             # Log scalar values (scalar summary) to TB
             tot_it_step +=1
@@ -406,5 +402,9 @@ for i, train_batch in enumerate(dataset):
     print("---------------------------------")
     print("Accuracy: ", acc)
     print("---------------------------------")
+
+    with torch.no_grad():
+        fake = gen(eval_noise).detach().cpu()
+    writer.add_image("Generated images", vutils.make_grid(fake, padding=2, normalize=True))
 
 writer.close()
