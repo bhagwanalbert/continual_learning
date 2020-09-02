@@ -78,14 +78,14 @@ train_dataset = dset.MNIST(root = dataroot, download = True, train = True,
                                         transforms.Resize(image_size),
                                         transforms.ToTensor(),
                                         transforms.Normalize(
-                                        (0.1307,), (0.3081,))]))
+                                        (0.0,), (1.0,))]))
 
 test_dataset = dset.MNIST(root = dataroot, download = True, train = False,
                             transform = transforms.Compose([
                                         transforms.Resize(image_size),
                                         transforms.ToTensor(),
                                         transforms.Normalize(
-                                        (0.1307,), (0.3081,))]))
+                                        (0.0,), (1.0,))]))
 
 # Create the dataloader
 train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size,
@@ -289,7 +289,7 @@ for ep in range(num_epochs):
 
         test_x = maybe_cuda(torch.cat((test_x,test_x,test_x), 1), use_cuda=use_cuda)
         test_y = maybe_cuda(test_y, use_cuda=use_cuda)
-        
+
         logits, source = model(test_x)
 
         loss = criterion(logits, test_y)
