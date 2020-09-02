@@ -201,6 +201,8 @@ for ep in range(num_epochs):
         label = ((torch.from_numpy(label)).long())
         label = maybe_cuda(label, use_cuda=use_cuda)
 
+        print(noise.size())
+
         noise_image = gen(noise)
 
         classes, source = model(noise_image.detach())
