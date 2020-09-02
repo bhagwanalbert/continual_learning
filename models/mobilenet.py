@@ -50,7 +50,7 @@ def remove_DwsConvBlock(cur_layers):
 
 
 class MyMobilenetV1(nn.Module):
-    def __init__(self, pretrained=True, latent_layer_num=20):
+    def __init__(self, pretrained=True, latent_layer_num=20, num_classes=50):
         super().__init__()
 
         model = get_model("mobilenet_w1", pretrained=pretrained)
@@ -73,7 +73,7 @@ class MyMobilenetV1(nn.Module):
         self.lat_features = nn.Sequential(*lat_list)
         self.end_features = nn.Sequential(*end_list)
 
-        self.output = nn.Linear(1024, 50, bias=False)
+        self.output = nn.Linear(1024, num_classes, bias=False)
         self.rf = nn.Linear(1024, 1, bias=False)
 
         self.sig = nn.Sigmoid()
