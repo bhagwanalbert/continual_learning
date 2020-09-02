@@ -263,7 +263,6 @@ for ep in range(num_epochs):
 
         data_encountered += test_y.size(0)
 
-    acc = correct_cnt.item() * 1.0 / data_encountered
     source_acc = correct_src.item() * 1.0 / data_encountered
     ave_loss /= data_encountered
 
