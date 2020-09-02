@@ -64,7 +64,7 @@ class conditioned_discriminator(nn.Module):
         self.fc_dis = nn.Linear(ndf*16*4*4, 1)
         self.fc_aux = nn.Linear(ndf*16*4*4, num_classes)
 
-        self.softmax = nn.Softmax()
+        self.softmax = nn.Softmax(dim=1)
         self.sig = nn.Sigmoid()
 
         self.ndf = ndf
