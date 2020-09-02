@@ -36,7 +36,7 @@ class discriminator(nn.Module):
 
 class conditioned_discriminator(nn.Module):
     def __init__(self,nc=3,ndf=64,num_classes=10):
-        super(discriminator, self).__init__()
+        super(conditioned_discriminator, self).__init__()
 
         self.main = nn.Sequential(
             # input is (nc) x 128 x 128
