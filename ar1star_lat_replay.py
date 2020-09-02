@@ -286,7 +286,7 @@ for i, train_batch in enumerate(dataset):
             source_acc = correct_src.item() / \
                   ((it + 1) * y_mb.size(0))
 
-             ## Training with fake data now
+            ## Training with fake data now
             noise = torch.FloatTensor(y_mb.size(0), nz, 1, 1).normal_(0, 1)
             noise_ = np.random.normal(0, 1, (y_mb.size(0), nz))
             label = np.random.randint(0, 50, y_mb.size(0))
@@ -313,7 +313,7 @@ for i, train_batch in enumerate(dataset):
             loss_fake.backward()
             optimizer.step()
 
-            source_acc_fake = correct_src.item() / \
+            source_acc_fake = correct_src_fake.item() / \
                   ((it + 1) * y_mb.size(0))
 
             ## Train the generator
