@@ -131,7 +131,7 @@ for c in range(n_class):
 eval_noise_[np.arange(n_imag*n_class), :n_class] = eval_onehot[np.arange(n_imag*n_class)]
 
 eval_noise_ = (torch.from_numpy(eval_noise_))
-eval_noise.data.copy_(eval_noise_.view(n_imag, nz, 1, 1))
+eval_noise.data.copy_(eval_noise_.view(n_imag*n_class, nz, 1, 1))
 eval_noise = maybe_cuda(eval_noise, use_cuda=use_cuda)
 
 # Training Loop
