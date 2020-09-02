@@ -1,9 +1,8 @@
 import torch
 from torch import nn
-class Discriminator(nn.Module):
+class discriminator(nn.Module):
     def __init__(self,nc=3,ndf=64):
-        super(Discriminator, self).__init__()
-        self.ngpu = ngpu
+        super(discriminator, self).__init__()
         self.main = nn.Sequential(
             # input is (nc) x 128 x 128
             nn.Conv2d(nc, ndf, 4, 2, 1, bias=False),
@@ -30,4 +29,7 @@ class Discriminator(nn.Module):
         )
 
     def forward(self, input):
-        return self.main(input)
+        source = self.main(input)
+        source = source.view(source.shape[0])
+        
+        return source

@@ -27,8 +27,8 @@ from utils import *
 writer = SummaryWriter('logs/mnist')
 
 # Root directory for dataset
-dataroot = "/home/abhagwan/datasets/MNIST"
-# dataroot = "/home/deepak/datasets/MNIST"
+# dataroot = "/home/abhagwan/datasets/MNIST"
+dataroot = "/home/deepak/datasets/MNIST"
 
 # Number of workers for dataloader
 workers = 2
@@ -63,8 +63,8 @@ os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 # Use cuda or not
-# use_cuda = False
-use_cuda = True
+use_cuda = False
+# use_cuda = True
 
 
 train_dataset = dset.MNIST(root = dataroot, download = True, train = True,
@@ -169,7 +169,6 @@ for ep in range(num_epochs):
         ave_loss += loss.item()
         data_encountered += train_y.size(0)
 
-        acc = correct_cnt.item() / data_encountered
         ave_loss /= data_encountered
         source_acc = correct_src.item() / data_encountered
 
@@ -211,6 +210,7 @@ for ep in range(num_epochs):
 
         # Output training stats
         if i % 50 == 0:
+            acc = 0
             print(
                 '==>>> it: {}, avg. loss: {:.6f}, '
                 'running train acc: {:.3f}, '
