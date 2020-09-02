@@ -162,8 +162,8 @@ for ep in range(num_epochs):
         acc = None
         ave_loss = 0
 
-        train_x = torch.cat((train_x,train_x,train_x), 1).type(torch.FloatTensor)
-        train_y = train_y.type(torch.LongTensor)
+        train_x = maybe_cuda(torch.cat((train_x,train_x,train_x), 1).type(torch.FloatTensor), use_cuda=use_cuda)
+        train_y = maybe_cuda(train_y.type(torch.LongTensor), use_cuda=use_cuda)
 
         correct_cnt, ave_loss, correct_src, correct_src_fake, ave_loss_gen = 0, 0, 0, 0, 0
         data_encountered = 0
