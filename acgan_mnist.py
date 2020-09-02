@@ -287,8 +287,9 @@ for ep in range(num_epochs):
 
         test_x, test_y = data
 
-        test_x = torch.cat((test_x,test_x,test_x), 1)
-
+        test_x = maybe_cuda(torch.cat((test_x,test_x,test_x), 1), use_cuda=use_cuda)
+        test_y = maybe_cuda(test_y, use_cuda=use_cuda)
+        
         logits, source = model(test_x)
 
         loss = criterion(logits, test_y)
