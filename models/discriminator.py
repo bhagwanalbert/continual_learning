@@ -75,7 +75,7 @@ class conditioned_discriminator(nn.Module):
         flat_features = features.view(-1,self.ndf*16*4*4)
 
         classes = self.softmax(self.fc_aux(flat_features))
-        source = slef.sigmoid(self.fc_dis(flat_features))
+        source = self.sigmoid(self.fc_dis(flat_features))
 
         source = source.view(source.shape[0])
 
