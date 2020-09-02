@@ -209,8 +209,8 @@ for ep in range(num_epochs):
         ave_loss_gen /= data_encountered
 
         # Output training stats
+        acc = 0
         if i % 50 == 0:
-            acc = 0
             print(
                 '==>>> it: {}, avg. loss: {:.6f}, '
                 'running train acc: {:.3f}, '
