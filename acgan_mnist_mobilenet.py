@@ -235,9 +235,7 @@ for ep in range(num_epochs):
         class_loss = criterion(classes, label)
 
         loss_gen = source_loss + class_loss
-
-        loss_gen.requires_grad = True
-
+        
         loss_gen.backward()
         optimG.step()
 
