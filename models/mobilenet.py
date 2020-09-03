@@ -79,7 +79,7 @@ class MyMobilenetV1(nn.Module):
         self.sig = nn.Sigmoid()
 
         self.softmax = nn.Softmax(dim=1)
-        seld.softmax_needed = softmax
+        self.softmax_needed = softmax
 
     def forward(self, x, latent_input=None, return_lat_acts=False):
 
@@ -92,7 +92,7 @@ class MyMobilenetV1(nn.Module):
         x = self.end_features(lat_acts)
         x = x.view(x.size(0), -1)
         logits = self.output(x)
-        
+
         if self.softmax_needed:
             logits  = self.softmax(logits)
 
