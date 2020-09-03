@@ -219,6 +219,8 @@ for ep in range(num_epochs):
 
         loss_fake = criterion_source(source, fake_label) + criterion(classes, label)
 
+        loss_fake.requires_grad = True
+
         loss_fake.backward()
         optimizer.step()
 
@@ -233,6 +235,8 @@ for ep in range(num_epochs):
         class_loss = criterion(classes, label)
 
         loss_gen = source_loss + class_loss
+
+        loss_gen.requires_grad = True
 
         loss_gen.backward()
         optimG.step()
