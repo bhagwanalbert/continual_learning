@@ -184,8 +184,6 @@ for ep in range(num_epochs):
 
         loss = criterion(classes, train_y) + criterion_source(source, real_label)
 
-        loss.requires_grad = True
-
         loss.backward()
         optimizer.step()
 
@@ -218,8 +216,6 @@ for ep in range(num_epochs):
         correct_src_fake += (pred_source == 0).sum()
 
         loss_fake = criterion_source(source, fake_label) + criterion(classes, label)
-
-        loss_fake.requires_grad = True
 
         loss_fake.backward()
         optimizer.step()
