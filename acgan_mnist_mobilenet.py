@@ -182,14 +182,9 @@ for ep in range(num_epochs):
         pred_source = torch.round(source)
         correct_src += (pred_source == 1).sum()
 
-        print(criterion(classes, train_y).requires_grad)
-        print(criterion_source(source, real_label).requires_grad)
-
         loss = criterion(classes, train_y) + criterion_source(source, real_label)
-        print(loss.requires_grad)
-        print(loss.grad_fn)
 
-        print(loss.size())
+        loss.requires_grad = True
 
         loss.backward()
         optimizer.step()
