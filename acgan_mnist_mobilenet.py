@@ -171,6 +171,9 @@ for ep in range(num_epochs):
         print(classes.size())
         print(source.size())
 
+        print(train_y.size())
+        print(real_label.size())        
+
         # Labels indicating source of the image
         real_label = maybe_cuda(torch.FloatTensor(train_y.size(0)), use_cuda=use_cuda)
         real_label.fill_(1)
