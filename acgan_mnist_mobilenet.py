@@ -171,9 +171,6 @@ for ep in range(num_epochs):
         print(classes.size())
         print(source.size())
 
-        print(train_y.size())
-        print(real_label.size())        
-
         # Labels indicating source of the image
         real_label = maybe_cuda(torch.FloatTensor(train_y.size(0)), use_cuda=use_cuda)
         real_label.fill_(1)
@@ -186,6 +183,12 @@ for ep in range(num_epochs):
 
         pred_source = torch.round(source)
         correct_src += (pred_source == 1).sum()
+
+        print(train_y.size())
+        print(real_label.size())
+
+        print(criterion(classes, train_y))
+        print(criterion_source(source, real_label))
 
         loss = criterion(classes, train_y) + criterion_source(source, real_label)
 
