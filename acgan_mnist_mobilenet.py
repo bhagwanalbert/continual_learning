@@ -186,6 +186,8 @@ for ep in range(num_epochs):
 
         loss = criterion(classes, train_y) + criterion_source(source, real_label)
 
+        print(loss.size())
+
         loss.backward()
         optimizer.step()
 
