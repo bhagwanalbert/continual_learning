@@ -67,7 +67,7 @@ latent_layer_num = 19
 
 # Set cuda device (based on your hardware)
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 
 # Use cuda or not
 #use_cuda = False
@@ -168,8 +168,6 @@ for ep in range(num_epochs):
         optimizer.zero_grad()
 
         classes, source = model(train_x)
-        print(classes.size())
-        print(source.size())
 
         # Labels indicating source of the image
         real_label = maybe_cuda(torch.FloatTensor(train_y.size(0)), use_cuda=use_cuda)
@@ -184,14 +182,9 @@ for ep in range(num_epochs):
         pred_source = torch.round(source)
         correct_src += (pred_source == 1).sum()
 
-        print(train_y.size())
-        print(real_label.size())
-
-        print(criterion(classes, train_y).size())
-        print(criterion_source(source, real_label).size())
-
         loss = criterion(classes, train_y) + criterion_source(source, real_label)
-        print(loss)
+        print(loss.requires_grad)
+        print(loss.grad_fn)
 
         print(loss.size())
 
