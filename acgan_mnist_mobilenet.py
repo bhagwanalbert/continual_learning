@@ -167,7 +167,7 @@ for ep in range(num_epochs):
 
         optimizer.zero_grad()
 
-        classes, source = model(train_x)
+        classes, source = model(train_x, latent_input=None, return_lat_acts=False)
 
         # Labels indicating source of the image
         real_label = maybe_cuda(torch.FloatTensor(train_y.size(0)), use_cuda=use_cuda)
@@ -212,7 +212,7 @@ for ep in range(num_epochs):
 
         noise_image = gen(noise)
 
-        classes, source = model(noise_image.detach())
+        classes, source = model(noise_image)
 
         pred_source = torch.round(source)
         correct_src_fake += (pred_source == 0).sum()
@@ -235,7 +235,7 @@ for ep in range(num_epochs):
         class_loss = criterion(classes, label)
 
         loss_gen = source_loss + class_loss
-        
+
         loss_gen.backward()
         optimG.step()
 
