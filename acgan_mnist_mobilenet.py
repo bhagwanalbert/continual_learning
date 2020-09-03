@@ -168,6 +168,8 @@ for ep in range(num_epochs):
         optimizer.zero_grad()
 
         classes, source = model(train_x)
+        print(classes.size())
+        print(source.size())
 
         # Labels indicating source of the image
         real_label = maybe_cuda(torch.FloatTensor(train_y.size(0)), use_cuda=use_cuda)
