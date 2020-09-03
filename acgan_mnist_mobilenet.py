@@ -116,6 +116,18 @@ gen = generator(nz)
 
 gen.apply(weights_init)
 
+init_update_rate = 0.01
+inc_update_rate = 0.00005
+max_r_max = 1.25
+max_d_max = 0.5
+inc_step = 4.1e-05
+momentum = 0.9
+l2 = 0.0005
+replace_bn_with_brn(
+    model, momentum=init_update_rate, r_d_max_inc_step=inc_step,
+    max_r_max=max_r_max, max_d_max=max_d_max
+)
+
 # Optimizer setup
 optimizer = torch.optim.Adam(model.parameters(), lr=lr, betas=(beta1, 0.999))
 optimG = torch.optim.Adam(gen.parameters(), lr=lr, betas=(beta1, 0.999))
