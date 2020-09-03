@@ -222,7 +222,8 @@ for ep in range(num_epochs):
 
         noise_image = gen(noise)
 
-        classes, source = model(noise_image)
+        classes, source = model(
+               noise_image.detach(), latent_input=None, return_lat_acts=False)
 
         pred_source = torch.round(source)
         correct_src_fake += (pred_source == 0).sum()
