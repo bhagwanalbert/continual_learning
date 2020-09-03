@@ -50,7 +50,7 @@ def remove_DwsConvBlock(cur_layers):
 
 
 class MyMobilenetV1(nn.Module):
-    def __init__(self, pretrained=True, latent_layer_num=20, num_classes=50):
+    def __init__(self, pretrained=True, latent_layer_num=20, num_classes=50, softmax=False):
         super().__init__()
 
         model = get_model("mobilenet_w1", pretrained=pretrained)
@@ -78,6 +78,9 @@ class MyMobilenetV1(nn.Module):
 
         self.sig = nn.Sigmoid()
 
+        self.softmax = nn.Softmax(dim=1)
+        seld.softmax_needed = softmax
+
     def forward(self, x, latent_input=None, return_lat_acts=False):
 
         orig_acts = self.lat_features(x)
@@ -89,6 +92,10 @@ class MyMobilenetV1(nn.Module):
         x = self.end_features(lat_acts)
         x = x.view(x.size(0), -1)
         logits = self.output(x)
+        
+        if self.softmax_needed:
+            logits  = self.softmax(logits)
+
         source = self.sig(self.rf(x))
         source = source.view(source.shape[0])
 
