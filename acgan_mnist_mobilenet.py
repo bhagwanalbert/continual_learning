@@ -187,10 +187,11 @@ for ep in range(num_epochs):
         print(train_y.size())
         print(real_label.size())
 
-        print(criterion(classes, train_y))
-        print(criterion_source(source, real_label))
+        print(criterion(classes, train_y).size())
+        print(criterion_source(source, real_label).size())
 
         loss = criterion(classes, train_y) + criterion_source(source, real_label)
+        print(loss)
 
         print(loss.size())
 
