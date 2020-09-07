@@ -79,3 +79,8 @@ class conditioned_discriminator(nn.Module):
         source = source.view(source.shape[0])
 
         return classes, source
+
+if __name__ == "__main__":
+
+    model = conditioned_discriminator()
+    print(model)
