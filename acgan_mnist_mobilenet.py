@@ -20,7 +20,6 @@ import matplotlib.animation as animation
 from IPython.display import HTML
 from torch.utils.tensorboard import SummaryWriter
 from models.mobilenet import MyMobilenetV1
-from models.discriminator import conditioned_discriminator
 from models.generator import generator
 from utils import *
 
@@ -113,8 +112,7 @@ def weights_init(m):
         nn.init.constant_(m.bias.data, 0)
 
 # Discriminator + classifier
-#model = MyMobilenetV1(pretrained=True, latent_layer_num=latent_layer_num, num_classes=n_class, softmax=True, discriminator=True)
-model = conditioned_discriminator()
+model = MyMobilenetV1(pretrained=True, latent_layer_num=latent_layer_num, num_classes=n_class, softmax=True, discriminator=True)
 gen = generator(nz)
 
 gen.apply(weights_init)
@@ -162,12 +160,12 @@ for ep in range(num_epochs):
     print("training ep: ", ep)
     for i, data in enumerate(train_dataloader):
 
-        #freeze_up_to(model, freeze_below_layer, only_conv=False)
+        freeze_up_to(model, freeze_below_layer, only_conv=False)
 
         train_x, train_y = data
 
         model.train()
-        #model.lat_features.eval()
+        model.lat_features.eval()
 
         model = maybe_cuda(model, use_cuda=use_cuda)
         gen = maybe_cuda(gen, use_cuda=use_cuda)
@@ -182,8 +180,7 @@ for ep in range(num_epochs):
 
         optimizer.zero_grad()
 
-        #classes, source = model(train_x, latent_input=None, return_lat_acts=False)
-        classes, source = model(train_x)
+        classes, source = model(train_x, latent_input=None, return_lat_acts=False)
 
         # Labels indicating source of the image
         real_label = maybe_cuda(torch.FloatTensor(train_y.size(0)), use_cuda=use_cuda)
@@ -226,10 +223,8 @@ for ep in range(num_epochs):
 
         noise_image = gen(noise)
 
-        #classes, source = model(
-        #       noise_image.detach(), latent_input=None, return_lat_acts=False)
-        classes, source = model(noise_image.detach())
-
+        classes, source = model(
+               noise_image.detach(), latent_input=None, return_lat_acts=False)
 
         pred_source = torch.round(source)
         correct_src_fake += (pred_source == 0).sum()
