@@ -112,7 +112,7 @@ def weights_init(m):
         nn.init.constant_(m.bias.data, 0)
 
 # Discriminator + classifier
-model = MyMobilenetV1(pretrained=True, latent_layer_num=latent_layer_num, num_classes=n_class, softmax=True, avg_pool=False)
+model = MyMobilenetV1(pretrained=True, latent_layer_num=latent_layer_num, num_classes=n_class, softmax=True)
 gen = generator(nz)
 
 gen.apply(weights_init)

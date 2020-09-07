@@ -50,7 +50,7 @@ def remove_DwsConvBlock(cur_layers):
 
 
 class MyMobilenetV1(nn.Module):
-    def __init__(self, pretrained=True, latent_layer_num=20, num_classes=50, softmax=False, avg_pool=True):
+    def __init__(self, pretrained=True, latent_layer_num=20, num_classes=50, softmax=False):
         super().__init__()
 
         model = get_model("mobilenet_w1", pretrained=pretrained)
@@ -68,15 +68,13 @@ class MyMobilenetV1(nn.Module):
                 lat_list.append(layer)
             else:
                 # ABB: Canviar estructura!
-                if layer == model.features.final_pool and (not avg_pool):
-                    continue
                 end_list.append(layer)
 
         self.lat_features = nn.Sequential(*lat_list)
         self.end_features = nn.Sequential(*end_list)
 
-        self.output = nn.Linear(16384, num_classes, bias=False)
-        self.rf = nn.Linear(16384, 1, bias=False)
+        self.output = nn.Linear(1024, num_classes, bias=False)
+        self.rf = nn.Linear(1024, 1, bias=False)
 
         self.sig = nn.Sigmoid()
 
