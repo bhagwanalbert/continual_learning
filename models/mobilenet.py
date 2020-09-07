@@ -78,15 +78,13 @@ class MyMobilenetV1(nn.Module):
                 lat_list.append(layer)
             else:
                 # ABB: Canviar estructura!
-                if layer == model.features.final_pool and discriminator:
-                    continue
                 end_list.append(layer)
 
         self.lat_features = nn.Sequential(*lat_list)
         self.end_features = nn.Sequential(*end_list)
 
-        self.output = nn.Linear(16384, num_classes, bias=False)
-        self.rf = nn.Linear(16384, 1, bias=False)
+        self.output = nn.Linear(1024, num_classes, bias=False)
+        self.rf = nn.Linear(1024, 1, bias=False)
 
         self.sig = nn.Sigmoid()
 
