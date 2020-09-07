@@ -62,7 +62,8 @@ beta1 = 0.5
 n_imag = 5
 
 # Freezed layers details
-freeze_below_layer = "lat_features.19.bn.beta"
+#freeze_below_layer = "lat_features.19.bn.beta"
+freeze_below_layer = "lat_features.19.bn.bias"
 latent_layer_num = 19
 
 # Set cuda device (based on your hardware)
