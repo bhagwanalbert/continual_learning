@@ -54,7 +54,7 @@ class MyMobilenetV1(nn.Module):
         super().__init__()
 
         model = get_model("mobilenet_w1", pretrained=pretrained)
-        model.features.final_pool = nn.AvgPool2d(4)
+        #model.features.final_pool = nn.AvgPool2d(4)
 
         all_layers = []
         remove_sequential(model, all_layers)
