@@ -20,7 +20,7 @@ import matplotlib.animation as animation
 from IPython.display import HTML
 from torch.utils.tensorboard import SummaryWriter
 from models.mobilenet import MyMobilenetV1
-from models.display import conditioned_discriminator
+from models.discriminator import conditioned_discriminator
 from models.generator import generator
 from utils import *
 
