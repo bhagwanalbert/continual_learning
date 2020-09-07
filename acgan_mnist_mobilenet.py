@@ -160,12 +160,12 @@ for ep in range(num_epochs):
     print("training ep: ", ep)
     for i, data in enumerate(train_dataloader):
 
-        freeze_up_to(model, freeze_below_layer, only_conv=False)
+        #freeze_up_to(model, freeze_below_layer, only_conv=False)
 
         train_x, train_y = data
 
         model.train()
-        model.lat_features.eval()
+        #model.lat_features.eval()
 
         model = maybe_cuda(model, use_cuda=use_cuda)
         gen = maybe_cuda(gen, use_cuda=use_cuda)
