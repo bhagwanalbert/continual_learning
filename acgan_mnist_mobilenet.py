@@ -53,7 +53,8 @@ n_class = 10
 nz = 100 + n_class
 
 # Learning rate for optimizers
-lr = 0.0002
+lr_disc = 0.0004
+lr_gen = 0.0001
 
 # Beta1 hyperparam for Adam optimizers
 beta1 = 0.5
@@ -130,8 +131,8 @@ gen.apply(weights_init)
 # )
 
 # Optimizer setup
-optimizer = torch.optim.Adam(model.parameters(), lr=lr, betas=(beta1, 0.999))
-optimG = torch.optim.Adam(gen.parameters(), lr=lr, betas=(beta1, 0.999))
+optimizer = torch.optim.Adam(model.parameters(), lr=lr_disc, betas=(beta1, 0.999))
+optimG = torch.optim.Adam(gen.parameters(), lr=lr_gen, betas=(beta1, 0.999))
 
 criterion = torch.nn.NLLLoss()
 criterion_source = torch.nn.BCELoss()
