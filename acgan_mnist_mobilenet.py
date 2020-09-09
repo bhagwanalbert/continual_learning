@@ -114,7 +114,7 @@ def weights_init(m):
 
 # Discriminator + classifier
 model = MyMobilenetV1(pretrained=True, latent_layer_num=latent_layer_num, num_classes=n_class, softmax=True, discriminator=True)
-gen = generator(nz)
+gen = generator(nz, ngf = 256)
 
 gen.apply(weights_init)
 
