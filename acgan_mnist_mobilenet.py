@@ -53,8 +53,8 @@ n_class = 10
 nz = 100 + n_class
 
 # Learning rate for optimizers
-lr_disc = 0.00004
-lr_gen = 0.00001
+lr_disc = 0.0004
+lr_gen = 0.0001
 
 # Beta1 hyperparam for Adam optimizers
 beta1 = 0.5
