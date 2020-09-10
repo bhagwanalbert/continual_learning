@@ -24,7 +24,7 @@ from models.generator import generator
 from utils import *
 
 # Create tensorboard writer object
-writer = SummaryWriter('logs/mnist2')
+writer = SummaryWriter('logs/mnist3')
 
 # Root directory for dataset
 dataroot = "/home/abhagwan/datasets/MNIST"
