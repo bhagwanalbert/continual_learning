@@ -237,7 +237,6 @@ for ep in range(num_epochs):
 
         source_acc_fake = correct_src_fake.item() / data_encountered
 
-        """
         ## Train the generator
         optimG.zero_grad()
 
@@ -253,8 +252,6 @@ for ep in range(num_epochs):
 
         ave_loss_gen += loss_gen.item()
         ave_loss_gen /= data_encountered
-
-        """
 
         # Output training stats
         if i % 50 == 0:
