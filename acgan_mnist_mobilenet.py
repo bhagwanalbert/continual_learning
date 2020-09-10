@@ -114,7 +114,7 @@ def weights_init(m):
 
 # Discriminator + classifier
 model = MyMobilenetV1(pretrained=True, latent_layer_num=latent_layer_num, num_classes=n_class, softmax=True, discriminator=True)
-gen = generator(nz, ngf = 256)
+gen = generator(nz)
 
 gen.apply(weights_init)
 
@@ -208,6 +208,7 @@ for ep in range(num_epochs):
         ave_loss /= data_encountered
         source_acc = correct_src.item() / data_encountered
 
+        """
         ## Training with fake data now
         noise = torch.FloatTensor(train_y.size(0), nz, 1, 1).normal_(0, 1)
         noise_ = np.random.normal(0, 1, (train_y.size(0), nz))
@@ -252,6 +253,9 @@ for ep in range(num_epochs):
 
         ave_loss_gen += loss_gen.item()
         ave_loss_gen /= data_encountered
+
+        """
+        source_acc_fake = 0
 
         # Output training stats
         if i % 50 == 0:
