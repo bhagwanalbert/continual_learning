@@ -208,7 +208,6 @@ for ep in range(num_epochs):
         ave_loss /= data_encountered
         source_acc = correct_src.item() / data_encountered
 
-        """
         ## Training with fake data now
         noise = torch.FloatTensor(train_y.size(0), nz, 1, 1).normal_(0, 1)
         noise_ = np.random.normal(0, 1, (train_y.size(0), nz))
@@ -238,6 +237,7 @@ for ep in range(num_epochs):
 
         source_acc_fake = correct_src_fake.item() / data_encountered
 
+        """
         ## Train the generator
         optimG.zero_grad()
 
