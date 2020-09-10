@@ -255,7 +255,6 @@ for ep in range(num_epochs):
         ave_loss_gen /= data_encountered
 
         """
-        source_acc_fake = 0
 
         # Output training stats
         if i % 50 == 0:
