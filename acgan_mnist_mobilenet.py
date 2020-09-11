@@ -69,7 +69,7 @@ latent_layer_num = 19
 
 # Set cuda device (based on your hardware)
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 # Use cuda or not
 #use_cuda = False
