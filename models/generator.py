@@ -78,66 +78,6 @@ class generator_big(nn.Module):
             nn.BatchNorm2d(ngf * 16),
             nn.LeakyReLU(0.2, inplace=True),
             # ...
-            nn.ConvTranspose2d(ngf * 16, ngf * 16, 3, 1, 0, bias=False),
-            nn.BatchNorm2d(ngf * 16),
-            nn.LeakyReLU(0.2, inplace=True),
-            # ...
-            nn.ConvTranspose2d(ngf * 16, ngf * 16, 3, 1, 0, bias=False),
-            nn.BatchNorm2d(ngf * 16),
-            nn.LeakyReLU(0.2, inplace=True),
-            # ...
-            nn.ConvTranspose2d(ngf * 16, ngf * 16, 3, 1, 0, bias=False),
-            nn.BatchNorm2d(ngf * 16),
-            nn.LeakyReLU(0.2, inplace=True),
-            # ...
-            nn.ConvTranspose2d(ngf * 16, ngf * 16, 3, 1, 0, bias=False),
-            nn.BatchNorm2d(ngf * 16),
-            nn.LeakyReLU(0.2, inplace=True),
-            # ...
-            nn.ConvTranspose2d(ngf * 16, ngf * 16, 3, 1, 0, bias=False),
-            nn.BatchNorm2d(ngf * 16),
-            nn.LeakyReLU(0.2, inplace=True),
-            # ...
-            nn.ConvTranspose2d(ngf * 16, ngf * 16, 3, 1, 0, bias=False),
-            nn.BatchNorm2d(ngf * 16),
-            nn.LeakyReLU(0.2, inplace=True),
-            # ...
-            nn.ConvTranspose2d(ngf * 16, ngf * 16, 3, 1, 0, bias=False),
-            nn.BatchNorm2d(ngf * 16),
-            nn.LeakyReLU(0.2, inplace=True),
-            # ...
-            nn.ConvTranspose2d(ngf * 16, ngf * 16, 3, 1, 0, bias=False),
-            nn.BatchNorm2d(ngf * 16),
-            nn.LeakyReLU(0.2, inplace=True),
-            # ...
-            nn.ConvTranspose2d(ngf * 16, ngf * 16, 3, 1, 0, bias=False),
-            nn.BatchNorm2d(ngf * 16),
-            nn.LeakyReLU(0.2, inplace=True),
-            # ...
-            nn.ConvTranspose2d(ngf * 16, ngf * 16, 3, 1, 0, bias=False),
-            nn.BatchNorm2d(ngf * 16),
-            nn.LeakyReLU(0.2, inplace=True),
-            # ...
-            nn.ConvTranspose2d(ngf * 16, ngf * 16, 3, 1, 0, bias=False),
-            nn.BatchNorm2d(ngf * 16),
-            nn.LeakyReLU(0.2, inplace=True),
-            # ...
-            nn.ConvTranspose2d(ngf * 16, ngf * 16, 3, 1, 0, bias=False),
-            nn.BatchNorm2d(ngf * 16),
-            nn.LeakyReLU(0.2, inplace=True),
-            # ...
-            nn.ConvTranspose2d(ngf * 16, ngf * 16, 3, 1, 0, bias=False),
-            nn.BatchNorm2d(ngf * 16),
-            nn.LeakyReLU(0.2, inplace=True),
-            # ...
-            nn.ConvTranspose2d(ngf * 16, ngf * 16, 3, 1, 0, bias=False),
-            nn.BatchNorm2d(ngf * 16),
-            nn.LeakyReLU(0.2, inplace=True),
-            # ...
-            nn.ConvTranspose2d(ngf * 16, ngf * 16, 3, 1, 0, bias=False),
-            nn.BatchNorm2d(ngf * 16),
-            nn.LeakyReLU(0.2, inplace=True),
-            # ...
             nn.ConvTranspose2d(ngf * 16, ngf * 14, 3, 1, 0, bias=False),
             nn.BatchNorm2d(ngf * 14),
             nn.LeakyReLU(0.2, inplace=True),
@@ -166,7 +106,7 @@ class generator_big(nn.Module):
             nn.BatchNorm2d(ngf * 2),
             nn.LeakyReLU(0.2, inplace=True),
             # state size. (ngf * 2) x 40 x 40
-            nn.ConvTranspose2d( ngf * 2, ngf, 3, 1, 0, bias=False),
+            nn.ConvTranspose2d( ngf * 2, ngf, 4, 2, 1, bias=False),
             nn.BatchNorm2d(ngf),
             nn.LeakyReLU(0.2, inplace=True),
             # state size. (ngf) x 42 x 42
