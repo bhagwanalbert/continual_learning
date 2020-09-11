@@ -21,6 +21,7 @@ from IPython.display import HTML
 from torch.utils.tensorboard import SummaryWriter
 from models.mobilenet import MyMobilenetV1
 from models.generator import generator_big
+from models.generator import generator
 from utils import *
 
 # Create tensorboard writer object
@@ -114,7 +115,7 @@ def weights_init(m):
 
 # Discriminator + classifier
 model = MyMobilenetV1(pretrained=True, latent_layer_num=latent_layer_num, num_classes=n_class, softmax=True, discriminator=True)
-gen = generator_big(nz)
+gen = generator(nz)
 
 gen.apply(weights_init)
 
