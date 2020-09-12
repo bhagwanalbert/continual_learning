@@ -24,7 +24,7 @@ from models.generator import generator
 from utils import *
 
 # Create tensorboard writer object
-writer = SummaryWriter('logs/mnist')
+writer = SummaryWriter('logs/mnist5')
 
 # Root directory for dataset
 dataroot = "/home/abhagwan/datasets/MNIST"
@@ -165,10 +165,10 @@ for ep in range(num_epochs):
 
         # Labels indicating source of the image
         real_label = maybe_cuda(torch.FloatTensor(train_y.size(0)), use_cuda=use_cuda)
-        real_label.fill_(1)
+        real_label.fill_(0.9)
 
         fake_label = maybe_cuda(torch.FloatTensor(train_y.size(0)), use_cuda=use_cuda)
-        fake_label.fill_(0)
+        fake_label.fill_(0.1)
 
         _, pred_label = torch.max(classes, 1)
         correct_cnt += (pred_label == train_y).sum()
