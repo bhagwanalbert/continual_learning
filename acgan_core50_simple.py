@@ -86,6 +86,8 @@ train_x = train_x[indexes]
 train_y = train_y[indexes]
 
 for c in range(n_class):
+    print(train_y.numpy() == c)
+    print(train_x[train_y.numpy() == c])
     writer.add_image("Training images per class", vutils.make_grid(train_x[train_y.numpy() == c], padding=2, normalize=False).cpu())
 
 writer.close()
