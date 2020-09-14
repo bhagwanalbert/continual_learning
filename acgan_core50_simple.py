@@ -48,7 +48,7 @@ nc = 3
 num_epochs = 100
 
 # Number of classes of dataset
-n_class = 10
+n_class = 50
 
 # Generator input size
 nz = 100 + n_class
