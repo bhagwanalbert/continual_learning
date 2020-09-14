@@ -75,6 +75,7 @@ test_x = preprocess_imgs(test_x, norm=False)
 
 train_x, train_y = next(iter(dataset))
 train_x = preprocess_imgs(train_x, norm=False)
+print(train_y)
 
 train_x = torch.from_numpy(train_x).type(torch.FloatTensor)
 train_y = torch.from_numpy(train_y).type(torch.LongTensor)
