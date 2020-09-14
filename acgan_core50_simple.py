@@ -265,8 +265,6 @@ for ep in range(num_epochs):
         #
         # iters += 1
 
-    """
-
     model.eval()
     correct_cnt, ave_loss, correct_src = 0, 0, 0
     data_encountered = 0
@@ -306,7 +304,5 @@ for ep in range(num_epochs):
     print("---------------------------------")
     print("Accuracy: ", acc)
     print("---------------------------------")
-
-    """
 
 """
