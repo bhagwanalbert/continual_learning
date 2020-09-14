@@ -85,13 +85,11 @@ indexes = np.random.permutation(train_y.size(0))
 train_x = train_x[indexes]
 train_y = train_y[indexes]
 
-for c in range(n_class):
-    if c % 5 == 0:
-        writer.add_image("Training images per class", vutils.make_grid(train_x[train_y.numpy() == c], padding=2, normalize=True).cpu())
-
-writer.close()
-
-"""
+# for c in range(n_class):
+#     if c % 5 == 0:
+#         writer.add_image("Training images per class", vutils.make_grid(train_x[train_y.numpy() == c], padding=2, normalize=True).cpu())
+#
+# writer.close()
 
 writer.add_image("Training images", vutils.make_grid(train_x[:64], padding=2, normalize=True).cpu())
 writer.close()
@@ -120,17 +118,20 @@ criterion = torch.nn.NLLLoss()
 criterion_source = torch.nn.BCELoss()
 
 # Fix noise to view generated images
-eval_noise = torch.FloatTensor(n_imag*n_class, nz, 1, 1).normal_(0, 1)
-eval_noise_ = np.random.normal(0, 1, (n_imag*n_class, nz))
-eval_onehot = np.zeros((n_imag*n_class, n_class))
+first_batch_classes = 10 # Temp
+
+eval_noise = torch.FloatTensor(n_imag*first_batch_classes, nz, 1, 1).normal_(0, 1)
+eval_noise_ = np.random.normal(0, 1, (n_imag*first_batch_classes, nz))
+eval_onehot = np.zeros((n_imag*first_batch_classes, n_class))
 
 for c in range(n_class):
-    eval_onehot[np.arange(n_imag*c,n_imag*(c+1)), c] = 1
+    if c % 5 == 0: # Temp
+        eval_onehot[np.arange(n_imag*c,n_imag*(c+1)), c] = 1
 
-eval_noise_[np.arange(n_imag*n_class), :n_class] = eval_onehot[np.arange(n_imag*n_class)]
+eval_noise_[np.arange(n_imag*first_batch_classes), :n_class] = eval_onehot[np.arange(n_imag*first_batch_classes)]
 
 eval_noise_ = (torch.from_numpy(eval_noise_))
-eval_noise.data.copy_(eval_noise_.view(n_imag*n_class, nz, 1, 1))
+eval_noise.data.copy_(eval_noise_.view(n_imag*first_batch_classes, nz, 1, 1))
 eval_noise = maybe_cuda(eval_noise, use_cuda=use_cuda)
 
 # Training Loop
@@ -266,6 +267,8 @@ for ep in range(num_epochs):
         #
         # iters += 1
 
+    """
+
     model.eval()
     correct_cnt, ave_loss, correct_src = 0, 0, 0
     data_encountered = 0
@@ -306,4 +309,4 @@ for ep in range(num_epochs):
     print("Accuracy: ", acc)
     print("---------------------------------")
 
-"""
+    """
