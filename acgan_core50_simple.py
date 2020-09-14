@@ -75,7 +75,6 @@ test_x = preprocess_imgs(test_x, norm=False)
 
 train_x, train_y = next(iter(dataset))
 train_x = preprocess_imgs(train_x, norm=False)
-print(train_y)
 
 train_x = torch.from_numpy(train_x).type(torch.FloatTensor)
 train_y = torch.from_numpy(train_y).type(torch.LongTensor)
@@ -87,11 +86,8 @@ train_x = train_x[indexes]
 train_y = train_y[indexes]
 
 for c in range(n_class):
-    print(c)
-    print(train_y.numpy())
-    print(train_y.numpy() == c)
-    print(train_x[train_y.numpy() == c])
-    writer.add_image("Training images per class", vutils.make_grid(train_x[train_y.numpy() == c], padding=2, normalize=False).cpu())
+    if c % 5 == 0:
+        writer.add_image("Training images per class", vutils.make_grid(train_x[train_y.numpy() == c], padding=2, normalize=True).cpu())
 
 writer.close()
 
