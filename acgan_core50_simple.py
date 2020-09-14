@@ -118,7 +118,6 @@ eval_noise_[np.arange(n_imag*n_class), :n_class] = eval_onehot[np.arange(n_imag*
 eval_noise_ = (torch.from_numpy(eval_noise_))
 eval_noise.data.copy_(eval_noise_.view(n_imag*n_class, nz, 1, 1))
 eval_noise = maybe_cuda(eval_noise, use_cuda=use_cuda)
-print(eval_noise.size())
 
 # Training Loop
 print("Starting Training Loop...")
@@ -129,6 +128,8 @@ it_x_ep = train_x.size(0) // batch_size
 for ep in range(num_epochs):
     print("training ep: ", ep)
     for i in range(it_x_ep):
+
+        print(i)
 
         start = i * batch_size
         end = (i + 1) * batch_size
@@ -147,9 +148,6 @@ for ep in range(num_epochs):
         data_encountered = 0
 
         optimizer.zero_grad()
-
-        print(x_mb.shape)
-        print(x_mb)
 
         classes, source = model(x_mb)
 
