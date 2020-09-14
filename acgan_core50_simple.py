@@ -149,6 +149,9 @@ for ep in range(num_epochs):
 
         optimizer.zero_grad()
 
+        print(x_mb.shape)
+        print(x_mb)
+
         classes, source = model(x_mb)
 
         # Labels indicating source of the image

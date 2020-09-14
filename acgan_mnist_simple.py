@@ -24,7 +24,7 @@ from models.generator import generator
 from utils import *
 
 # Create tensorboard writer object
-writer = SummaryWriter('logs/mnist5')
+writer = SummaryWriter('logs/mnist6')
 
 # Root directory for dataset
 dataroot = "/home/abhagwan/datasets/MNIST"
@@ -160,6 +160,9 @@ for ep in range(num_epochs):
         data_encountered = 0
 
         optimizer.zero_grad()
+
+        print(train_x.shape)
+        print(train_x)
 
         classes, source = model(train_x)
 
