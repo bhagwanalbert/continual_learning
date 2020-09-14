@@ -79,6 +79,12 @@ train_x = preprocess_imgs(train_x, norm=False)
 train_x = torch.from_numpy(train_x).type(torch.FloatTensor)
 train_y = torch.from_numpy(train_y).type(torch.LongTensor)
 
+indexes = np.random.permutation(train_y.size(0))
+
+# Shuffle train dataset
+train_x = train_x[indexes]
+train_y = train_y[indexes]
+
 writer.add_image("Training images", vutils.make_grid(train_x[:64], padding=2, normalize=True).cpu())
 writer.close()
 
@@ -219,7 +225,7 @@ for ep in range(num_epochs):
         ave_loss_gen /= data_encountered
 
         # Output training stats
-        if i % 50 == 0:
+        if i % 5 == 0:
             print(
                 '==>>> it: {}, avg. loss: {:.6f}, '
                 'running train acc: {:.3f}, '
