@@ -124,9 +124,8 @@ eval_noise = torch.FloatTensor(n_imag*first_batch_classes, nz, 1, 1).normal_(0, 
 eval_noise_ = np.random.normal(0, 1, (n_imag*first_batch_classes, nz))
 eval_onehot = np.zeros((n_imag*first_batch_classes, n_class))
 
-for c in range(n_class):
-    if c % 5 == 0: # Temp
-        eval_onehot[np.arange(n_imag*c,n_imag*(c+1)), c] = 1
+for c in range(first_batch_classes):
+    eval_onehot[np.arange(n_imag*c,n_imag*(c+1)), c*n_class/first_batch_classes] = 1 # Temp
 
 eval_noise_[np.arange(n_imag*first_batch_classes), :n_class] = eval_onehot[np.arange(n_imag*first_batch_classes)]
 
