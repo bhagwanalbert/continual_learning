@@ -129,8 +129,6 @@ for ep in range(num_epochs):
     print("training ep: ", ep)
     for i in range(it_x_ep):
 
-        print(i)
-
         start = i * batch_size
         end = (i + 1) * batch_size
 
