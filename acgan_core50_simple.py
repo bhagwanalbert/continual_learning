@@ -85,6 +85,13 @@ indexes = np.random.permutation(train_y.size(0))
 train_x = train_x[indexes]
 train_y = train_y[indexes]
 
+for c in range(n_class):
+    writer.add_image("Training images per class", vutils.make_grid(train_x[train_y == c], padding=2, normalize=True).cpu())
+
+writer.close()
+
+"""
+
 writer.add_image("Training images", vutils.make_grid(train_x[:64], padding=2, normalize=True).cpu())
 writer.close()
 
