@@ -30,7 +30,6 @@ writer = SummaryWriter('logs/core50')
 
 # Root directory for dataset
 dataset = CORE50(root='/home/abhagwan/datasets/core50', scenario="nicv2_391")
-preproc = preprocess_imgs
 
 # Number of workers for dataloader
 workers = 2
@@ -72,10 +71,10 @@ use_cuda = True
 
 
 test_x, test_y = dataset.get_test_set()
-test_x = preproc(test_x)
+test_x = preprocess_imgs(test_x, norm=False)
 
 train_x, train_y = next(iter(dataset))
-train_x = preproc(train_x)
+train_x = preprocess_imgs(train_x, norm=False)
 
 train_x = torch.from_numpy(train_x).type(torch.FloatTensor)
 train_y = torch.from_numpy(train_y).type(torch.LongTensor)
