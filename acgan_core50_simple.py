@@ -254,30 +254,32 @@ for ep in range(num_epochs):
         #
         # iters += 1
 
+    """
+
     model.eval()
     correct_cnt, ave_loss, correct_src = 0, 0, 0
     data_encountered = 0
 
     model = maybe_cuda(model, use_cuda=use_cuda)
 
-    # for i, data in  enumerate(test_dataloader):
-    #
-    #     test_x, test_y = data
-    #
-    #     test_x = maybe_cuda(torch.cat((test_x,test_x,test_x), 1), use_cuda=use_cuda)
-    #     test_y = maybe_cuda(test_y, use_cuda=use_cuda)
-    #
-    #     classes, source = model(test_x)
-    #
-    #     loss = criterion(classes, test_y)
-    #     _, pred_label = torch.max(classes.data, 1)
-    #     correct_cnt += (pred_label == test_y.data).sum()
-    #     ave_loss += loss.item()
-    #
-    #     pred_source = torch.round(source)
-    #     correct_src += (pred_source == 1).sum()
-    #
-    #     data_encountered += test_y.size(0)
+    for i, data in  enumerate(test_dataloader):
+
+        test_x, test_y = data
+
+        test_x = maybe_cuda(torch.cat((test_x,test_x,test_x), 1), use_cuda=use_cuda)
+        test_y = maybe_cuda(test_y, use_cuda=use_cuda)
+
+        classes, source = model(test_x)
+
+        loss = criterion(classes, test_y)
+        _, pred_label = torch.max(classes.data, 1)
+        correct_cnt += (pred_label == test_y.data).sum()
+        ave_loss += loss.item()
+
+        pred_source = torch.round(source)
+        correct_src += (pred_source == 1).sum()
+
+        data_encountered += test_y.size(0)
 
     acc = correct_cnt.item() * 1.0 / data_encountered
     source_acc = correct_src.item() * 1.0 / data_encountered
@@ -293,3 +295,5 @@ for ep in range(num_epochs):
     print("---------------------------------")
     print("Accuracy: ", acc)
     print("---------------------------------")
+
+    """
