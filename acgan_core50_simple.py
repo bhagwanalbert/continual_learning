@@ -92,7 +92,7 @@ def weights_init(m):
         nn.init.constant_(m.bias.data, 0)
 
 # Discriminator + classifier
-model = conditioned_discriminator()
+model = conditioned_discriminator(num_classes=n_class)
 gen = generator(nz)
 
 model.apply(weights_init)
