@@ -21,12 +21,13 @@ from IPython.display import HTML
 from torch.utils.tensorboard import SummaryWriter
 from models.discriminator import conditioned_discriminator
 from models.generator import generator
+from models.generator import generator_big
 from utils import *
 
 from data_loader import CORE50
 
 # Create tensorboard writer object
-writer = SummaryWriter('logs/core50')
+writer = SummaryWriter('logs/core50_bigG')
 
 # Root directory for dataset
 dataset = CORE50(root='/home/abhagwan/datasets/core50', scenario="nicv2_391")
@@ -108,7 +109,7 @@ def weights_init(m):
 
 # Discriminator + classifier
 model = conditioned_discriminator(num_classes=n_class)
-gen = generator(nz)
+gen = generator_big(nz)
 
 model.apply(weights_init)
 gen.apply(weights_init)
@@ -244,9 +245,6 @@ for ep in range(num_epochs):
                 'running avg. loss gen: {:.3f}'
                     .format(i, ave_loss, acc, source_acc, source_acc_fake, ave_loss_gen)
             )
-            with torch.no_grad():
-                fake = gen(eval_noise).detach().cpu()
-            writer.add_image("Generated images", vutils.make_grid(fake, nrow=n_imag, padding=2, normalize=True))
 
         tot_it_step +=1
 
@@ -267,6 +265,10 @@ for ep in range(num_epochs):
         #     writer.close()
         #
         # iters += 1
+
+    with torch.no_grad():
+        fake = gen(eval_noise).detach().cpu()
+    writer.add_image("Generated images", vutils.make_grid(fake, nrow=n_imag, padding=2, normalize=True))
 
     """
 
