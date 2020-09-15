@@ -48,7 +48,7 @@ nc = 3
 num_epochs = 100
 
 # Number of classes of dataset
-n_class = 50
+n_class = 10
 
 # Generator input size
 nz = 100 + n_class
@@ -75,8 +75,7 @@ test_x = preprocess_imgs(test_x, norm=False)
 
 train_x, train_y = next(iter(dataset))
 train_x = preprocess_imgs(train_x, norm=False)
-
-print(train_y.tolist())
+train_y = train_y // 5
 
 train_x = torch.from_numpy(train_x).type(torch.FloatTensor)
 train_y = torch.from_numpy(train_y).type(torch.LongTensor)
@@ -90,11 +89,10 @@ train_y = train_y[indexes]
 training_examples = None
 
 for c in range(n_class):
-    if c % 5 == 0:
-        if training_examples == None:
-            training_examples = train_x[train_y.numpy() == c][:5]
-        else:
-            training_examples = torch.cat((training_examples, train_x[train_y.numpy() == c][:5]))
+    if training_examples == None:
+        training_examples = train_x[train_y.numpy() == c][:5]
+    else:
+        training_examples = torch.cat((training_examples, train_x[train_y.numpy() == c][:5]))
 
 writer.add_image("Training images", vutils.make_grid(training_examples, nrow=n_imag, padding=2, normalize=True).cpu())
 writer.close()
@@ -123,20 +121,18 @@ criterion = torch.nn.NLLLoss()
 criterion_source = torch.nn.BCELoss()
 
 # Fix noise to view generated images
-first_batch_classes = 10 # Temp
+eval_noise = torch.FloatTensor(n_imag*n_class, nz, 1, 1).normal_(0, 1)
+eval_noise_ = np.random.normal(0, 1, (n_imag*n_class, nz))
+eval_onehot = np.zeros((n_imag*n_class, n_class))
 
-eval_noise = torch.FloatTensor(n_imag*first_batch_classes, nz, 1, 1).normal_(0, 1)
-eval_noise_ = np.random.normal(0, 1, (n_imag*first_batch_classes, nz))
-eval_onehot = np.zeros((n_imag*first_batch_classes, n_class))
-
-for c in range(first_batch_classes):
-    eval_onehot[np.arange(n_imag*c,n_imag*(c+1)), c*n_class//first_batch_classes] = 1 # Temp
+for c in range(n_class):
+    eval_onehot[np.arange(n_imag*c,n_imag*(c+1)), c] = 1
 
 print(np.argmax(eval_onehot, axis=1))
-eval_noise_[np.arange(n_imag*first_batch_classes), :n_class] = eval_onehot[np.arange(n_imag*first_batch_classes)]
+eval_noise_[np.arange(n_imag*n_class), :n_class] = eval_onehot[np.arange(n_imag*n_class)]
 
 eval_noise_ = (torch.from_numpy(eval_noise_))
-eval_noise.data.copy_(eval_noise_.view(n_imag*first_batch_classes, nz, 1, 1))
+eval_noise.data.copy_(eval_noise_.view(n_imag*n_class, nz, 1, 1))
 eval_noise = maybe_cuda(eval_noise, use_cuda=use_cuda)
 
 # Training Loop
