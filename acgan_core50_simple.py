@@ -94,7 +94,7 @@ for c in range(n_class):
         else:
             training_examples = torch.cat((training_examples, train_x[train_y.numpy() == c][:5]))
 
-writer.add_image("Training images", vutils.make_grid(training_examples, padding=2, normalize=True).cpu())
+writer.add_image("Training images", vutils.make_grid(training_examples, nrow=n_imag, padding=2, normalize=True).cpu())
 writer.close()
 
 # custom weights initialization called on netG and netD
