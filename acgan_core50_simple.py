@@ -127,6 +127,7 @@ eval_onehot = np.zeros((n_imag*first_batch_classes, n_class))
 for c in range(first_batch_classes):
     eval_onehot[np.arange(n_imag*c,n_imag*(c+1)), c*n_class//first_batch_classes] = 1 # Temp
 
+print(eval_onehot)
 eval_noise_[np.arange(n_imag*first_batch_classes), :n_class] = eval_onehot[np.arange(n_imag*first_batch_classes)]
 
 eval_noise_ = (torch.from_numpy(eval_noise_))
@@ -244,7 +245,7 @@ for ep in range(num_epochs):
             )
             with torch.no_grad():
                 fake = gen(eval_noise).detach().cpu()
-            writer.add_image("Generated images", vutils.make_grid(fake, padding=2, normalize=True))
+            writer.add_image("Generated images", vutils.make_grid(fake, nrow=n_imag, padding=2, normalize=True))
 
         tot_it_step +=1
 
