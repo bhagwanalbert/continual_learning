@@ -92,7 +92,7 @@ for c in range(n_class):
         if training_examples == None:
             training_examples = train_x[train_y.numpy() == c][:5]
         else:
-            training_examples = torch.cat(training_examples,train_x[train_y.numpy() == c][:5])
+            training_examples = torch.cat((training_examples, train_x[train_y.numpy() == c][:5]))
 
 writer.add_image("Training images", vutils.make_grid(training_examples, padding=2, normalize=True).cpu())
 writer.close()
