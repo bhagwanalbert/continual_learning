@@ -85,13 +85,16 @@ indexes = np.random.permutation(train_y.size(0))
 train_x = train_x[indexes]
 train_y = train_y[indexes]
 
-# for c in range(n_class):
-#     if c % 5 == 0:
-#         writer.add_image("Training images per class", vutils.make_grid(train_x[train_y.numpy() == c], padding=2, normalize=True).cpu())
-#
-# writer.close()
+training_examples = None
 
-writer.add_image("Training images", vutils.make_grid(train_x[:64], padding=2, normalize=True).cpu())
+for c in range(n_class):
+    if c % 5 == 0:
+        if training_examples == None:
+            training_examples = train_x[train_y.numpy() == c][:5]
+        else:
+            training_examples = torch.cat(training_examples,train_x[train_y.numpy() == c][:5])
+
+writer.add_image("Training images", vutils.make_grid(training_examples, padding=2, normalize=True).cpu())
 writer.close()
 
 # custom weights initialization called on netG and netD
@@ -127,7 +130,7 @@ eval_onehot = np.zeros((n_imag*first_batch_classes, n_class))
 for c in range(first_batch_classes):
     eval_onehot[np.arange(n_imag*c,n_imag*(c+1)), c*n_class//first_batch_classes] = 1 # Temp
 
-print(eval_onehot)
+print(eval_onehot.tolist())
 eval_noise_[np.arange(n_imag*first_batch_classes), :n_class] = eval_onehot[np.arange(n_imag*first_batch_classes)]
 
 eval_noise_ = (torch.from_numpy(eval_noise_))
