@@ -79,6 +79,8 @@ train_x = preprocess_imgs(train_x, norm=False)
 train_x = torch.from_numpy(train_x).type(torch.FloatTensor)
 train_y = torch.from_numpy(train_y).type(torch.LongTensor)
 
+print(train_y)
+
 indexes = np.random.permutation(train_y.size(0))
 
 # Shuffle train dataset
@@ -130,7 +132,7 @@ eval_onehot = np.zeros((n_imag*first_batch_classes, n_class))
 for c in range(first_batch_classes):
     eval_onehot[np.arange(n_imag*c,n_imag*(c+1)), c*n_class//first_batch_classes] = 1 # Temp
 
-print(eval_onehot.tolist())
+print(np.amax(eval_onehot, axis=1))
 eval_noise_[np.arange(n_imag*first_batch_classes), :n_class] = eval_onehot[np.arange(n_imag*first_batch_classes)]
 
 eval_noise_ = (torch.from_numpy(eval_noise_))
