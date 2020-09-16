@@ -21,13 +21,14 @@ from IPython.display import HTML
 from torch.utils.tensorboard import SummaryWriter
 from models.discriminator import conditioned_discriminator
 from models.generator import generator
+from models.generator import generator_v2
 from models.generator import generator_big
 from utils import *
 
 from data_loader import CORE50
 
 # Create tensorboard writer object
-writer = SummaryWriter('logs/core50_bigG')
+writer = SummaryWriter('logs/core50_v2G')
 
 # Root directory for dataset
 dataset = CORE50(root='/home/abhagwan/datasets/core50', scenario="nicv2_391")
@@ -109,7 +110,7 @@ def weights_init(m):
 
 # Discriminator + classifier
 model = conditioned_discriminator(num_classes=n_class)
-gen = generator_big(nz)
+gen = generator_v2(nz)
 
 model.apply(weights_init)
 gen.apply(weights_init)
