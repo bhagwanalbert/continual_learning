@@ -77,8 +77,18 @@ class generator_v2(nn.Module):
             nn.BatchNorm2d(ngf * 2),
             nn.LeakyReLU(0.2, inplace=True),
             # state size. (ngf*2) x 32 x 32
+            Interpolate(size=(48, 48), mode='bilinear'),
+            nn.Conv2d(ngf*2, ngf*2, 7, 1, 3, bias=False),
+            nn.BatchNorm2d(ngf),
+            nn.LeakyReLU(0.2, inplace=True),
+            # state size. (ngf) x 64 x 64
             Interpolate(size=(64, 64), mode='bilinear'),
             nn.Conv2d(ngf*2, ngf, 7, 1, 3, bias=False),
+            nn.BatchNorm2d(ngf),
+            nn.LeakyReLU(0.2, inplace=True),
+            # state size. (ngf) x 64 x 64
+            Interpolate(size=(96, 96), mode='bilinear'),
+            nn.Conv2d(ngf*2, ngf*2, 7, 1, 3, bias=False),
             nn.BatchNorm2d(ngf),
             nn.LeakyReLU(0.2, inplace=True),
             # state size. (ngf) x 64 x 64
