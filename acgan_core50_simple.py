@@ -20,6 +20,7 @@ import matplotlib.animation as animation
 from IPython.display import HTML
 from torch.utils.tensorboard import SummaryWriter
 from models.discriminator import conditioned_discriminator
+from models.discriminator import conditioned_discriminator_v2
 from models.generator import generator
 from models.generator import generator_v2
 from models.generator import generator_big
@@ -28,7 +29,7 @@ from utils import *
 from data_loader import CORE50
 
 # Create tensorboard writer object
-writer = SummaryWriter('logs/core50_v2G')
+writer = SummaryWriter('logs/core50_v2')
 
 # Root directory for dataset
 dataset = CORE50(root='/home/abhagwan/datasets/core50', scenario="nicv2_391")
@@ -109,7 +110,7 @@ def weights_init(m):
         nn.init.constant_(m.bias.data, 0)
 
 # Discriminator + classifier
-model = conditioned_discriminator(num_classes=n_class)
+model = conditioned_discriminator_v2(num_classes=n_class)
 gen = generator_v2(nz)
 
 model.apply(weights_init)
