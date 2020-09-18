@@ -59,27 +59,27 @@ class generator_v2(nn.Module):
             # input is Z, going into a convolution
             Interpolate(size=(4, 4), mode='bilinear'),
             nn.Conv2d(nz, ngf*16, 3, 1, 1, bias=False),
-            nn.InstanceNorm2d(ngf * 16),
+            nn.BatchNorm2d(ngf * 16),
             nn.LeakyReLU(0.2, inplace=True),
             # state size. (ngf*16) x 4 x 4
             Interpolate(size=(8, 8), mode='bilinear'),
             nn.Conv2d(ngf*16, ngf*8, 3, 1, 1, bias=False),
-            nn.InstanceNorm2d(ngf * 8),
+            nn.BatchNorm2d(ngf * 8),
             nn.LeakyReLU(0.2, inplace=True),
             # state size. (ngf*8) x 8 x 8
             Interpolate(size=(16, 16), mode='bilinear'),
             nn.Conv2d(ngf*8, ngf*4, 3, 1, 1, bias=False),
-            nn.InstanceNorm2d(ngf * 4),
+            nn.BatchNorm2d(ngf * 4),
             nn.LeakyReLU(0.2, inplace=True),
             # state size. (ngf*4) x 16 x 16
             Interpolate(size=(32, 32), mode='bilinear'),
             nn.Conv2d(ngf*4, ngf*2, 3, 1, 1, bias=False),
-            nn.InstanceNorm2d(ngf * 2),
+            nn.BatchNorm2d(ngf * 2),
             nn.LeakyReLU(0.2, inplace=True),
             # state size. (ngf*2) x 32 x 32
             Interpolate(size=(64, 64), mode='bilinear'),
             nn.Conv2d(ngf*2, ngf, 3, 1, 1, bias=False),
-            nn.InstanceNorm2d(ngf),
+            nn.BatchNorm2d(ngf),
             nn.LeakyReLU(0.2, inplace=True),
             # state size. (ngf) x 64 x 64
             Interpolate(size=(128, 128), mode='bilinear'),
