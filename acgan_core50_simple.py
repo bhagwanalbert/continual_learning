@@ -86,8 +86,8 @@ train_y = torch.from_numpy(train_y).type(torch.LongTensor)
 indexes = np.random.permutation(train_y.size(0))
 
 # Shuffle train dataset
-# train_x = train_x[indexes]
-# train_y = train_y[indexes]
+train_x = train_x[indexes]
+train_y = train_y[indexes]
 
 training_examples = None
 
