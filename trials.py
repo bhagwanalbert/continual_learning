@@ -1,9 +1,11 @@
 from models import generator
 import numpy as np
 import torch
+from torch import nn
 
 nz = 110
 batch_size = 100
+
 gen = generator.generator_v2(nz)
 
 eval_noise = torch.FloatTensor(batch_size, nz, 1, 1).normal_(0, 1)

@@ -86,8 +86,8 @@ train_y = torch.from_numpy(train_y).type(torch.LongTensor)
 indexes = np.random.permutation(train_y.size(0))
 
 # Shuffle train dataset
-train_x = train_x[indexes]
-train_y = train_y[indexes]
+# train_x = train_x[indexes]
+# train_y = train_y[indexes]
 
 training_examples = None
 
@@ -106,9 +106,6 @@ def weights_init(m):
     if classname.find('Conv') != -1:
         nn.init.normal_(m.weight.data, 0.0, 0.02)
     elif classname.find('BatchNorm') != -1:
-        nn.init.normal_(m.weight.data, 1.0, 0.02)
-        nn.init.constant_(m.bias.data, 0)
-    elif classname.find('InstanceNorm') != -1:
         nn.init.normal_(m.weight.data, 1.0, 0.02)
         nn.init.constant_(m.bias.data, 0)
 
