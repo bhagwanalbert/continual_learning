@@ -111,7 +111,7 @@ def weights_init(m):
 
 # Discriminator + classifier
 model = conditioned_discriminator_v2(num_classes=n_class)
-gen = generator_v2(nz)
+gen = generator_v2(nz, batch_size=batch_size)
 
 model.apply(weights_init)
 gen.apply(weights_init)
