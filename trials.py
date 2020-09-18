@@ -3,8 +3,8 @@ import numpy as np
 import torch
 
 nz = 110
-batch_size = 77
-gen = generator.generator_big(nz)
+batch_size = 100
+gen = generator.generator_v2(nz)
 
 eval_noise = torch.FloatTensor(batch_size, nz, 1, 1).normal_(0, 1)
 eval_noise_ = np.random.normal(0, 1, (batch_size, nz))
