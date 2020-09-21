@@ -6,7 +6,7 @@ from torch import nn
 nz = 110
 batch_size = 100
 
-gen = generator.generator(nz)
+gen = generator.generator_v2(nz)
 
 eval_noise = torch.FloatTensor(batch_size, nz, 1, 1).normal_(0, 1)
 eval_noise_ = np.random.normal(0, 1, (batch_size, nz))
