@@ -52,7 +52,7 @@ class generator(nn.Module):
 class generator_v2(nn.Module):
 
     #generator model
-    def __init__(self,nz,batch_size=100,ngf=64,nc=3):
+    def __init__(self,nz,ngf=64,nc=3):
         super(generator_v2,self).__init__()
 
         self.main = nn.Sequential(
