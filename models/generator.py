@@ -93,14 +93,19 @@ class generator_v2(nn.Module):
 
         self.main = nn.Sequential(
             nn.ConvTranspose2d( 256, 128, 4, 2, 1, bias=False),
+            nn.BatchNorm2d(128),
             nn.LeakyReLU(0.2, inplace=True),
             nn.ConvTranspose2d( 128, 128, 4, 2, 1, bias=False),
+            nn.BatchNorm2d(128),
             nn.LeakyReLU(0.2, inplace=True),
             nn.ConvTranspose2d( 128, 128, 4, 2, 1, bias=False),
+            nn.BatchNorm2d(128),
             nn.LeakyReLU(0.2, inplace=True),
             nn.ConvTranspose2d( 128, 128, 4, 2, 1, bias=False),
+            nn.BatchNorm2d(128),
             nn.LeakyReLU(0.2, inplace=True),
             nn.ConvTranspose2d( 128, 128, 4, 2, 1, bias=False),
+            nn.BatchNorm2d(128),
             nn.LeakyReLU(0.2, inplace=True),
             nn.Conv2d(128, nc, 3, 1, 1, bias=False),
             nn.Tanh()
