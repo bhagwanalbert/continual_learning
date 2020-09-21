@@ -49,7 +49,7 @@ class generator(nn.Module):
         )
 
     def forward(self,input):
-    	return self.main(self.input(input.view(-1,110)).view(100,-1,4,4))
+    	return self.main(self.input(input.view(-1,110)).view(input.size(0),-1,4,4))
 
 class generator_v2(nn.Module):
 
