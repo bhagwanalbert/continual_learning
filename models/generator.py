@@ -18,9 +18,11 @@ class generator(nn.Module):
     def __init__(self,nz,ngf=64,nc=3):
         super(generator,self).__init__()
 
+        self.input = nn.Linear(nz, ngf*16*4*4)
+
         self.main = nn.Sequential(
             # input is Z, going into a convolution
-            nn.ConvTranspose2d( nz, ngf * 16, 4, 1, 0, bias=False),
+            # nn.ConvTranspose2d( nz, ngf * 16, 4, 1, 0, bias=False),
             nn.BatchNorm2d(ngf * 16),
             nn.LeakyReLU(0.2, inplace=True),
             # state size. (ngf*16) x 4 x 4
@@ -47,7 +49,7 @@ class generator(nn.Module):
         )
 
     def forward(self,input):
-    	return self.main(input)
+    	return self.main(self.input(input).view(-1, 4, 4))
 
 class generator_v2(nn.Module):
 
