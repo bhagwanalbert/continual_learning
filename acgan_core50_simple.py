@@ -173,7 +173,7 @@ for ep in range(num_epochs):
         real_label.fill_(0.9)
 
         fake_label = maybe_cuda(torch.FloatTensor(y_mb.size(0)), use_cuda=use_cuda)
-        fake_label.fill_(0.1)
+        fake_label.fill_(0.0)
 
         _, pred_label = torch.max(classes, 1)
         correct_cnt += (pred_label == y_mb).sum()
