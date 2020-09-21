@@ -186,7 +186,7 @@ def get_accuracy(model, criterion, batch_size, test_x, test_y, use_cuda=True,
     return ave_loss, acc, accs, source_acc
 
 
-def preprocess_imgs(img_batch, scale=True, norm=True, channel_first=True):
+def preprocess_imgs(img_batch, scale=True, norm=True, channel_first=True, symmetric=False):
     """
     Here we get a batch of PIL imgs and we return them normalized as for
     the pytorch pre-trained models.
@@ -205,6 +205,8 @@ def preprocess_imgs(img_batch, scale=True, norm=True, channel_first=True):
     if scale:
         # convert to float in [0, 1]
         img_batch = img_batch / 255
+        if symmetric:
+            img_batch = (img_batch * 2) - 1
 
     if norm:
         # normalize
@@ -473,7 +475,7 @@ def weights_init(m):
 	elif classname.find('BatchNorm') != -1:
 		m.weight.data.normal_(1.0, 0.02)
 		m.bias.data.fill_(0)
-        
+
 if __name__ == "__main__":
 
     from models.mobilenet import MyMobilenetV1
