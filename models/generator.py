@@ -21,23 +21,23 @@ class generator(nn.Module):
         self.main = nn.Sequential(
             # input is Z, going into a convolution
             nn.ConvTranspose2d( nz, ngf * 16, 4, 1, 0, bias=False),
-            nn.InstanceNorm2d(ngf * 16, affine = True, track_running_status=True),
+            nn.InstanceNorm2d(ngf * 16, affine = True, track_running_stats=True),
             nn.LeakyReLU(0.2, inplace=True),
             # state size. (ngf*16) x 4 x 4
             nn.ConvTranspose2d(ngf * 16, ngf * 8, 4, 2, 1, bias=False),
-            nn.InstanceNorm2d(ngf * 8, affine = True, track_running_status=True),
+            nn.InstanceNorm2d(ngf * 8, affine = True, track_running_stats=True),
             nn.LeakyReLU(0.2, inplace=True),
             # state size. (ngf*8) x 8 x 8
             nn.ConvTranspose2d( ngf * 8, ngf * 4, 4, 2, 1, bias=False),
-            nn.InstanceNorm2d(ngf * 4, affine = True, track_running_status=True),
+            nn.InstanceNorm2d(ngf * 4, affine = True, track_running_stats=True),
             nn.LeakyReLU(0.2, inplace=True),
             # state size. (ngf*4) x 16 x 16
             nn.ConvTranspose2d( ngf * 4, ngf * 2, 4, 2, 1, bias=False),
-            nn.InstanceNorm2d(ngf * 2, affine = True, track_running_status=True),
+            nn.InstanceNorm2d(ngf * 2, affine = True, track_running_stats=True),
             nn.LeakyReLU(0.2, inplace=True),
             # state size. (ngf*2) x 32 x 32
             nn.ConvTranspose2d( ngf * 2, ngf, 4, 2, 1, bias=False),
-            nn.InstanceNorm2d(ngf, affine = True, track_running_status=True),
+            nn.InstanceNorm2d(ngf, affine = True, track_running_stats=True),
             nn.LeakyReLU(0.2, inplace=True),
             # state size. (ngf) x 64 x 64
             nn.ConvTranspose2d( ngf, nc, 4, 2, 1, bias=False),
