@@ -224,8 +224,6 @@ for ep in range(num_epochs):
         ## Train the generator
 
         for r in range(5):
-            gen = maybe_cuda(gen, use_cuda=use_cuda)
-            
             optimG.zero_grad()
 
             classes, source = model(noise_image)
@@ -235,7 +233,11 @@ for ep in range(num_epochs):
 
             loss_gen = source_loss + class_loss
 
-            loss_gen.backward()
+            if r == 4:
+                loss_gen.backward()
+            else:
+                loss_gen.backward(retain_graph=True)
+
             optimG.step()
 
             ave_loss_gen += loss_gen.item()
