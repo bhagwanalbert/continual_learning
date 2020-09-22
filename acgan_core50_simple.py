@@ -222,26 +222,43 @@ for ep in range(num_epochs):
         source_acc_fake = correct_src_fake.item() / data_encountered
 
         ## Train the generator
+        optimG.zero_grad()
 
-        for r in range(5):
-            optimG.zero_grad()
+        classes, source = model(noise_image)
 
-            classes, source = model(noise_image)
+        source_loss = criterion_source(source, real_label) #The generator tries to pass its images as real---so we pass the images as real to the cost function
+        class_loss = criterion(classes, label)
 
-            source_loss = criterion_source(source, real_label) #The generator tries to pass its images as real---so we pass the images as real to the cost function
-            class_loss = criterion(classes, label)
+        loss_gen = source_loss + class_loss
 
-            loss_gen = source_loss + class_loss
+        loss_gen.backward()
+        optimG.step()
 
-            if r == 4:
-                loss_gen.backward()
-            else:
-                loss_gen.backward(retain_graph=True)
+        ave_loss_gen += loss_gen.item()
+        ave_loss_gen /= data_encountered
 
-            optimG.step()
+        # Train again
+        label = np.random.randint(0, n_class, y_mb.size(0))
+        label = ((torch.from_numpy(label)).long())
+        label = maybe_cuda(label, use_cuda=use_cuda)
 
-            ave_loss_gen += loss_gen.item()
-            ave_loss_gen /= data_encountered
+        real_label = maybe_cuda(torch.FloatTensor(y_mb.size(0)), use_cuda=use_cuda)
+        real_label.fill_(0.9)
+
+        optimG.zero_grad()
+
+        classes, source = model(noise_image)
+
+        source_loss = criterion_source(source, real_label) #The generator tries to pass its images as real---so we pass the images as real to the cost function
+        class_loss = criterion(classes, label)
+
+        loss_gen = source_loss + class_loss
+
+        loss_gen.backward()
+        optimG.step()
+
+        ave_loss_gen += loss_gen.item()
+        ave_loss_gen /= data_encountered
 
         # Output training stats
         if i % 5 == 0:
