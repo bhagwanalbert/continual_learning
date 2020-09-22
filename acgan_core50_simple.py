@@ -238,7 +238,7 @@ for ep in range(num_epochs):
         ave_loss_gen /= data_encountered
 
         # Train again
-        for i in range(4):
+        for r in range(4):
             noise = torch.FloatTensor(y_mb.size(0), nz, 1, 1).normal_(0, 1)
             noise_ = np.random.normal(0, 1, (y_mb.size(0), nz))
             label = np.random.randint(0, n_class, y_mb.size(0))
