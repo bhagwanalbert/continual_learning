@@ -26,25 +26,35 @@ class generator(nn.Module):
             nn.LeakyReLU(0.2, inplace=True),
             # state size. (ngf*16) x 4 x 4
             Interpolate(size=(8, 8), mode='bilinear'),
-            nn.Conv2d(ngf*16, ngf*8, 3, 1, 1, bias=False),
-            nn.BatchNorm2d(ngf * 8),
+            nn.Conv2d(ngf*16, ngf*12, 3, 1, 1, bias=False),
+            nn.BatchNorm2d(ngf * 12),
             nn.LeakyReLU(0.2, inplace=True),
             # state size. (ngf*8) x 8 x 8
             Interpolate(size=(16, 16), mode='bilinear'),
-            nn.Conv2d(ngf*8, ngf*4, 3, 1, 1, bias=False),
-            nn.BatchNorm2d(ngf * 4),
+            nn.Conv2d(ngf*12, ngf*8, 3, 1, 1, bias=False),
+            nn.BatchNorm2d(ngf * 8),
             nn.LeakyReLU(0.2, inplace=True),
             # state size. (ngf*4) x 16 x 16
             Interpolate(size=(32, 32), mode='bilinear'),
+            nn.Conv2d(ngf*8, ngf*4, 3, 1, 1, bias=False),
+            nn.BatchNorm2d(ngf * 4),
+            nn.LeakyReLU(0.2, inplace=True),
+            # state size. (ngf*2) x 32 x 32
+            Interpolate(size=(48, 48), mode='bilinear'),
             nn.Conv2d(ngf*4, ngf*2, 3, 1, 1, bias=False),
             nn.BatchNorm2d(ngf * 2),
             nn.LeakyReLU(0.2, inplace=True),
-            # state size. (ngf*2) x 32 x 32
+            #
             Interpolate(size=(64, 64), mode='bilinear'),
             nn.Conv2d(ngf*2, ngf, 3, 1, 1, bias=False),
             nn.BatchNorm2d(ngf),
             nn.LeakyReLU(0.2, inplace=True),
             # state size. (ngf) x 64 x 64
+            Interpolate(size=(96, 96), mode='bilinear'),
+            nn.Conv2d(ngf, ngf, 3, 1, 1, bias=False),
+            nn.BatchNorm2d(ngf),
+            nn.LeakyReLU(0.2, inplace=True),
+            #
             Interpolate(size=(128, 128), mode='bilinear'),
             nn.Conv2d(ngf, nc, 3, 1, 1, bias=False),
             nn.Tanh()
