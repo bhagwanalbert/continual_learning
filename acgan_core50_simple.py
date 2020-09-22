@@ -222,20 +222,22 @@ for ep in range(num_epochs):
         source_acc_fake = correct_src_fake.item() / data_encountered
 
         ## Train the generator
-        optimG.zero_grad()
 
-        classes, source = model(noise_image)
+        for r in range(5):
+            optimG.zero_grad()
 
-        source_loss = criterion_source(source, real_label) #The generator tries to pass its images as real---so we pass the images as real to the cost function
-        class_loss = criterion(classes, label)
+            classes, source = model(noise_image)
 
-        loss_gen = source_loss + class_loss
+            source_loss = criterion_source(source, real_label) #The generator tries to pass its images as real---so we pass the images as real to the cost function
+            class_loss = criterion(classes, label)
 
-        loss_gen.backward()
-        optimG.step()
+            loss_gen = source_loss + class_loss
 
-        ave_loss_gen += loss_gen.item()
-        ave_loss_gen /= data_encountered
+            loss_gen.backward()
+            optimG.step()
+
+            ave_loss_gen += loss_gen.item()
+            ave_loss_gen /= data_encountered
 
         # Output training stats
         if i % 5 == 0:
