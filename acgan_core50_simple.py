@@ -54,7 +54,7 @@ num_epochs = 100
 n_class = 10
 
 # Generator input size
-nz = 100 + n_class
+nz = 150 + n_class
 
 # Learning rate for optimizers
 lr = 0.0002
