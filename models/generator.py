@@ -9,7 +9,7 @@ class Interpolate(nn.Module):
         self.mode = mode
 
     def forward(self, x):
-        x = self.interp(x, size=self.size, mode=self.mode)
+        x = self.interp(x, size=self.size, mode=self.mode, align_corners=True)
         return x
 
 class generator(nn.Module):
