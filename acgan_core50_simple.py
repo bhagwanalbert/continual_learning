@@ -144,43 +144,6 @@ print("Starting Training Loop...")
 tot_it_step = 0
 it_x_ep = train_x.size(0) // batch_size
 
-for ep in range(5):
-    print("training ep: ", ep)
-    for i in range(it_x_ep):
-
-        start = i * batch_size
-        end = (i + 1) * batch_size
-
-        x_mb = maybe_cuda(train_x[start:end], use_cuda=use_cuda)
-        y_mb = maybe_cuda(train_y[start:end], use_cuda=use_cuda)
-
-        model.train()
-
-        model = maybe_cuda(model, use_cuda=use_cuda)
-        acc = None
-        ave_loss = 0
-
-        correct_cnt, ave_loss, correct_src, correct_src_fake, ave_loss_gen = 0, 0, 0, 0, 0
-        data_encountered = 0
-
-        optimizer.zero_grad()
-
-        classes, source = model(x_mb)
-
-        _, pred_label = torch.max(classes, 1)
-        correct_cnt += (pred_label == y_mb).sum()
-
-        loss = criterion(classes, y_mb)
-
-        loss.backward()
-        optimizer.step()
-
-        ave_loss += loss.item()
-        data_encountered += y_mb.size(0)
-
-        acc = correct_cnt.item() / data_encountered
-        ave_loss /= data_encountered
-
 for ep in range(num_epochs):
     print("training ep: ", ep)
     for i in range(it_x_ep):
