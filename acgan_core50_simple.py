@@ -224,6 +224,8 @@ for ep in range(num_epochs):
         ## Train the generator
 
         for r in range(5):
+            gen = maybe_cuda(gen, use_cuda=use_cuda)
+            
             optimG.zero_grad()
 
             classes, source = model(noise_image)
