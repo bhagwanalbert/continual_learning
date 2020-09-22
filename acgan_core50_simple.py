@@ -48,7 +48,7 @@ image_size = 128
 nc = 3
 
 # Number of training epochs
-num_epochs = 100
+num_epochs = 300
 
 # Number of classes of dataset
 n_class = 10
