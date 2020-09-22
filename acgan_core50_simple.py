@@ -238,38 +238,39 @@ for ep in range(num_epochs):
         ave_loss_gen /= data_encountered
 
         # Train again
-        noise = torch.FloatTensor(y_mb.size(0), nz, 1, 1).normal_(0, 1)
-        noise_ = np.random.normal(0, 1, (y_mb.size(0), nz))
-        label = np.random.randint(0, n_class, y_mb.size(0))
-        onehot = np.zeros((y_mb.size(0), n_class))
-        onehot[np.arange(y_mb.size(0)), label] = 1
-        noise_[np.arange(y_mb.size(0)), :n_class] = onehot[np.arange(y_mb.size(0))]
-        noise_ = (torch.from_numpy(noise_))
-        noise.data.copy_(noise_.view(y_mb.size(0), nz, 1, 1))
-        noise = maybe_cuda(noise, use_cuda=use_cuda)
+        for i in range(4):
+            noise = torch.FloatTensor(y_mb.size(0), nz, 1, 1).normal_(0, 1)
+            noise_ = np.random.normal(0, 1, (y_mb.size(0), nz))
+            label = np.random.randint(0, n_class, y_mb.size(0))
+            onehot = np.zeros((y_mb.size(0), n_class))
+            onehot[np.arange(y_mb.size(0)), label] = 1
+            noise_[np.arange(y_mb.size(0)), :n_class] = onehot[np.arange(y_mb.size(0))]
+            noise_ = (torch.from_numpy(noise_))
+            noise.data.copy_(noise_.view(y_mb.size(0), nz, 1, 1))
+            noise = maybe_cuda(noise, use_cuda=use_cuda)
 
-        label = ((torch.from_numpy(label)).long())
-        label = maybe_cuda(label, use_cuda=use_cuda)
+            label = ((torch.from_numpy(label)).long())
+            label = maybe_cuda(label, use_cuda=use_cuda)
 
-        noise_image = gen(noise)
+            noise_image = gen(noise)
 
-        real_label = maybe_cuda(torch.FloatTensor(y_mb.size(0)), use_cuda=use_cuda)
-        real_label.fill_(0.9)
+            real_label = maybe_cuda(torch.FloatTensor(y_mb.size(0)), use_cuda=use_cuda)
+            real_label.fill_(0.9)
 
-        optimG.zero_grad()
+            optimG.zero_grad()
 
-        classes, source = model(noise_image)
+            classes, source = model(noise_image)
 
-        source_loss = criterion_source(source, real_label) #The generator tries to pass its images as real---so we pass the images as real to the cost function
-        class_loss = criterion(classes, label)
+            source_loss = criterion_source(source, real_label) #The generator tries to pass its images as real---so we pass the images as real to the cost function
+            class_loss = criterion(classes, label)
 
-        loss_gen = source_loss + class_loss
+            loss_gen = source_loss + class_loss
 
-        loss_gen.backward()
-        optimG.step()
+            loss_gen.backward()
+            optimG.step()
 
-        ave_loss_gen += loss_gen.item()
-        ave_loss_gen /= data_encountered
+            ave_loss_gen += loss_gen.item()
+            ave_loss_gen /= data_encountered
 
         # Output training stats
         if i % 5 == 0:
