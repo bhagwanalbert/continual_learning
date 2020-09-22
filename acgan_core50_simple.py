@@ -38,7 +38,7 @@ dataset = CORE50(root='/home/abhagwan/datasets/core50', scenario="nicv2_391")
 workers = 2
 
 # Batch size during training
-batch_size = 300
+batch_size = 3000
 
 # Spatial size of training images. All images will be resized to this
 #   size using a transformer.
@@ -48,7 +48,7 @@ image_size = 128
 nc = 3
 
 # Number of training epochs
-num_epochs = 300
+num_epochs = 3000
 
 # Number of classes of dataset
 n_class = 10
