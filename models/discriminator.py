@@ -25,12 +25,20 @@ class discriminator(nn.Module):
             nn.LeakyReLU(0.2, inplace=True),
             # state size. (ndf*16) x 4 x 4
             #nn.Conv2d(ndf * 16, 1, 4, 1, 0, bias=False),
-            nn.Linear(ndf*16*4*4, 1),
-            nn.Sigmoid()
         )
 
+        self.fc_dis = nn.Linear(ndf*16*4*4, 1)
+        self.sig = nn.Sigmoid()
+
+        self.ndf = ndf
+
+
     def forward(self, input):
-        source = self.main(input)
+        features = self.main(input)
+        flat_features = features.contiguous().view(-1,self.ndf*16*4*4)
+
+        source = self.sig(self.fc_dis(flat_features))
+
         source = source.view(source.shape[0])
 
         return source
