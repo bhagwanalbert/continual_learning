@@ -232,7 +232,7 @@ for ep in range(num_epochs):
 
     with torch.no_grad():
         fake = gen(eval_noise).detach().cpu()
-    writer.add_image("Generated images", vutils.make_grid(fake, nrow=n_imag, padding=2, normalize=True))
+    writer.add_image("Generated images", vutils.make_grid(fake, nrow=5, padding=2, normalize=True))
 
     """
 
