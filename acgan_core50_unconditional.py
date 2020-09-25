@@ -19,11 +19,8 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from IPython.display import HTML
 from torch.utils.tensorboard import SummaryWriter
-from models.discriminator import conditioned_discriminator
-from models.discriminator import conditioned_discriminator_v2
+from models.discriminator import discriminator
 from models.generator import generator
-from models.generator import generator_v2
-from models.generator import generator_big
 from utils import *
 
 from data_loader import CORE50
