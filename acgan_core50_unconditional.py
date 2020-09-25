@@ -176,6 +176,9 @@ for ep in range(num_epochs):
 
         source = model(noise_image.detach())
 
+        pred_source = torch.round(source)
+        correct_src_fake += (pred_source == 0).sum()
+
         loss_fake = criterion_source(source, fake_label)
 
         loss_fake.backward()
