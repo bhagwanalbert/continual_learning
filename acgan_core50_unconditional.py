@@ -88,15 +88,6 @@ train_y = train_y[indexes]
 
 training_examples = None
 
-for c in range(n_class):
-    if training_examples == None:
-        training_examples = train_x[train_y.numpy() == c][:5]
-    else:
-        training_examples = torch.cat((training_examples, train_x[train_y.numpy() == c][:5]))
-
-writer.add_image("Training images", vutils.make_grid(training_examples, nrow=n_imag, padding=2, normalize=True).cpu())
-writer.close()
-
 # custom weights initialization called on netG and netD
 def weights_init(m):
     classname = m.__class__.__name__
@@ -117,20 +108,11 @@ gen.apply(weights_init)
 optimizer = torch.optim.Adam(model.parameters(), lr=lr, betas=(beta1, 0.999))
 optimG = torch.optim.Adam(gen.parameters(), lr=lr, betas=(beta1, 0.999))
 
-criterion = torch.nn.NLLLoss()
 criterion_source = torch.nn.BCELoss()
 
 # Fix noise to view generated images
 eval_noise = torch.FloatTensor(n_imag*n_class, nz, 1, 1).normal_(0, 1)
 eval_noise_ = np.random.normal(0, 1, (n_imag*n_class, nz))
-eval_onehot = np.zeros((n_imag*n_class, n_class))
-
-for c in range(n_class):
-    eval_onehot[np.arange(n_imag*c,n_imag*(c+1)), c] = 1
-
-print(np.argmax(eval_onehot, axis=1))
-eval_noise_[np.arange(n_imag*n_class), :n_class] = eval_onehot[np.arange(n_imag*n_class)]
-
 eval_noise_ = (torch.from_numpy(eval_noise_))
 eval_noise.data.copy_(eval_noise_.view(n_imag*n_class, nz, 1, 1))
 eval_noise = maybe_cuda(eval_noise, use_cuda=use_cuda)
@@ -163,7 +145,7 @@ for ep in range(num_epochs):
 
         optimizer.zero_grad()
 
-        classes, source = model(x_mb)
+        source = model(x_mb)
 
         # Labels indicating source of the image
         real_label = maybe_cuda(torch.FloatTensor(y_mb.size(0)), use_cuda=use_cuda)
@@ -172,13 +154,10 @@ for ep in range(num_epochs):
         fake_label = maybe_cuda(torch.FloatTensor(y_mb.size(0)), use_cuda=use_cuda)
         fake_label.fill_(0.1)
 
-        _, pred_label = torch.max(classes, 1)
-        correct_cnt += (pred_label == y_mb).sum()
-
         pred_source = torch.round(source)
         correct_src += (pred_source == 1).sum()
 
-        loss = criterion(classes, y_mb) + criterion_source(source, real_label)
+        loss = criterion_source(source, real_label)
 
         loss.backward()
         optimizer.step()
@@ -186,32 +165,21 @@ for ep in range(num_epochs):
         ave_loss += loss.item()
         data_encountered += y_mb.size(0)
 
-        acc = correct_cnt.item() / data_encountered
         ave_loss /= data_encountered
         source_acc = correct_src.item() / data_encountered
 
         ## Training with fake data now
         noise = torch.FloatTensor(y_mb.size(0), nz, 1, 1).normal_(0, 1)
         noise_ = np.random.normal(0, 1, (y_mb.size(0), nz))
-        label = np.random.randint(0, n_class, y_mb.size(0))
-        onehot = np.zeros((y_mb.size(0), n_class))
-        onehot[np.arange(y_mb.size(0)), label] = 1
-        noise_[np.arange(y_mb.size(0)), :n_class] = onehot[np.arange(y_mb.size(0))]
         noise_ = (torch.from_numpy(noise_))
         noise.data.copy_(noise_.view(y_mb.size(0), nz, 1, 1))
         noise = maybe_cuda(noise, use_cuda=use_cuda)
 
-        label = ((torch.from_numpy(label)).long())
-        label = maybe_cuda(label, use_cuda=use_cuda)
-
         noise_image = gen(noise)
 
-        classes, source = model(noise_image.detach())
+        source = model(noise_image.detach())
 
-        pred_source = torch.round(source)
-        correct_src_fake += (pred_source == 0).sum()
-
-        loss_fake = criterion_source(source, fake_label) + criterion(classes, label)
+        loss_fake = criterion_source(source, fake_label)
 
         loss_fake.backward()
         optimizer.step()
@@ -221,12 +189,11 @@ for ep in range(num_epochs):
         ## Train the generator
         optimG.zero_grad()
 
-        classes, source = model(noise_image)
+        source = model(noise_image)
 
         source_loss = criterion_source(source, real_label) #The generator tries to pass its images as real---so we pass the images as real to the cost function
-        class_loss = criterion(classes, label)
 
-        loss_gen = source_loss + class_loss
+        loss_gen = source_loss
 
         loss_gen.backward()
         optimG.step()
@@ -238,17 +205,15 @@ for ep in range(num_epochs):
         if i % 5 == 0:
             print(
                 '==>>> it: {}, avg. loss: {:.6f}, '
-                'running train acc: {:.3f}, '
                 'running source acc: {:.3f}, '
                 'running source acc fake: {:.3f}, '
                 'running avg. loss gen: {:.3f}'
-                    .format(i, ave_loss, acc, source_acc, source_acc_fake, ave_loss_gen)
+                    .format(i, ave_loss, source_acc, source_acc_fake, ave_loss_gen)
             )
 
         tot_it_step +=1
 
         writer.add_scalar('train_loss', ave_loss, tot_it_step)
-        writer.add_scalar('train_accuracy', acc, tot_it_step)
         writer.add_scalar('source_accuracy', source_acc, tot_it_step)
         writer.add_scalar('source_fake_accuracy', source_acc_fake, tot_it_step)
         writer.add_scalar('gen_loss', ave_loss_gen, tot_it_step)
