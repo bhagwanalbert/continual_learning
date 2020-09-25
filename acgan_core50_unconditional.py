@@ -57,7 +57,7 @@ lr = 0.0002
 beta1 = 0.5
 
 # Images to view per class to test generator
-n_imag = 5
+n_imag = 50
 
 # Set cuda device (based on your hardware)
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
@@ -108,10 +108,10 @@ optimG = torch.optim.Adam(gen.parameters(), lr=lr, betas=(beta1, 0.999))
 criterion_source = torch.nn.BCELoss()
 
 # Fix noise to view generated images
-eval_noise = torch.FloatTensor(n_imag*n_class, nz, 1, 1).normal_(0, 1)
-eval_noise_ = np.random.normal(0, 1, (n_imag*n_class, nz))
+eval_noise = torch.FloatTensor(n_imag, nz, 1, 1).normal_(0, 1)
+eval_noise_ = np.random.normal(0, 1, (n_imag, nz))
 eval_noise_ = (torch.from_numpy(eval_noise_))
-eval_noise.data.copy_(eval_noise_.view(n_imag*n_class, nz, 1, 1))
+eval_noise.data.copy_(eval_noise_.view(n_imag, nz, 1, 1))
 eval_noise = maybe_cuda(eval_noise, use_cuda=use_cuda)
 
 # Training Loop
