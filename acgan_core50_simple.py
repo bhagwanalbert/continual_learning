@@ -34,8 +34,6 @@ def get_truncated_normal(mean=0, sd=1, low=0, upp=10):
     return truncnorm(
         (low - mean) / sd, (upp - mean) / sd, loc=mean, scale=sd)
 
-trunc_normal = get_truncated_normal(mean=0, sd=1, low=-2, upp=2)
-
 # Create tensorboard writer object
 writer = SummaryWriter('logs/core50_v2')
 
@@ -133,8 +131,7 @@ criterion_source = torch.nn.BCELoss()
 
 # Fix noise to view generated images
 eval_noise = torch.FloatTensor(n_imag*n_class, nz, 1, 1).normal_(0, 1)
-eval_noise_ = trunc_normal.rvs(n_imag*n_class*nz, 0)
-eval_noise_ = eval_noise_.reshape(n_imag*n_class,nz)
+eval_noise_ = np.random.normal(0, 1, (n_imag*n_class, nz))
 eval_onehot = np.zeros((n_imag*n_class, n_class))
 
 for c in range(n_class):
@@ -324,3 +321,111 @@ for ep in range(num_epochs):
     print("---------------------------------")
 
     """
+
+# Fix noise to view generated images
+eval_noise = torch.FloatTensor(n_imag*n_class, nz, 1, 1).normal_(0, 1)
+eval_noise_ = np.random.normal(0, 1, (n_imag*n_class, nz))
+eval_onehot = np.zeros((n_imag*n_class, n_class))
+
+for c in range(n_class):
+    eval_onehot[np.arange(n_imag*c,n_imag*(c+1)), c] = 1
+
+print(np.argmax(eval_onehot, axis=1))
+eval_noise_[np.arange(n_imag*n_class), :n_class] = eval_onehot[np.arange(n_imag*n_class)]
+
+eval_noise_ = (torch.from_numpy(eval_noise_))
+eval_noise.data.copy_(eval_noise_.view(n_imag*n_class, nz, 1, 1))
+eval_noise = maybe_cuda(eval_noise, use_cuda=use_cuda)
+
+with torch.no_grad():
+    fake = gen(eval_noise).detach().cpu()
+writer.add_image("Generated images", vutils.make_grid(fake, nrow=n_imag, padding=2, normalize=True))
+
+# Truncation function objects
+trunc_normal1 = get_truncated_normal(mean=0, sd=1, low=-2, upp=2)
+trunc_normal2 = get_truncated_normal(mean=0, sd=1, low=-1.5, upp=1.5)
+trunc_normal3 = get_truncated_normal(mean=0, sd=1, low=-1, upp=1)
+trunc_normal4 = get_truncated_normal(mean=0, sd=1, low=-0.5, upp=0.5)
+
+# Truncation test 1
+eval_noise = torch.FloatTensor(n_imag*n_class, nz, 1, 1).normal_(0, 1)
+eval_noise_ = trunc_normal1.rvs(n_imag*n_class*nz, 0)
+eval_noise_ = eval_noise_.reshape(n_imag*n_class,nz)
+eval_onehot = np.zeros((n_imag*n_class, n_class))
+
+for c in range(n_class):
+    eval_onehot[np.arange(n_imag*c,n_imag*(c+1)), c] = 1
+
+print(np.argmax(eval_onehot, axis=1))
+eval_noise_[np.arange(n_imag*n_class), :n_class] = eval_onehot[np.arange(n_imag*n_class)]
+
+eval_noise_ = (torch.from_numpy(eval_noise_))
+eval_noise.data.copy_(eval_noise_.view(n_imag*n_class, nz, 1, 1))
+eval_noise = maybe_cuda(eval_noise, use_cuda=use_cuda)
+
+with torch.no_grad():
+    fake = gen(eval_noise).detach().cpu()
+writer.add_image("Generated images", vutils.make_grid(fake, nrow=n_imag, padding=2, normalize=True))
+
+
+# Truncation test 2
+eval_noise = torch.FloatTensor(n_imag*n_class, nz, 1, 1).normal_(0, 1)
+eval_noise_ = trunc_normal2.rvs(n_imag*n_class*nz, 0)
+eval_noise_ = eval_noise_.reshape(n_imag*n_class,nz)
+eval_onehot = np.zeros((n_imag*n_class, n_class))
+
+for c in range(n_class):
+    eval_onehot[np.arange(n_imag*c,n_imag*(c+1)), c] = 1
+
+print(np.argmax(eval_onehot, axis=1))
+eval_noise_[np.arange(n_imag*n_class), :n_class] = eval_onehot[np.arange(n_imag*n_class)]
+
+eval_noise_ = (torch.from_numpy(eval_noise_))
+eval_noise.data.copy_(eval_noise_.view(n_imag*n_class, nz, 1, 1))
+eval_noise = maybe_cuda(eval_noise, use_cuda=use_cuda)
+
+with torch.no_grad():
+    fake = gen(eval_noise).detach().cpu()
+writer.add_image("Generated images", vutils.make_grid(fake, nrow=n_imag, padding=2, normalize=True))
+
+
+# Truncation test 3
+eval_noise = torch.FloatTensor(n_imag*n_class, nz, 1, 1).normal_(0, 1)
+eval_noise_ = trunc_normal3.rvs(n_imag*n_class*nz, 0)
+eval_noise_ = eval_noise_.reshape(n_imag*n_class,nz)
+eval_onehot = np.zeros((n_imag*n_class, n_class))
+
+for c in range(n_class):
+    eval_onehot[np.arange(n_imag*c,n_imag*(c+1)), c] = 1
+
+print(np.argmax(eval_onehot, axis=1))
+eval_noise_[np.arange(n_imag*n_class), :n_class] = eval_onehot[np.arange(n_imag*n_class)]
+
+eval_noise_ = (torch.from_numpy(eval_noise_))
+eval_noise.data.copy_(eval_noise_.view(n_imag*n_class, nz, 1, 1))
+eval_noise = maybe_cuda(eval_noise, use_cuda=use_cuda)
+
+with torch.no_grad():
+    fake = gen(eval_noise).detach().cpu()
+writer.add_image("Generated images", vutils.make_grid(fake, nrow=n_imag, padding=2, normalize=True))
+
+
+# Truncation test 4
+eval_noise = torch.FloatTensor(n_imag*n_class, nz, 1, 1).normal_(0, 1)
+eval_noise_ = trunc_normal4.rvs(n_imag*n_class*nz, 0)
+eval_noise_ = eval_noise_.reshape(n_imag*n_class,nz)
+eval_onehot = np.zeros((n_imag*n_class, n_class))
+
+for c in range(n_class):
+    eval_onehot[np.arange(n_imag*c,n_imag*(c+1)), c] = 1
+
+print(np.argmax(eval_onehot, axis=1))
+eval_noise_[np.arange(n_imag*n_class), :n_class] = eval_onehot[np.arange(n_imag*n_class)]
+
+eval_noise_ = (torch.from_numpy(eval_noise_))
+eval_noise.data.copy_(eval_noise_.view(n_imag*n_class, nz, 1, 1))
+eval_noise = maybe_cuda(eval_noise, use_cuda=use_cuda)
+
+with torch.no_grad():
+    fake = gen(eval_noise).detach().cpu()
+writer.add_image("Generated images", vutils.make_grid(fake, nrow=n_imag, padding=2, normalize=True))
