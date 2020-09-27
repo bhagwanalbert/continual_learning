@@ -84,15 +84,12 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 # Use cuda or not
 use_cuda = True
 
-train_x = None
-train_y = None
-
 for i, train_batch in enumerate(dataset):
-    if train_x == None:
+    if i == 0:
         train_x, train_y = train_batch
     else:
         train_x_, train_y_ = train_batch
-        
+
         train_x = torch.cat((train_x, train_x_))
         train_y = torch.cat((train_y, train_y_))
 
