@@ -41,7 +41,7 @@ trunc_normal3 = get_truncated_normal(mean=0, sd=1, low=-1, upp=1)
 trunc_normal4 = get_truncated_normal(mean=0, sd=1, low=-0.5, upp=0.5)
 
 # Create tensorboard writer object
-writer = SummaryWriter('logs/core50_v2')
+writer = SummaryWriter('logs/core50_full')
 
 # Root directory for dataset
 dataset = CORE50(root='/home/abhagwan/datasets/core50', scenario="nicv2_391")
@@ -63,7 +63,7 @@ nc = 3
 num_epochs = 100
 
 # Number of classes of dataset
-n_class = 10
+n_class = 50
 
 # Generator input size
 nz = 100 + n_class
@@ -84,13 +84,19 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 # Use cuda or not
 use_cuda = True
 
+train_x = None
+train_y = None
 
-test_x, test_y = dataset.get_test_set()
-test_x = preprocess_imgs(test_x, norm=False, symmetric = False)
+for i, train_batch in enumerate(dataset):
+    if train_x == None:
+        train_x, train_y = train_batch
+    else:
+        train_x_, train_y_ = train_batch
 
-train_x, train_y = next(iter(dataset))
+    train_x = torch.cat((train_x, train_x_))
+    train_y = torch.cat((train_y, train_y_))
+
 train_x = preprocess_imgs(train_x, norm=False, symmetric = False)
-train_y = train_y // 5
 
 train_x = torch.from_numpy(train_x).type(torch.FloatTensor)
 train_y = torch.from_numpy(train_y).type(torch.LongTensor)
@@ -100,6 +106,9 @@ indexes = np.random.permutation(train_y.size(0))
 # Shuffle train dataset
 train_x = train_x[indexes]
 train_y = train_y[indexes]
+
+test_x, test_y = dataset.get_test_set()
+test_x = preprocess_imgs(test_x, norm=False, symmetric = False)
 
 training_examples = None
 
