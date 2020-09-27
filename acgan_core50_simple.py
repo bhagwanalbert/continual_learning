@@ -34,6 +34,12 @@ def get_truncated_normal(mean=0, sd=1, low=0, upp=10):
     return truncnorm(
         (low - mean) / sd, (upp - mean) / sd, loc=mean, scale=sd)
 
+# Truncation function objects
+trunc_normal1 = get_truncated_normal(mean=0, sd=1, low=-2, upp=2)
+trunc_normal2 = get_truncated_normal(mean=0, sd=1, low=-1.5, upp=1.5)
+trunc_normal3 = get_truncated_normal(mean=0, sd=1, low=-1, upp=1)
+trunc_normal4 = get_truncated_normal(mean=0, sd=1, low=-0.5, upp=0.5)
+
 # Create tensorboard writer object
 writer = SummaryWriter('logs/core50_v2')
 
@@ -201,7 +207,9 @@ for ep in range(num_epochs):
 
         ## Training with fake data now
         noise = torch.FloatTensor(y_mb.size(0), nz, 1, 1).normal_(0, 1)
-        noise_ = np.random.normal(0, 1, (y_mb.size(0), nz))
+        #noise_ = np.random.normal(0, 1, (y_mb.size(0), nz))
+        noise_ = trunc_normal1.rvs(y_mb.size(0)*nz, 0)
+        noise_ = noise_.reshape(y_mb.size(0),nz)
         label = np.random.randint(0, n_class, y_mb.size(0))
         onehot = np.zeros((y_mb.size(0), n_class))
         onehot[np.arange(y_mb.size(0)), label] = 1
@@ -277,74 +285,6 @@ for ep in range(num_epochs):
     with torch.no_grad():
         fake = gen(eval_noise).detach().cpu()
     writer.add_image("Generated images", vutils.make_grid(fake, nrow=n_imag, padding=2, normalize=True))
-
-    """
-
-    model.eval()
-    correct_cnt, ave_loss, correct_src = 0, 0, 0
-    data_encountered = 0
-
-    model = maybe_cuda(model, use_cuda=use_cuda)
-
-    for i, data in  enumerate(test_dataloader):
-
-        test_x, test_y = data
-
-        test_x = maybe_cuda(torch.cat((test_x,test_x,test_x), 1), use_cuda=use_cuda)
-        test_y = maybe_cuda(test_y, use_cuda=use_cuda)
-
-        classes, source = model(test_x)
-
-        loss = criterion(classes, test_y)
-        _, pred_label = torch.max(classes.data, 1)
-        correct_cnt += (pred_label == test_y.data).sum()
-        ave_loss += loss.item()
-
-        pred_source = torch.round(source)
-        correct_src += (pred_source == 1).sum()
-
-        data_encountered += test_y.size(0)
-
-    acc = correct_cnt.item() * 1.0 / data_encountered
-    source_acc = correct_src.item() * 1.0 / data_encountered
-    ave_loss /= data_encountered
-
-    # Log scalar values (scalar summary) to TB
-    writer.add_scalar('test_loss', ave_loss, ep)
-    writer.add_scalar('test_accuracy', acc, ep)
-    writer.add_scalar('test_source', source_acc, ep)
-
-    writer.close()
-
-    print("---------------------------------")
-    print("Accuracy: ", acc)
-    print("---------------------------------")
-
-    """
-
-# Fix noise to view generated images
-eval_noise = torch.FloatTensor(n_imag*n_class, nz, 1, 1).normal_(0, 1)
-eval_noise_ = np.random.normal(0, 1, (n_imag*n_class, nz))
-eval_onehot = np.zeros((n_imag*n_class, n_class))
-
-for c in range(n_class):
-    eval_onehot[np.arange(n_imag*c,n_imag*(c+1)), c] = 1
-
-eval_noise_[np.arange(n_imag*n_class), :n_class] = eval_onehot[np.arange(n_imag*n_class)]
-
-eval_noise_ = (torch.from_numpy(eval_noise_))
-eval_noise.data.copy_(eval_noise_.view(n_imag*n_class, nz, 1, 1))
-eval_noise = maybe_cuda(eval_noise, use_cuda=use_cuda)
-
-with torch.no_grad():
-    fake = gen(eval_noise).detach().cpu()
-writer.add_image("Test images", vutils.make_grid(fake, nrow=n_imag, padding=2, normalize=True))
-
-# Truncation function objects
-trunc_normal1 = get_truncated_normal(mean=0, sd=1, low=-2, upp=2)
-trunc_normal2 = get_truncated_normal(mean=0, sd=1, low=-1.5, upp=1.5)
-trunc_normal3 = get_truncated_normal(mean=0, sd=1, low=-1, upp=1)
-trunc_normal4 = get_truncated_normal(mean=0, sd=1, low=-0.5, upp=0.5)
 
 # Truncation test 1
 eval_noise = torch.FloatTensor(n_imag*n_class, nz, 1, 1).normal_(0, 1)
