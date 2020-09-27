@@ -87,16 +87,22 @@ use_cuda = True
 for i, train_batch in enumerate(dataset):
     if i == 0:
         train_x, train_y = train_batch
+
+        train_x = torch.from_numpy(train_x).type(torch.FloatTensor)
+        train_y = torch.from_numpy(train_y).type(torch.LongTensor)
+
     else:
         train_x_, train_y_ = train_batch
+
+        train_x_ = torch.from_numpy(train_x_).type(torch.FloatTensor)
+        train_y_ = torch.from_numpy(train_y_).type(torch.LongTensor)
 
         train_x = torch.cat((train_x, train_x_))
         train_y = torch.cat((train_y, train_y_))
 
 train_x = preprocess_imgs(train_x, norm=False, symmetric = False)
 
-train_x = torch.from_numpy(train_x).type(torch.FloatTensor)
-train_y = torch.from_numpy(train_y).type(torch.LongTensor)
+
 
 indexes = np.random.permutation(train_y.size(0))
 
