@@ -35,7 +35,7 @@ def get_truncated_normal(mean=0, sd=1, low=0, upp=10):
         (low - mean) / sd, (upp - mean) / sd, loc=mean, scale=sd)
 
 # Truncation function objects
-trunc_normal1 = get_truncated_normal(mean=0, sd=1, low=-2, upp=2)
+trunc_normal1 = get_truncated_normal(mean=0, sd=1, low=-10, upp=10)
 trunc_normal2 = get_truncated_normal(mean=0, sd=1, low=-1.5, upp=1.5)
 trunc_normal3 = get_truncated_normal(mean=0, sd=1, low=-1, upp=1)
 trunc_normal4 = get_truncated_normal(mean=0, sd=1, low=-0.5, upp=0.5)
