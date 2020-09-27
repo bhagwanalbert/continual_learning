@@ -92,9 +92,9 @@ for i, train_batch in enumerate(dataset):
         train_x, train_y = train_batch
     else:
         train_x_, train_y_ = train_batch
-
-    train_x = torch.cat((train_x, train_x_))
-    train_y = torch.cat((train_y, train_y_))
+        
+        train_x = torch.cat((train_x, train_x_))
+        train_y = torch.cat((train_y, train_y_))
 
 train_x = preprocess_imgs(train_x, norm=False, symmetric = False)
 
