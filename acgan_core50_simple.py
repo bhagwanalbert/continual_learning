@@ -137,7 +137,8 @@ criterion_source = torch.nn.BCELoss()
 
 # Fix noise to view generated images
 eval_noise = torch.FloatTensor(n_imag*n_class, nz, 1, 1).normal_(0, 1)
-eval_noise_ = np.random.normal(0, 1, (n_imag*n_class, nz))
+eval_noise_ = trunc_normal1.rvs(n_imag*n_class*nz, 0)
+eval_noise_ = eval_noise_.reshape(n_imag*n_class,nz)
 eval_onehot = np.zeros((n_imag*n_class, n_class))
 
 for c in range(n_class):
