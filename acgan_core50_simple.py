@@ -330,7 +330,6 @@ eval_onehot = np.zeros((n_imag*n_class, n_class))
 for c in range(n_class):
     eval_onehot[np.arange(n_imag*c,n_imag*(c+1)), c] = 1
 
-print(np.argmax(eval_onehot, axis=1))
 eval_noise_[np.arange(n_imag*n_class), :n_class] = eval_onehot[np.arange(n_imag*n_class)]
 
 eval_noise_ = (torch.from_numpy(eval_noise_))
@@ -339,7 +338,7 @@ eval_noise = maybe_cuda(eval_noise, use_cuda=use_cuda)
 
 with torch.no_grad():
     fake = gen(eval_noise).detach().cpu()
-writer.add_image("Generated images", vutils.make_grid(fake, nrow=n_imag, padding=2, normalize=True))
+writer.add_image("Test images", vutils.make_grid(fake, nrow=n_imag, padding=2, normalize=True))
 
 # Truncation function objects
 trunc_normal1 = get_truncated_normal(mean=0, sd=1, low=-2, upp=2)
@@ -365,7 +364,7 @@ eval_noise = maybe_cuda(eval_noise, use_cuda=use_cuda)
 
 with torch.no_grad():
     fake = gen(eval_noise).detach().cpu()
-writer.add_image("Generated images", vutils.make_grid(fake, nrow=n_imag, padding=2, normalize=True))
+writer.add_image("Test images", vutils.make_grid(fake, nrow=n_imag, padding=2, normalize=True))
 
 
 # Truncation test 2
@@ -377,7 +376,6 @@ eval_onehot = np.zeros((n_imag*n_class, n_class))
 for c in range(n_class):
     eval_onehot[np.arange(n_imag*c,n_imag*(c+1)), c] = 1
 
-print(np.argmax(eval_onehot, axis=1))
 eval_noise_[np.arange(n_imag*n_class), :n_class] = eval_onehot[np.arange(n_imag*n_class)]
 
 eval_noise_ = (torch.from_numpy(eval_noise_))
@@ -386,7 +384,7 @@ eval_noise = maybe_cuda(eval_noise, use_cuda=use_cuda)
 
 with torch.no_grad():
     fake = gen(eval_noise).detach().cpu()
-writer.add_image("Generated images", vutils.make_grid(fake, nrow=n_imag, padding=2, normalize=True))
+writer.add_image("Test images", vutils.make_grid(fake, nrow=n_imag, padding=2, normalize=True))
 
 
 # Truncation test 3
@@ -398,7 +396,6 @@ eval_onehot = np.zeros((n_imag*n_class, n_class))
 for c in range(n_class):
     eval_onehot[np.arange(n_imag*c,n_imag*(c+1)), c] = 1
 
-print(np.argmax(eval_onehot, axis=1))
 eval_noise_[np.arange(n_imag*n_class), :n_class] = eval_onehot[np.arange(n_imag*n_class)]
 
 eval_noise_ = (torch.from_numpy(eval_noise_))
@@ -407,7 +404,7 @@ eval_noise = maybe_cuda(eval_noise, use_cuda=use_cuda)
 
 with torch.no_grad():
     fake = gen(eval_noise).detach().cpu()
-writer.add_image("Generated images", vutils.make_grid(fake, nrow=n_imag, padding=2, normalize=True))
+writer.add_image("Test images", vutils.make_grid(fake, nrow=n_imag, padding=2, normalize=True))
 
 
 # Truncation test 4
@@ -419,7 +416,6 @@ eval_onehot = np.zeros((n_imag*n_class, n_class))
 for c in range(n_class):
     eval_onehot[np.arange(n_imag*c,n_imag*(c+1)), c] = 1
 
-print(np.argmax(eval_onehot, axis=1))
 eval_noise_[np.arange(n_imag*n_class), :n_class] = eval_onehot[np.arange(n_imag*n_class)]
 
 eval_noise_ = (torch.from_numpy(eval_noise_))
@@ -428,4 +424,4 @@ eval_noise = maybe_cuda(eval_noise, use_cuda=use_cuda)
 
 with torch.no_grad():
     fake = gen(eval_noise).detach().cpu()
-writer.add_image("Generated images", vutils.make_grid(fake, nrow=n_imag, padding=2, normalize=True))
+writer.add_image("Test images", vutils.make_grid(fake, nrow=n_imag, padding=2, normalize=True))
