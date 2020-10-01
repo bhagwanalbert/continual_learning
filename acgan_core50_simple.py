@@ -137,7 +137,7 @@ criterion_source = torch.nn.BCELoss()
 
 # Fix noise to view generated images
 eval_noise = torch.FloatTensor(n_imag*n_class, nz, 1, 1).normal_(0, 1)
-eval_noise_ = trunc_normal2.rvs(n_imag*n_class*nz, 0)
+eval_noise_ = trunc_normal3.rvs(n_imag*n_class*nz, 0)
 eval_noise_ = eval_noise_.reshape(n_imag*n_class,nz)
 eval_onehot = np.zeros((n_imag*n_class, n_class))
 
@@ -209,7 +209,7 @@ for ep in range(num_epochs):
         ## Training with fake data now
         noise = torch.FloatTensor(y_mb.size(0), nz, 1, 1).normal_(0, 1)
         #noise_ = np.random.normal(0, 1, (y_mb.size(0), nz))
-        noise_ = trunc_normal2.rvs(y_mb.size(0)*nz, 0)
+        noise_ = trunc_normal3.rvs(y_mb.size(0)*nz, 0)
         noise_ = noise_.reshape(y_mb.size(0),nz)
         label = np.random.randint(0, n_class, y_mb.size(0))
         onehot = np.zeros((y_mb.size(0), n_class))
