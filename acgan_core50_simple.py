@@ -35,7 +35,7 @@ def get_truncated_normal(mean=0, sd=1, low=0, upp=10):
         (low - mean) / sd, (upp - mean) / sd, loc=mean, scale=sd)
 
 # Truncation function objects
-trunc_normal1 = get_truncated_normal(mean=0, sd=1, low=-10, upp=10)
+trunc_normal1 = get_truncated_normal(mean=0, sd=1, low=-2, upp=2)
 trunc_normal2 = get_truncated_normal(mean=0, sd=1, low=-1.5, upp=1.5)
 trunc_normal3 = get_truncated_normal(mean=0, sd=1, low=-1, upp=1)
 trunc_normal4 = get_truncated_normal(mean=0, sd=1, low=-0.5, upp=0.5)
@@ -208,9 +208,9 @@ for ep in range(num_epochs):
 
         ## Training with fake data now
         noise = torch.FloatTensor(y_mb.size(0), nz, 1, 1).normal_(0, 1)
-        noise_ = np.random.normal(0, 1, (y_mb.size(0), nz))
-        # noise_ = trunc_normal1.rvs(y_mb.size(0)*nz, 0)
-        # noise_ = noise_.reshape(y_mb.size(0),nz)
+        #noise_ = np.random.normal(0, 1, (y_mb.size(0), nz))
+        noise_ = trunc_normal1.rvs(y_mb.size(0)*nz, 0)
+        noise_ = noise_.reshape(y_mb.size(0),nz)
         label = np.random.randint(0, n_class, y_mb.size(0))
         onehot = np.zeros((y_mb.size(0), n_class))
         onehot[np.arange(y_mb.size(0)), label] = 1
