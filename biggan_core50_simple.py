@@ -120,7 +120,7 @@ with torch.no_grad():
 #                              nrow=n_imag,
 #                              normalize=True)
 
-out = D(fake)
+out = D(fake, eval_onehot)
 print(out)
 
 """
