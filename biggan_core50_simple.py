@@ -71,24 +71,30 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 # Use cuda or not
 use_cuda = True
 
+state_dict = {'itr': 0, 'epoch': 0, 'save_num': 0, 'save_best_num': 0,
+              'best_IS': 0, 'best_FID': 999999}
+## Load pretrained weights with original structure
 G = BigGAN.Generator()
-
 G.load_state_dict(
       torch.load('%s/%s.pth' % (weight_root, 'G')), strict=True)
 
+D = BigGAN.Discriminator()
+D.load_state_dict(
+      torch.load('%s/%s.pth' % (weight_root, 'D')), strict=True)
+
+G_ema = BigGAN.Generator(skip_init=True,no_optim=True)
+G_ema.load_state_dict(
+      torch.load('%s/%s.pth' % (weight_root, 'G_ema')), strict=True)
+
+for item in state_dict:
+  state_dict[item] = torch.load('%s/%s.pth' % (weight_root, 'state_dict'))[item]
+
+## Change structures to match dataset number of classes
 new_state_dict = G.state_dict()
 new_state_dict['shared.weight'] = new_state_dict['shared.weight'][500:n_class+500]
 
 G = BigGAN.Generator(n_classes = n_class)
 G.load_state_dict(new_state_dict, strict=True)
-
-G.optim.load_state_dict(
-      torch.load('%s/%s.pth' % (weight_root, 'G_optim')))
-
-D = BigGAN.Discriminator()
-
-D.load_state_dict(
-      torch.load('%s/%s.pth' % (weight_root, 'D')), strict=True)
 
 new_state_dict = D.state_dict()
 new_state_dict['embed.weight'] = new_state_dict['embed.weight'][500:n_class+500]
@@ -97,8 +103,30 @@ new_state_dict['embed.u0'] = new_state_dict['embed.u0'][:,500:n_class+500]
 D = BigGAN.Discriminator(n_classes = n_class)
 D.load_state_dict(new_state_dict, strict=True)
 
+new_state_dict = G_ema.state_dict()
+new_state_dict['shared.weight'] = new_state_dict['shared.weight'][500:n_class+500]
+
+G_ema = BigGAN.Generator(n_classes = n_class, skip_init=True, no_optim=True)
+G_ema.load_state_dict(new_state_dict, strict=True)
+ema = ema(G, G_ema,start_itr = 20000)
+
+## Load optimizer details
+G.optim.load_state_dict(
+      torch.load('%s/%s.pth' % (weight_root, 'G_optim')))
+
 D.optim.load_state_dict(
       torch.load('%s/%s.pth' % (weight_root, 'D_optim')))
+
+
+
+
+
+
+
+
+
+
+"""
 
 eval_noise = torch.FloatTensor(n_imag*n_class, nz).normal_(0, 1)
 eval_noise_ = np.random.normal(0, 1, (n_imag*n_class, nz))
@@ -122,6 +150,7 @@ with torch.no_grad():
 
 out = D(fake, eval_onehot)
 print(out)
+"""
 
 """
 test_x, test_y = dataset.get_test_set()
