@@ -136,7 +136,7 @@ eval_onehot = maybe_cuda(eval_onehot, use_cuda=use_cuda)
 
 
 with torch.no_grad():
-    fake = G(eval_noise, G.shared(eval_onehot))
+    fake = G(eval_noise, G.shared(eval_onehot)).detach().cpu()
 # writer.add_image("Generated images", vutils.make_grid(fake, nrow=n_imag, padding=2, normalize=True))
 # writer.close()
 # vutils.save_image(fake.float(),
