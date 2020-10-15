@@ -221,7 +221,7 @@ for ep in range(num_epochs):
         y = maybe_cuda(y, use_cuda=use_cuda)
 
         D_fake, D_real = GD(z, y,
-                            x[counter], y[counter], train_G=False,
+                            x_mb[counter], y-mb[counter], train_G=False,
                             split_D=False)
 
         # Compute components of D's loss, average them, and divide by
