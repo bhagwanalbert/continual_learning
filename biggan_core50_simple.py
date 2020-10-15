@@ -222,7 +222,7 @@ for ep in range(num_epochs):
         y = maybe_cuda(y, use_cuda=use_cuda)
 
         D_fake, D_real = GD(z, y,
-                            x_mb[counter], y-mb[counter], train_G=False,
+                            x_mb[counter], y_mb[counter], train_G=False,
                             split_D=False)
 
         # Compute components of D's loss, average them, and divide by
@@ -269,6 +269,6 @@ for ep in range(num_epochs):
     writer.close()
 
     with torch.no_grad():
-        fake = G(eval_z, G.shared(eval_y))
+        fake = nn.parallel.data_parallel(G, (eval_z, G.shared(eval_y)), device_ids=[0, 1, 2, 3])
     writer.add_image("Generated images", vutils.make_grid(fake, nrow=n_imag, padding=2, normalize=True))
     writer.close()
