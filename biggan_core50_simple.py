@@ -222,7 +222,7 @@ for ep in range(num_epochs):
 
         D_fake, D_real = GD(z, y,
                             x[counter], y[counter], train_G=False,
-                            split_D=False])
+                            split_D=False)
 
         # Compute components of D's loss, average them, and divide by
         # the number of gradient accumulations
