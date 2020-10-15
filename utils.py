@@ -26,6 +26,11 @@ import numpy as np
 import torch
 from models.batch_renorm import BatchRenorm2D
 
+# Convenience utility to switch off requires_grad
+def toggle_grad(model, on_or_off):
+  for param in model.parameters():
+    param.requires_grad = on_or_off
+
 def shuffle_in_unison(dataset, seed=None, in_place=False):
     """
     Shuffle two (or more) list in unison. It's important to shuffle the images
