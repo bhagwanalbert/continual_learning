@@ -143,7 +143,7 @@ eval_y = maybe_cuda(eval_y, use_cuda=use_cuda)
 
 
 with torch.no_grad():
-    fake = G(z, G.shared(y))
+    fake = G(eval_z, G.shared(eval_y))
 writer.add_image("Generated images", vutils.make_grid(fake, nrow=n_imag, padding=2, normalize=True))
 writer.close()
 # vutils.save_image(fake.float(),
