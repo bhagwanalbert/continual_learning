@@ -124,8 +124,9 @@ G.optim.load_state_dict(
 print(G.optim.state_dict()['state'])
 print(G.optim.state_dict()['param_groups'])
 
-for value in G.optim.state_dict()['state']:
-    print(value)
+for param_group in G.optim.state_dict()['state']:
+    for value in G.optim.state_dict()['state'][value]:
+        print(value)
 
 D.optim.load_state_dict(
       torch.load('%s/%s.pth' % (weight_root, 'D_optim')))
