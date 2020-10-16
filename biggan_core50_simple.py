@@ -121,8 +121,7 @@ ema = ema(G, G_ema,start_itr = 20000)
 G.optim.load_state_dict(
       torch.load('%s/%s.pth' % (weight_root, 'G_optim')))
 
-for var_name in G.optim.state_dict():
-    print(var_name)
+print(G.optim.state_dict()['state']))
 
 D.optim.load_state_dict(
       torch.load('%s/%s.pth' % (weight_root, 'D_optim')))
