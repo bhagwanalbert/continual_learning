@@ -224,6 +224,8 @@ D_fake, D_real = GD(eval_z, eval_y,
                     x_mb[0], y_mb[0], train_G=False,
                     split_D=False)
 
+tot_it_step = 0
+
 for ep in range(num_epochs):
     print("training ep: ", ep)
 
@@ -238,7 +240,6 @@ for ep in range(num_epochs):
     y_mb = torch.split(train_y, batch_size)
 
     counter = 0
-    tot_it_step = 0
 
     toggle_grad(D, True)
     toggle_grad(G, False)
