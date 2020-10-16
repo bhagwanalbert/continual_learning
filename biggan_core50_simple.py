@@ -128,7 +128,7 @@ for param_group in G.optim.state_dict()['state']:
         else:
             if G.optim.state_dict()['state'][param_group][param].shape == torch.Size([]):
                 pass
-            else if G.optim.state_dict()['state'][param_group][param].shape[0] == 1000:
+            elif G.optim.state_dict()['state'][param_group][param].shape[0] == 1000:
                 G.optim.state_dict()['state'][param_group][param] = \
                     G.optim.state_dict()['state'][param_group][param][500:n_class+500]
 
