@@ -171,9 +171,6 @@ indexes = np.random.permutation(train_y.size(0))
 train_x = train_x[indexes]
 train_y = train_y[indexes]
 
-train_x = maybe_cuda(train_x, use_cuda=use_cuda)
-train_y = maybe_cuda(train_y, use_cuda=use_cuda)
-
 training_examples = None
 
 for c in range(n_class):
@@ -190,6 +187,9 @@ print("Starting Training Loop...")
 
 tot_it_step = 0
 it_x_ep = train_x.size(0) // batch_size
+
+train_x = maybe_cuda(train_x, use_cuda=use_cuda)
+train_y = maybe_cuda(train_y, use_cuda=use_cuda)
 
 x_mb = torch.split(train_x, batch_size)
 y_mb = torch.split(train_y, batch_size)
