@@ -125,21 +125,21 @@ D.optim.load_state_dict(
       torch.load('%s/%s.pth' % (weight_root, 'D_optim')))
 
 GD = BigGAN.G_D(G, D)
-GD = nn.DataParallel(GD, device_ids=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+GD = nn.DataParallel(GD, device_ids=[2, 3, 4, 0, 1])
 
 ## Test current BigGAN
 eval_z = torch.FloatTensor(n_imag*n_class, nz).normal_(0, 1)
 eval_z_ = np.random.normal(0, 1, (n_imag*n_class, nz))
 eval_z_ = (torch.from_numpy(eval_z_))
 eval_z.data.copy_(eval_z_.view(n_imag*n_class, nz))
-eval_z = maybe_cuda(eval_z, use_cuda=use_cuda)
+eval_z = eval_z.to('cuda:2')
 
 eval_y = np.zeros((n_imag*n_class))
 for c in range(n_class):
     eval_y[np.arange(n_imag*c,n_imag*(c+1))] = c
 eval_y = (torch.from_numpy(eval_y))
 eval_y = eval_y.to('cpu', torch.int64)
-eval_y = maybe_cuda(eval_y, use_cuda=use_cuda)
+eval_y = eval_y.to('cuda:2')
 
 """
 with torch.no_grad():
@@ -188,8 +188,8 @@ print("Starting Training Loop...")
 tot_it_step = 0
 it_x_ep = train_x.size(0) // batch_size
 
-train_x = maybe_cuda(train_x, use_cuda=use_cuda)
-train_y = maybe_cuda(train_y, use_cuda=use_cuda)
+train_x = train_x.to('cuda:2')
+train_y = train_y.to('cuda:2')
 
 x_mb = torch.split(train_x, batch_size)
 y_mb = torch.split(train_y, batch_size)
