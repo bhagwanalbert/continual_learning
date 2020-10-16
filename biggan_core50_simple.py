@@ -125,7 +125,7 @@ D.optim.load_state_dict(
       torch.load('%s/%s.pth' % (weight_root, 'D_optim')))
 
 GD = BigGAN.G_D(G, D)
-GD = nn.DataParallel(GD, device_ids=[0, 1, 2, 3, 4])
+GD = nn.DataParallel(GD, device_ids=[2, 3, 4])
 
 ## Test current BigGAN
 eval_z = torch.FloatTensor(n_imag*n_class, nz).normal_(0, 1)
