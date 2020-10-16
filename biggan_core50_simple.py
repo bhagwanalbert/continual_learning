@@ -72,8 +72,8 @@ num_G_accumulations = 8
 weight_root = './weights'
 
 # Set cuda device (based on your hardware)
-os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"] = "0,1,2,3,4"
+# os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+# os.environ["CUDA_VISIBLE_DEVICES"] = "0,1,2,3,4"
 
 # Use cuda or not
 use_cuda = True
@@ -125,7 +125,7 @@ D.optim.load_state_dict(
       torch.load('%s/%s.pth' % (weight_root, 'D_optim')))
 
 GD = BigGAN.G_D(G, D)
-GD = nn.DataParallel(GD, device_ids=[2, 3, 4])
+GD = nn.DataParallel(GD, device_ids=[0, 1, 2, 3, 4])
 
 ## Test current BigGAN
 eval_z = torch.FloatTensor(n_imag*n_class, nz).normal_(0, 1)
@@ -170,6 +170,9 @@ indexes = np.random.permutation(train_y.size(0))
 # Shuffle train dataset
 train_x = train_x[indexes]
 train_y = train_y[indexes]
+
+train_x = maybe_cuda(train_x, use_cuda=use_cuda)
+train_y = maybe_cuda(train_y, use_cuda=use_cuda)
 
 training_examples = None
 
