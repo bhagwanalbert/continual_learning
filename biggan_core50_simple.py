@@ -81,15 +81,15 @@ use_cuda = True
 state_dict = {'itr': 0, 'epoch': 0, 'save_num': 0, 'save_best_num': 0,
               'best_IS': 0, 'best_FID': 999999}
 ## Load pretrained weights with original structure
-G = BigGAN.Generator().to('cuda:2')
+G = maybe_cuda(BigGAN.Generator(), use_cuda = use_cuda)
 G.load_state_dict(
       torch.load('%s/%s.pth' % (weight_root, 'G')), strict=True)
 
-D = BigGAN.Discriminator().to('cuda:2')
+D = maybe_cuda(BigGAN.Discriminator(), use_cuda = use_cuda)
 D.load_state_dict(
       torch.load('%s/%s.pth' % (weight_root, 'D')), strict=True)
 
-G_ema = BigGAN.Generator(skip_init=True,no_optim=True).to('cuda:2')
+G_ema = maybe_cuda(BigGAN.Generator(skip_init=True,no_optim=True), use_cuda = use_cuda)
 G_ema.load_state_dict(
       torch.load('%s/%s.pth' % (weight_root, 'G_ema')), strict=True)
 
