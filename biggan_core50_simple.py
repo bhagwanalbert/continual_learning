@@ -117,7 +117,7 @@ G_ema = BigGAN.Generator(n_classes = n_class, skip_init=True, no_optim=True).to(
 G_ema.load_state_dict(new_state_dict, strict=True)
 ema = ema(G, G_ema,start_itr = 20000)
 
-## Load optimizer details
+## Load optimizer state dict and adapt it
 G.optim.load_state_dict(
       torch.load('%s/%s.pth' % (weight_root, 'G_optim')))
 
@@ -165,7 +165,7 @@ eval_y = eval_y.to('cuda:2')
 
 """
 with torch.no_grad():
-    fake = nn.parallel.data_parallel(G, (eval_z, G.shared(eval_y)), device_ids=[0, 1, 2, 3, 4])
+    fake = nn.parallel.data_parallel(G, (eval_z, G.shared(eval_y)), device_ids=[2, 3, 4, 0, 1])
 writer.add_image("Generated images", vutils.make_grid(fake, nrow=n_imag, padding=2, normalize=True))
 writer.close()
 """
@@ -306,6 +306,6 @@ for ep in range(num_epochs):
     writer.close()
 
     with torch.no_grad():
-        fake = nn.parallel.data_parallel(G, (eval_z, G.shared(eval_y)), device_ids=[0, 1, 2, 3, 4])
+        fake = nn.parallel.data_parallel(G, (eval_z, G.shared(eval_y)), device_ids=[2, 3, 4, 0, 1])
     writer.add_image("Generated images", vutils.make_grid(fake, nrow=n_imag, padding=2, normalize=True))
     writer.close()
