@@ -126,7 +126,7 @@ for param_group in G.optim.state_dict()['state']:
         if param == 'step':
             pass
         else:
-            if G.optim.state_dict()['state'][param_group][param].shape(0) == 1000:
+            if G.optim.state_dict()['state'][param_group][param].size(0) == 1000:
                 G.optim.state_dict()['state'][param_group][param] = \
                     G.optim.state_dict()['state'][param_group][param][500:n_class+500]
 
