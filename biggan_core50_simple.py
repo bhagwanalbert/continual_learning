@@ -118,7 +118,6 @@ G_ema.load_state_dict(new_state_dict, strict=True)
 ema = ema(G, G_ema,start_itr = 20000)
 
 ## Load optimizer state dict and adapt it
-"""
 G.optim.load_state_dict(
       torch.load('%s/%s.pth' % (weight_root, 'G_optim')))
 
@@ -146,11 +145,10 @@ for param_group in D.optim.state_dict()['state']:
             elif D.optim.state_dict()['state'][param_group][param].shape[0] == 1000:
                 D.optim.state_dict()['state'][param_group][param] = \
                     D.optim.state_dict()['state'][param_group][param][500:n_class+500]
-"""
 
 ## Use a fresh optimizer
-G.optim = torch.optim.Adam(G.parameters(), lr=lr, betas=(beta1, 0.999))
-D.optim = torch.optim.Adam(D.parameters(), lr=lr, betas=(beta1, 0.999))
+# G.optim = torch.optim.Adam(G.parameters(), lr=lr, betas=(beta1, 0.999))
+# D.optim = torch.optim.Adam(D.parameters(), lr=lr, betas=(beta1, 0.999))
 
 GD = BigGAN.G_D(G, D)
 GD = nn.DataParallel(GD, device_ids=[2, 3, 4, 0, 1])
@@ -220,8 +218,6 @@ train_y = train_y.to('cuda:2')
 x_mb = torch.split(train_x, batch_size)
 y_mb = torch.split(train_y, batch_size)
 
-print(eval_z.shape)
-print(eval_y.shape)
 print(x_mb[0].shape)
 print(y_mb[0].shape)
 D_fake, D_real = GD(eval_z, eval_y,
@@ -229,6 +225,14 @@ D_fake, D_real = GD(eval_z, eval_y,
                     split_D=False)
 
 tot_it_step = 0
+counter = 0
+
+x_mb = torch.split(train_x, batch_size)
+y_mb = torch.split(train_y, batch_size)
+
+print(x_mb.shape)
+
+num_iter = x_mb.shape[0]//(num_D_steps*num_D_accumulations)
 
 for ep in range(num_epochs):
     print("training ep: ", ep)
@@ -237,80 +241,77 @@ for ep in range(num_epochs):
     D.train()
     G_ema.train()
 
-    G.optim.zero_grad()
-    D.optim.zero_grad()
+    for it in range(num_iter):
 
-    x_mb = torch.split(train_x, batch_size)
-    y_mb = torch.split(train_y, batch_size)
+        G.optim.zero_grad()
+        D.optim.zero_grad()
 
-    counter = 0
+        toggle_grad(D, True)
+        toggle_grad(G, False)
 
-    toggle_grad(D, True)
-    toggle_grad(G, False)
+        for step_index in range(num_D_steps):
+          # If accumulating gradients, loop multiple times before an optimizer step
+          D.optim.zero_grad()
+          for accumulation_index in range(num_D_accumulations):
+            z = torch.FloatTensor(batch_size, nz).normal_(0, 1)
+            z_ = np.random.normal(0, 1, (batch_size, nz))
+            z_ = (torch.from_numpy(z_))
+            z.data.copy_(z_.view(batch_size, nz))
+            z = maybe_cuda(z, use_cuda=use_cuda)
 
-    for step_index in range(num_D_steps):
-      # If accumulating gradients, loop multiple times before an optimizer step
-      D.optim.zero_grad()
-      for accumulation_index in range(num_D_accumulations):
-        z = torch.FloatTensor(batch_size, nz).normal_(0, 1)
-        z_ = np.random.normal(0, 1, (batch_size, nz))
-        z_ = (torch.from_numpy(z_))
-        z.data.copy_(z_.view(batch_size, nz))
-        z = maybe_cuda(z, use_cuda=use_cuda)
+            y = np.random.randint(0, n_class, batch_size)
+            y = (torch.from_numpy(y))
+            y = y.to('cpu', torch.int64)
+            y = maybe_cuda(y, use_cuda=use_cuda)
 
-        y = np.random.randint(0, n_class, batch_size)
-        y = (torch.from_numpy(y))
-        y = y.to('cpu', torch.int64)
-        y = maybe_cuda(y, use_cuda=use_cuda)
+            D_fake, D_real = GD(z, y,
+                                x_mb[counter], y_mb[counter], train_G=False,
+                                split_D=False)
 
-        D_fake, D_real = GD(z, y,
-                            x_mb[counter], y_mb[counter], train_G=False,
-                            split_D=False)
+            # Compute components of D's loss, average them, and divide by
+            # the number of gradient accumulations
+            D_loss_real, D_loss_fake = losses.discriminator_loss(D_fake, D_real)
+            D_loss = (D_loss_real + D_loss_fake) / float(num_D_accumulations)
+            D_loss.backward()
+            counter += 1
 
-        # Compute components of D's loss, average them, and divide by
-        # the number of gradient accumulations
-        D_loss_real, D_loss_fake = losses.discriminator_loss(D_fake, D_real)
-        D_loss = (D_loss_real + D_loss_fake) / float(num_D_accumulations)
-        D_loss.backward()
-        counter += 1
+          D.optim.step()
 
-      D.optim.step()
+        toggle_grad(D, False)
+        toggle_grad(G, True)
 
-    toggle_grad(D, False)
-    toggle_grad(G, True)
+        # Zero G's gradients by default before training G, for safety
+        G.optim.zero_grad()
 
-    # Zero G's gradients by default before training G, for safety
-    G.optim.zero_grad()
+        # If accumulating gradients, loop multiple times
+        for accumulation_index in range(num_G_accumulations):
+          z = torch.FloatTensor(batch_size, nz).normal_(0, 1)
+          z_ = np.random.normal(0, 1, (batch_size, nz))
+          z_ = (torch.from_numpy(z_))
+          z.data.copy_(z_.view(batch_size, nz))
+          z = maybe_cuda(z, use_cuda=use_cuda)
 
-    # If accumulating gradients, loop multiple times
-    for accumulation_index in range(num_G_accumulations):
-      z = torch.FloatTensor(batch_size, nz).normal_(0, 1)
-      z_ = np.random.normal(0, 1, (batch_size, nz))
-      z_ = (torch.from_numpy(z_))
-      z.data.copy_(z_.view(batch_size, nz))
-      z = maybe_cuda(z, use_cuda=use_cuda)
+          y = np.random.randint(0, n_class, batch_size)
+          y = (torch.from_numpy(y))
+          y = y.to('cpu', torch.int64)
+          y = maybe_cuda(y, use_cuda=use_cuda)
 
-      y = np.random.randint(0, n_class, batch_size)
-      y = (torch.from_numpy(y))
-      y = y.to('cpu', torch.int64)
-      y = maybe_cuda(y, use_cuda=use_cuda)
+          D_fake = GD(z, y, train_G=True, split_D=False)
+          G_loss = losses.generator_loss(D_fake) / float(num_G_accumulations)
+          G_loss.backward()
 
-      D_fake = GD(z, y, train_G=True, split_D=False)
-      G_loss = losses.generator_loss(D_fake) / float(num_G_accumulations)
-      G_loss.backward()
+        G.optim.step()
 
-    G.optim.step()
+        ema.update(state_dict['itr'])
 
-    ema.update(state_dict['itr'])
+        tot_it_step += 1
 
-    tot_it_step += 1
+        writer.add_scalar('G_loss', float(G_loss.item()), tot_it_step)
+        writer.add_scalar('D_loss_real', float(D_loss_real.item()), tot_it_step)
+        writer.add_scalar('D_loss_fake', float(D_loss_fake.item()), tot_it_step)
+        writer.close()
 
-    writer.add_scalar('G_loss', float(G_loss.item()), tot_it_step)
-    writer.add_scalar('D_loss_real', float(D_loss_real.item()), tot_it_step)
-    writer.add_scalar('D_loss_fake', float(D_loss_fake.item()), tot_it_step)
-    writer.close()
-
-    with torch.no_grad():
-        fake = nn.parallel.data_parallel(G, (eval_z, G.shared(eval_y)), device_ids=[2, 3, 4, 0, 1])
-    writer.add_image("Generated images", vutils.make_grid(fake, nrow=n_imag, padding=2, normalize=True))
-    writer.close()
+        with torch.no_grad():
+            fake = nn.parallel.data_parallel(G, (eval_z, G.shared(eval_y)), device_ids=[2, 3, 4, 0, 1])
+        writer.add_image("Generated images", vutils.make_grid(fake, nrow=n_imag, padding=2, normalize=True))
+        writer.close()
