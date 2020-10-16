@@ -140,9 +140,11 @@ for param_group in D.optim.state_dict()['state']:
         if param == 'step':
             pass
         else:
-            print(param_group)
-            print(param)
-            print(D.optim.state_dict()['state'][param_group][param].shape)
+            if D.optim.state_dict()['state'][param_group][param].shape == torch.Size([]):
+                pass
+            elif D.optim.state_dict()['state'][param_group][param].shape[0] == 1000:
+                D.optim.state_dict()['state'][param_group][param] = \
+                    D.optim.state_dict()['state'][param_group][param][500:n_class+500]
 
 GD = BigGAN.G_D(G, D)
 GD = nn.DataParallel(GD, device_ids=[2, 3, 4, 0, 1])
