@@ -122,7 +122,7 @@ G.optim.load_state_dict(
       torch.load('%s/%s.pth' % (weight_root, 'G_optim')))
 
 for var_name in G.optim.state_dict():
-    print(var_name, "\t", G.optim.state_dict()[var_name])
+    print(var_name)
 
 D.optim.load_state_dict(
       torch.load('%s/%s.pth' % (weight_root, 'D_optim')))
