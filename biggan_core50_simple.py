@@ -124,12 +124,8 @@ G.optim.load_state_dict(
 for var_name in G.optim.state_dict():
     print(var_name, "\t", G.optim.state_dict()[var_name])
 
-print(G.optim.state_dict())
-
 D.optim.load_state_dict(
       torch.load('%s/%s.pth' % (weight_root, 'D_optim')))
-
-print(D.optim.state_dict())
 
 GD = BigGAN.G_D(G, D)
 GD = nn.DataParallel(GD, device_ids=[2, 3, 4, 0, 1])
