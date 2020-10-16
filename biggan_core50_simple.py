@@ -132,17 +132,17 @@ for param_group in G.optim.state_dict()['state']:
                 G.optim.state_dict()['state'][param_group][param] = \
                     G.optim.state_dict()['state'][param_group][param][500:n_class+500]
 
-for param_group in G.optim.state_dict()['state']:
-    for param in G.optim.state_dict()['state'][param_group]:
+D.optim.load_state_dict(
+      torch.load('%s/%s.pth' % (weight_root, 'D_optim')))
+
+for param_group in D.optim.state_dict()['state']:
+    for param in D.optim.state_dict()['state'][param_group]:
         if param == 'step':
             pass
         else:
             print(param_group)
             print(param)
-            print(G.optim.state_dict()['state'][param_group][param].shape)
-
-D.optim.load_state_dict(
-      torch.load('%s/%s.pth' % (weight_root, 'D_optim')))
+            print(D.optim.state_dict()['state'][param_group][param].shape)
 
 GD = BigGAN.G_D(G, D)
 GD = nn.DataParallel(GD, device_ids=[2, 3, 4, 0, 1])
