@@ -118,6 +118,7 @@ G_ema.load_state_dict(new_state_dict, strict=True)
 ema = ema(G, G_ema,start_itr = 20000)
 
 ## Load optimizer state dict and adapt it
+"""
 G.optim.load_state_dict(
       torch.load('%s/%s.pth' % (weight_root, 'G_optim')))
 
@@ -145,6 +146,11 @@ for param_group in D.optim.state_dict()['state']:
             elif D.optim.state_dict()['state'][param_group][param].shape[0] == 1000:
                 D.optim.state_dict()['state'][param_group][param] = \
                     D.optim.state_dict()['state'][param_group][param][500:n_class+500]
+"""
+
+## Use a fresh optimizer
+G.optim = torch.optim.Adam(G.parameters(), lr=lr, betas=(beta1, 0.999))
+D.optim = torch.optim.Adam(D.parameters(), lr=lr, betas=(beta1, 0.999))
 
 GD = BigGAN.G_D(G, D)
 GD = nn.DataParallel(GD, device_ids=[2, 3, 4, 0, 1])
