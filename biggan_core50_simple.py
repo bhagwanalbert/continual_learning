@@ -230,9 +230,9 @@ counter = 0
 x_mb = torch.split(train_x, batch_size)
 y_mb = torch.split(train_y, batch_size)
 
-print(x_mb.shape)
+print(len(x_mb))
 
-num_iter = x_mb.shape[0]//(num_D_steps*num_D_accumulations)
+num_iter = len(x_mb)//(num_D_steps*num_D_accumulations)
 
 for ep in range(num_epochs):
     print("training ep: ", ep)
