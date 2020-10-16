@@ -72,8 +72,8 @@ num_G_accumulations = 8
 weight_root = './weights'
 
 # Set cuda device (based on your hardware)
-# os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-# os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+os.environ["CUDA_VISIBLE_DEVICES"] = "2"
 
 # Use cuda or not
 use_cuda = True
