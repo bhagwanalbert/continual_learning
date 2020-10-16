@@ -126,9 +126,12 @@ print(G.optim.state_dict()['param_groups'])
 
 for param_group in G.optim.state_dict()['state']:
     for param in G.optim.state_dict()['state'][param_group]:
-        print(param_group)
-        print(param)
-        print(G.optim.state_dict()['state'][param_group][param].shape)
+        if param == 'step':
+            pass
+        else:
+            print(param_group)
+            print(param)
+            print(G.optim.state_dict()['state'][param_group][param].shape)
 
 D.optim.load_state_dict(
       torch.load('%s/%s.pth' % (weight_root, 'D_optim')))
