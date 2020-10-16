@@ -121,8 +121,12 @@ ema = ema(G, G_ema,start_itr = 20000)
 G.optim.load_state_dict(
       torch.load('%s/%s.pth' % (weight_root, 'G_optim')))
 
+print(G.optim)
+
 D.optim.load_state_dict(
       torch.load('%s/%s.pth' % (weight_root, 'D_optim')))
+
+print(D.optim)
 
 GD = BigGAN.G_D(G, D)
 GD = nn.DataParallel(GD, device_ids=[2, 3, 4, 0, 1])
