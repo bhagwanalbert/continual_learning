@@ -257,12 +257,12 @@ for ep in range(num_epochs):
             z_ = np.random.normal(0, 1, (batch_size, nz))
             z_ = (torch.from_numpy(z_))
             z.data.copy_(z_.view(batch_size, nz))
-            z = maybe_cuda(z, use_cuda=use_cuda)
+            z = z.to('cuda:2')
 
             y = np.random.randint(0, n_class, batch_size)
             y = (torch.from_numpy(y))
             y = y.to('cpu', torch.int64)
-            y = maybe_cuda(y, use_cuda=use_cuda)
+            y = y.to('cuda:2')
 
             D_fake, D_real = GD(z, y,
                                 x_mb[counter], y_mb[counter], train_G=False,
@@ -289,12 +289,12 @@ for ep in range(num_epochs):
           z_ = np.random.normal(0, 1, (batch_size, nz))
           z_ = (torch.from_numpy(z_))
           z.data.copy_(z_.view(batch_size, nz))
-          z = maybe_cuda(z, use_cuda=use_cuda)
+          z = z.to('cuda:2')
 
           y = np.random.randint(0, n_class, batch_size)
           y = (torch.from_numpy(y))
           y = y.to('cpu', torch.int64)
-          y = maybe_cuda(y, use_cuda=use_cuda)
+          y = y.to('cuda:2')
 
           D_fake = GD(z, y, train_G=True, split_D=False)
           G_loss = losses.generator_loss(D_fake) / float(num_G_accumulations)
