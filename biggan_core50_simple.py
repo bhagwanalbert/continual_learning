@@ -225,7 +225,6 @@ D_fake, D_real = GD(eval_z, eval_y,
                     split_D=False)
 
 tot_it_step = 0
-counter = 0
 
 x_mb = torch.split(train_x, batch_size)
 y_mb = torch.split(train_y, batch_size)
@@ -236,6 +235,8 @@ num_iter = len(x_mb)//(num_D_steps*num_D_accumulations)
 
 for ep in range(num_epochs):
     print("training ep: ", ep)
+
+    counter = 0
 
     G.train()
     D.train()
