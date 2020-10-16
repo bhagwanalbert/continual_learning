@@ -125,7 +125,7 @@ print(G.optim.state_dict()['state'])
 print(G.optim.state_dict()['param_groups'])
 
 for param_group in G.optim.state_dict()['state']:
-    for value in G.optim.state_dict()['state'][value]:
+    for value in G.optim.state_dict()['state'][param_group]:
         print(value)
 
 D.optim.load_state_dict(
