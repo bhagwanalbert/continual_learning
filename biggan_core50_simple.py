@@ -151,7 +151,7 @@ for param_group in D.optim.state_dict()['state']:
 # D.optim = torch.optim.Adam(D.parameters(), lr=lr, betas=(beta1, 0.999))
 
 GD = BigGAN.G_D(G, D)
-GD = nn.DataParallel(GD, device_ids=[2, 3, 4, 0, 1])
+GD = nn.DataParallel(GD, device_ids=[2, 3, 0, 1])
 
 ## Test current BigGAN
 eval_z = torch.FloatTensor(n_imag*n_class, nz).normal_(0, 1)
@@ -168,7 +168,7 @@ eval_y = eval_y.to('cpu', torch.int64)
 eval_y = eval_y.to('cuda:2')
 
 with torch.no_grad():
-    fake = nn.parallel.data_parallel(G, (eval_z, G.shared(eval_y)), device_ids=[2, 3, 4, 0, 1])
+    fake = nn.parallel.data_parallel(G, (eval_z, G.shared(eval_y)), device_ids=[2, 3, 0, 1])
 writer.add_image("Generated images", vutils.make_grid(fake, nrow=n_imag, padding=2, normalize=True))
 writer.close()
 
@@ -312,6 +312,6 @@ for ep in range(num_epochs):
         writer.close()
 
         with torch.no_grad():
-            fake = nn.parallel.data_parallel(G, (eval_z, G.shared(eval_y)), device_ids=[2, 3, 4, 0, 1])
+            fake = nn.parallel.data_parallel(G, (eval_z, G.shared(eval_y)), device_ids=[2, 3, 0, 1])
         writer.add_image("Generated images", vutils.make_grid(fake, nrow=n_imag, padding=2, normalize=True))
         writer.close()
