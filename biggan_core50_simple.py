@@ -121,15 +121,16 @@ ema = ema(G, G_ema,start_itr = 20000)
 G.optim.load_state_dict(
       torch.load('%s/%s.pth' % (weight_root, 'G_optim')))
 
-# for param_group in G.optim.state_dict()['state']:
-#     for param in G.optim.state_dict()['state'][param_group]:
-#         if param == 'step':
-#             pass
-#         else:
-#             print(G.optim.state_dict()['state'][param_group][param].shape)
-#             if G.optim.state_dict()['state'][param_group][param].shape[0] == 1000:
-#                 G.optim.state_dict()['state'][param_group][param] = \
-#                     G.optim.state_dict()['state'][param_group][param][500:n_class+500]
+for param_group in G.optim.state_dict()['state']:
+    for param in G.optim.state_dict()['state'][param_group]:
+        if param == 'step':
+            pass
+        else:
+            if G.optim.state_dict()['state'][param_group][param].shape == torch.Size([]):
+                pass
+            else if G.optim.state_dict()['state'][param_group][param].shape[0] == 1000:
+                G.optim.state_dict()['state'][param_group][param] = \
+                    G.optim.state_dict()['state'][param_group][param][500:n_class+500]
 
 for param_group in G.optim.state_dict()['state']:
     for param in G.optim.state_dict()['state'][param_group]:
