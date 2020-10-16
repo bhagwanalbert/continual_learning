@@ -35,7 +35,7 @@ dataset = CORE50(root='/home/abhagwan/datasets/core50', scenario="nicv2_391")
 workers = 2
 
 # Batch size during training
-batch_size = 10
+batch_size = 25
 
 # Spatial size of training images. All images will be resized to this
 #   size using a transformer.
@@ -167,10 +167,10 @@ eval_y = (torch.from_numpy(eval_y))
 eval_y = eval_y.to('cpu', torch.int64)
 eval_y = eval_y.to('cuda:2')
 
-with torch.no_grad():
-    fake = nn.parallel.data_parallel(G, (eval_z, G.shared(eval_y)), device_ids=[2, 3, 0, 1])
-writer.add_image("Generated images", vutils.make_grid(fake, nrow=n_imag, padding=2, normalize=True))
-writer.close()
+# with torch.no_grad():
+#     fake = nn.parallel.data_parallel(G, (eval_z, G.shared(eval_y)), device_ids=[2, 3, 0, 1])
+# writer.add_image("Generated images", vutils.make_grid(fake, nrow=n_imag, padding=2, normalize=True))
+# writer.close()
 
 # vutils.save_image(fake.float(),
 #                              'random_samples.jpg',
