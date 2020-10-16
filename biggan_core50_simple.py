@@ -147,6 +147,7 @@ with torch.no_grad():
 writer.add_image("Generated images", vutils.make_grid(fake, nrow=n_imag, padding=2, normalize=True))
 writer.close()
 """
+
 # vutils.save_image(fake.float(),
 #                              'random_samples.jpg',
 #                              nrow=n_imag,
@@ -186,6 +187,17 @@ print("Starting Training Loop...")
 
 tot_it_step = 0
 it_x_ep = train_x.size(0) // batch_size
+
+x_mb = torch.split(train_x, batch_size)
+y_mb = torch.split(train_y, batch_size)
+
+print(eval_z.shape)
+print(eval_y.shape)
+print(x_mb[0].shape)
+print(y_mb[0].shape)
+D_fake, D_real = GD(eval_z, eval_y,
+                    x_mb[0], y_mb[0], train_G=False,
+                    split_D=False)
 
 for ep in range(num_epochs):
     print("training ep: ", ep)
