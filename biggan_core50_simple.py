@@ -265,12 +265,12 @@ for ep in range(num_epochs):
             y = y.to('cpu', torch.int64)
             y = y.to('cuda:2')
 
-            print(z)
-            print(y)
-            print(x_mb[counter])
-            print(y_mb[counter])
+            print(z.shape)
+            print(y.shape)
+            print(x_mb[counter].shape)
+            print(y_mb[counter].shape)
             print(it)
-            print(step_index)
+            print(accumulation_index)
             print(counter)
 
             D_fake, D_real = GD(z, y,
