@@ -254,13 +254,13 @@ for ep in range(num_epochs):
           # If accumulating gradients, loop multiple times before an optimizer step
           D.optim.zero_grad()
           for accumulation_index in range(num_D_accumulations):
-            z = torch.FloatTensor(batch_size, nz).normal_(0, 1)
-            z_ = np.random.normal(0, 1, (batch_size, nz))
+            z = torch.FloatTensor(y_mb.shape[0], nz).normal_(0, 1)
+            z_ = np.random.normal(0, 1, (y_mb.shape[0], nz))
             z_ = (torch.from_numpy(z_))
-            z.data.copy_(z_.view(batch_size, nz))
+            z.data.copy_(z_.view(y_mb.shape[0], nz))
             z = z.to('cuda:2')
 
-            y = np.random.randint(0, n_class, batch_size)
+            y = np.random.randint(0, n_class, y_mb.shape[0])
             y = (torch.from_numpy(y))
             y = y.to('cpu', torch.int64)
             y = y.to('cuda:2')
