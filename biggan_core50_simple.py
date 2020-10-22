@@ -64,8 +64,8 @@ n_imag = 5
 
 # Additional parameters for BigGAN
 num_D_steps = 1
-num_D_accumulations = 20
-num_G_accumulations = 20
+num_D_accumulations = 50
+num_G_accumulations = 50
 
 
 # Root of weights
