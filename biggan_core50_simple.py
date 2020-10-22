@@ -100,20 +100,20 @@ for item in state_dict:
 new_state_dict = G.state_dict()
 new_state_dict['shared.weight'] = new_state_dict['shared.weight'][500:n_class+500]
 
-G = BigGAN.Generator(n_classes = n_class).to('cuda:2')
+G = BigGAN.Generator(n_classes = n_class).to('cuda:3')
 G.load_state_dict(new_state_dict, strict=True)
 
 new_state_dict = D.state_dict()
 new_state_dict['embed.weight'] = new_state_dict['embed.weight'][500:n_class+500]
 new_state_dict['embed.u0'] = new_state_dict['embed.u0'][:,500:n_class+500]
 
-D = BigGAN.Discriminator(n_classes = n_class).to('cuda:2')
+D = BigGAN.Discriminator(n_classes = n_class).to('cuda:3')
 D.load_state_dict(new_state_dict, strict=True)
 
 new_state_dict = G_ema.state_dict()
 new_state_dict['shared.weight'] = new_state_dict['shared.weight'][500:n_class+500]
 
-G_ema = BigGAN.Generator(n_classes = n_class, skip_init=True, no_optim=True).to('cuda:2')
+G_ema = BigGAN.Generator(n_classes = n_class, skip_init=True, no_optim=True).to('cuda:3')
 G_ema.load_state_dict(new_state_dict, strict=True)
 ema = ema(G, G_ema,start_itr = 20000)
 
@@ -151,21 +151,21 @@ for param_group in D.optim.state_dict()['state']:
 # D.optim = torch.optim.Adam(D.parameters(), lr=lr, betas=(beta1, 0.999))
 
 GD = BigGAN.G_D(G, D)
-GD = nn.DataParallel(GD, device_ids=[2, 3, 0, 1])
+GD = nn.DataParallel(GD, device_ids=[3, 2, 0, 1])
 
 ## Test current BigGAN
 eval_z = torch.FloatTensor(n_imag*n_class, nz).normal_(0, 1)
 eval_z_ = np.random.normal(0, 1, (n_imag*n_class, nz))
 eval_z_ = (torch.from_numpy(eval_z_))
 eval_z.data.copy_(eval_z_.view(n_imag*n_class, nz))
-eval_z = eval_z.to('cuda:2')
+eval_z = eval_z.to('cuda:3')
 
 eval_y = np.zeros((n_imag*n_class))
 for c in range(n_class):
     eval_y[np.arange(n_imag*c,n_imag*(c+1))] = c
 eval_y = (torch.from_numpy(eval_y))
 eval_y = eval_y.to('cpu', torch.int64)
-eval_y = eval_y.to('cuda:2')
+eval_y = eval_y.to('cuda:3')
 
 # with torch.no_grad():
 #     fake = nn.parallel.data_parallel(G, (eval_z, G.shared(eval_y)), device_ids=[2, 3, 0, 1])
@@ -212,8 +212,8 @@ print("Starting Training Loop...")
 tot_it_step = 0
 it_x_ep = train_x.size(0) // batch_size
 
-train_x = train_x.to('cuda:2')
-train_y = train_y.to('cuda:2')
+train_x = train_x.to('cuda:3')
+train_y = train_y.to('cuda:3')
 
 x_mb = torch.split(train_x, batch_size)
 y_mb = torch.split(train_y, batch_size)
@@ -258,12 +258,12 @@ for ep in range(num_epochs):
             z_ = np.random.normal(0, 1, (y_mb[counter].shape[0], nz))
             z_ = (torch.from_numpy(z_))
             z.data.copy_(z_.view(y_mb[counter].shape[0], nz))
-            z = z.to('cuda:2')
+            z = z.to('cuda:3')
 
             y = np.random.randint(0, n_class, y_mb[counter].shape[0])
             y = (torch.from_numpy(y))
             y = y.to('cpu', torch.int64)
-            y = y.to('cuda:2')
+            y = y.to('cuda:3')
 
             print(z.shape)
             print(y.shape)
@@ -298,12 +298,12 @@ for ep in range(num_epochs):
           z_ = np.random.normal(0, 1, (batch_size, nz))
           z_ = (torch.from_numpy(z_))
           z.data.copy_(z_.view(batch_size, nz))
-          z = z.to('cuda:2')
+          z = z.to('cuda:3')
 
           y = np.random.randint(0, n_class, batch_size)
           y = (torch.from_numpy(y))
           y = y.to('cpu', torch.int64)
-          y = y.to('cuda:2')
+          y = y.to('cuda:3')
 
           D_fake = GD(z, y, train_G=True, split_D=False)
           G_loss = losses.generator_loss(D_fake) / float(num_G_accumulations)
@@ -321,6 +321,6 @@ for ep in range(num_epochs):
         writer.close()
 
     with torch.no_grad():
-        fake = nn.parallel.data_parallel(G, (eval_z, G.shared(eval_y)), device_ids=[2, 3, 0, 1])
+        fake = nn.parallel.data_parallel(G, (eval_z, G.shared(eval_y)), device_ids=[3, 2, 0, 1])
     writer.add_image("Generated images", vutils.make_grid(fake, nrow=n_imag, padding=2, normalize=True))
     writer.close()
