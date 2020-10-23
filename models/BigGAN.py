@@ -57,7 +57,7 @@ class Generator(nn.Module):
                num_G_SVs=1, num_G_SV_itrs=1,
                G_shared=True, shared_dim=128, hier=True,
                cross_replica=False, mybn=False,
-               G_activation=nn.ReLU(inplace=False),
+               G_activation=nn.LeakyReLU(inplace=False),
                G_lr=5e-5, G_B1=0.0, G_B2=0.999, adam_eps=1e-8,
                BN_eps=1e-5, SN_eps=1e-12, G_mixed_precision=False, G_fp16=False,
                G_init='ortho', skip_init=False, no_optim=False,
@@ -284,7 +284,7 @@ class Discriminator(nn.Module):
 
   def __init__(self, D_ch=96, D_wide=True, resolution=128,
                D_kernel_size=3, D_attn='64', n_classes=1000,
-               num_D_SVs=1, num_D_SV_itrs=1, D_activation=nn.ReLU(inplace=False),
+               num_D_SVs=1, num_D_SV_itrs=1, D_activation=nn.LeakyReLU(inplace=False),
                D_lr=2e-4, D_B1=0.0, D_B2=0.999, adam_eps=1e-8,
                SN_eps=1e-12, output_dim=1, D_mixed_precision=False, D_fp16=False,
                D_init='ortho', skip_init=False, D_param='SN', **kwargs):
