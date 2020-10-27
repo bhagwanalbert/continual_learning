@@ -146,6 +146,22 @@ for param_group in D.optim.state_dict()['state']:
                 D.optim.state_dict()['state'][param_group][param] = \
                     D.optim.state_dict()['state'][param_group][param][500:n_class+500]
 
+# Freeze layers of G and D
+for name, param in G.named_parameters():
+    if (name == "shared.weight"):
+        pass
+    elif (name == "blocks.4.0.conv1.weight"):
+        break
+    else:
+        param.requires_grad = False
+
+for name, param in D.named_parameters():
+    if (name == "blocks.5.0.conv1.weight"):
+        break
+    else:
+        param.requires_grad = False
+
+
 ## Use a fresh optimizer
 # G.optim = torch.optim.Adam(G.parameters(), lr=lr, betas=(beta1, 0.999))
 # D.optim = torch.optim.Adam(D.parameters(), lr=lr, betas=(beta1, 0.999))
