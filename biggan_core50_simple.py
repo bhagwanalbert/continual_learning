@@ -148,9 +148,10 @@ for param_group in D.optim.state_dict()['state']:
 
 # Freeze layers of G and D
 for name, param in G.named_parameters():
-    if (name == "shared.weight"):
-        pass
-    elif (name == "blocks.4.0.conv1.weight"):
+    # if (name == "shared.weight"):
+    #     pass
+    # el
+    if (name == "blocks.4.0.conv1.weight"):
         break
     else:
         param.requires_grad = False
