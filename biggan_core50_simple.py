@@ -151,13 +151,13 @@ for name, param in G.named_parameters():
     # if (name == "shared.weight"):
     #     pass
     # el
-    if (name == "blocks.4.0.conv1.weight"):
+    if (name == "output_layer.0.gain"):
         break
     else:
         param.requires_grad = False
 
 for name, param in D.named_parameters():
-    if (name == "blocks.5.0.conv1.weight"):
+    if (name == "linear.weight"):
         break
     else:
         param.requires_grad = False
