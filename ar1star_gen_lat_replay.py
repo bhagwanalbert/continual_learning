@@ -95,7 +95,7 @@ n_class = 50
 n_imag = 5
 
 # Create the dataset object
-dataset = COREn_class(root='/home/abhagwan/datasets/core50', scenario="nicv2_391")
+dataset = CORE50(root='/home/abhagwan/datasets/core50', scenario="nicv2_391")
 preproc = preprocess_imgs
 
 # Get the fixed test set
