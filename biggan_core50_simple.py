@@ -151,14 +151,14 @@ for name, param in G.named_parameters():
     # if (name == "shared.weight"):
     #     pass
     # el
-    if (name == "output_layer.0.gain"):
-        break
+    if (name == "shared.weight"):
+        pass
     else:
         param.requires_grad = False
 
 for name, param in D.named_parameters():
-    if (name == "linear.weight"):
-        break
+    if (name == "embed.weight"):
+        pass
     else:
         param.requires_grad = False
 
