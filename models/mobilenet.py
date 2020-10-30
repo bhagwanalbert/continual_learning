@@ -48,16 +48,8 @@ def remove_DwsConvBlock(cur_layers):
             all_layers.append(layer)
     return all_layers
 
-def replace_ReLU_with_LeakyReLU(cur_layers):
-    for layer in cur_layers:
-        for child_name, child in layer.named_children():
-            if isinstance(child, nn.ReLU):
-                setattr(layer, child_name, nn.LeakyReLU(0.2, inplace=True))
-
-    return cur_layers
-
 class MyMobilenetV1(nn.Module):
-    def __init__(self, pretrained=True, latent_layer_num=20, num_classes=50, softmax=False, discriminator=False):
+    def __init__(self, pretrained=True, latent_layer_num=20, num_classes=50):
         super().__init__()
 
         model = get_model("mobilenet_w1", pretrained=pretrained)
@@ -66,9 +58,6 @@ class MyMobilenetV1(nn.Module):
         all_layers = []
         remove_sequential(model, all_layers)
         all_layers = remove_DwsConvBlock(all_layers)
-
-        if discriminator:
-            replace_ReLU_with_LeakyReLU(all_layers)
 
         lat_list = []
         end_list = []
@@ -84,12 +73,6 @@ class MyMobilenetV1(nn.Module):
         self.end_features = nn.Sequential(*end_list)
 
         self.output = nn.Linear(1024, num_classes, bias=False)
-        self.rf = nn.Linear(1024, 1, bias=False)
-
-        self.sig = nn.Sigmoid()
-
-        self.softmax = nn.Softmax(dim=1)
-        self.softmax_needed = softmax
 
     def forward(self, x, latent_input=None, return_lat_acts=False):
 
@@ -103,16 +86,10 @@ class MyMobilenetV1(nn.Module):
         x = x.view(x.size(0), -1)
         logits = self.output(x)
 
-        if self.softmax_needed:
-            logits  = self.softmax(logits)
-
-        source = self.sig(self.rf(x))
-        source = source.view(source.shape[0])
-
         if return_lat_acts:
-            return logits, source, orig_acts
+            return logits, orig_acts
         else:
-            return logits, source
+            return logits
 
 
 if __name__ == "__main__":
