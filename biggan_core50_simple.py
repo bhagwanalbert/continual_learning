@@ -147,20 +147,17 @@ for param_group in D.optim.state_dict()['state']:
                     D.optim.state_dict()['state'][param_group][param][500:n_class+500]
 
 # Freeze layers of G and D
-for name, param in G.named_parameters():
-    # if (name == "shared.weight"):
-    #     pass
-    # el
-    if (name == "shared.weight"):
-        pass
-    else:
-        param.requires_grad = False
-
-for name, param in D.named_parameters():
-    if (name == "embed.weight"):
-        pass
-    else:
-        param.requires_grad = False
+# for name, param in G.named_parameters():
+#     if (name == "shared.weight"):
+#         pass
+#     else:
+#         param.requires_grad = False
+#
+# for name, param in D.named_parameters():
+#     if (name == "embed.weight"):
+#         pass
+#     else:
+#         param.requires_grad = False
 
 
 ## Use a fresh optimizer
