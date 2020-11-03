@@ -151,7 +151,7 @@ def get_accuracy(model, criterion, batch_size, test_x, test_y, use_cuda=True,
     test_y = torch.from_numpy(test_y).type(torch.LongTensor)
 
     if preproc:
-        test_x = preproc(test_x, norm = False)
+        test_x = preproc(test_x, norm = True)
 
     for i in range(test_it):
         # indexing

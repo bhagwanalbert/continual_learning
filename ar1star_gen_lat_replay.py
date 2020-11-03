@@ -172,7 +172,7 @@ for i, train_batch in enumerate(dataset):
         )
 
     train_x, train_y = train_batch
-    train_x = preproc(train_x, norm=False)
+    train_x = preproc(train_x, norm=True)
 
     if i == 0:
         cur_class = [int(o) for o in set(train_y)]
