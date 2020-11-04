@@ -159,10 +159,15 @@ for param_group in D.optim.state_dict()['state']:
 #     else:
 #         param.requires_grad = False
 
+print(G.optim)
+print(D.optim)
 
 ## Use a fresh optimizer
 G.optim = torch.optim.Adam(G.parameters(), lr=lr, betas=(beta1, 0.999))
 D.optim = torch.optim.Adam(D.parameters(), lr=lr, betas=(beta1, 0.999))
+
+print(G.optim)
+print(D.optim)
 
 GD = BigGAN.G_D(G, D)
 GD = nn.DataParallel(GD, device_ids=[0, 1, 2, 5])
