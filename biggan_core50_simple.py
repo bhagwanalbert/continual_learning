@@ -54,10 +54,12 @@ n_class = 50
 nz = 120
 
 # Learning rate for optimizers
-lr = 0.0002
+G_lr = 0.0001
+D_lr = 0.0004
+eps = 1e-8
 
 # Beta1 hyperparam for Adam optimizers
-beta1 = 0.5
+beta1 = 0.0
 
 # Images to view per class to test generator
 n_imag = 5
@@ -159,12 +161,9 @@ for param_group in D.optim.state_dict()['state']:
 #     else:
 #         param.requires_grad = False
 
-print(G.optim)
-print(D.optim)
-
 ## Use a fresh optimizer
-G.optim = torch.optim.Adam(G.parameters(), lr=lr, betas=(beta1, 0.999))
-D.optim = torch.optim.Adam(D.parameters(), lr=lr, betas=(beta1, 0.999))
+G.optim = torch.optim.Adam(G.parameters(), lr=G_lr, betas=(beta1, 0.999), eps=eps)
+D.optim = torch.optim.Adam(D.parameters(), lr=D_lr, betas=(beta1, 0.999), eps=eps)
 
 print(G.optim)
 print(D.optim)
