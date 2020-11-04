@@ -36,3 +36,8 @@ for param_group in D.optim.state_dict():
     print(param_group)
 
 print(D.optim.state_dict()['param_groups'])
+
+for param_group in D.optim.state_dict()['state']:
+    for param in D.optim.state_dict()['state'][param_group]:
+        print(param_group)
+        print(param)
