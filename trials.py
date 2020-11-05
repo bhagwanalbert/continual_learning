@@ -23,7 +23,7 @@ print(D)
 for name, param in D.named_parameters():
     print(name)
 
-for name, param in G.parameters():
+for name in G.parameters():
     print(name)
 
 # G.optim.load_state_dict(
