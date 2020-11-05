@@ -54,11 +54,11 @@ n_class = 50
 nz = 120
 
 # Learning rate for optimizers
-att_lr = 0.00001
-conv_lr = 0.00001
-lin_lr = 0.00001
-emb_lr = 0.05
-bn_lr = 0.0005
+att_lr = 0.0004
+conv_lr = 0.0001
+lin_lr = 0.0001
+emb_lr = 0.0004
+bn_lr = 0.0001
 eps = 1e-8
 
 # Beta1 hyperparam for Adam optimizers
