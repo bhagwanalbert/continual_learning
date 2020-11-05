@@ -55,7 +55,7 @@ nz = 120
 
 # Learning rate for optimizers
 att_lr = 0.00001
-lin_lr = 0.0000001
+lin_lr = 0.00001
 emb_lr = 0.05
 bn_lr = 0.0005
 eps = 1e-8
@@ -187,9 +187,9 @@ for name, param in G.named_parameters():
         att_params[name] = param
 
 params = []
-params.append({"params":list(emb_params.values()), "lr":4*emb_lr})
-params.append({"params":list(lin_params.values()), "lr":4*lin_lr})
-params.append({"params":list(att_params.values()), "lr":4*att_lr})
+params.append({"params":list(emb_params.values()), "lr":emb_lr})
+params.append({"params":list(lin_params.values()), "lr":lin_lr})
+params.append({"params":list(att_params.values()), "lr":att_lr})
 
 D.optim = torch.optim.Adam(params, lr=0, betas=(beta1, 0.999), eps=eps)
 
