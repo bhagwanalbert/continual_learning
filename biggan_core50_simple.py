@@ -55,6 +55,7 @@ nz = 120
 
 # Learning rate for optimizers
 att_lr = 0.00001
+conv_lr = 0.00001
 lin_lr = 0.00001
 emb_lr = 0.05
 bn_lr = 0.0005
@@ -154,6 +155,7 @@ ema = ema(G, G_ema,start_itr = 20000)
 emb_params = {}
 lin_params = {}
 bn_params = {}
+conv_params = {}
 for name, param in G.named_parameters():
     param.requires_grad = True
     if ("shared" in name):
@@ -163,18 +165,20 @@ for name, param in G.named_parameters():
     elif ("bn" in name):
         bn_params[name] = param
     else:
-        param.requires_grad = False
+        conv_params[name] = param
 
 params = []
 params.append({"params":list(emb_params.values()), "lr":emb_lr})
 params.append({"params":list(lin_params.values()), "lr":lin_lr})
 params.append({"params":list(bn_params.values()), "lr":bn_lr})
+params.append({"params":list(conv_params.values()), "lr":conv_lr})
 
 G.optim = torch.optim.Adam(params, lr=0, betas=(beta1, 0.999), eps=eps)
 
 emb_params = {}
 lin_params = {}
 att_params = {}
+conv_params = {}
 for name, param in G.named_parameters():
     param.requires_grad = True
     if ("embed" in name):
@@ -182,7 +186,7 @@ for name, param in G.named_parameters():
     elif ("linear" in name):
         lin_params[name] = param
     elif ("conv" in name):
-        param.requires_grad = False
+        conv_params[name] = param
     else:
         att_params[name] = param
 
@@ -190,6 +194,7 @@ params = []
 params.append({"params":list(emb_params.values()), "lr":emb_lr})
 params.append({"params":list(lin_params.values()), "lr":lin_lr})
 params.append({"params":list(att_params.values()), "lr":att_lr})
+params.append({"params":list(conv_params.values()), "lr":conv_lr})
 
 D.optim = torch.optim.Adam(params, lr=0, betas=(beta1, 0.999), eps=eps)
 
