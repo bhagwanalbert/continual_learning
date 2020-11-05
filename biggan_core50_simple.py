@@ -54,8 +54,10 @@ n_class = 50
 nz = 120
 
 # Learning rate for optimizers
-G_lr = 0.0001
-D_lr = 0.0004
+att_lr = 0.00001
+lin_lr = 0.0000001
+emb_lr = 0.05
+bn_lr = 0.0005
 eps = 1e-8
 
 # Beta1 hyperparam for Adam optimizers
@@ -120,51 +122,76 @@ G_ema.load_state_dict(new_state_dict, strict=True)
 ema = ema(G, G_ema,start_itr = 20000)
 
 ## Load optimizer state dict and adapt it
-G.optim.load_state_dict(
-      torch.load('%s/%s.pth' % (weight_root, 'G_optim')))
-
-for param_group in G.optim.state_dict()['state']:
-    for param in G.optim.state_dict()['state'][param_group]:
-        if param == 'step':
-            pass
-        else:
-            if G.optim.state_dict()['state'][param_group][param].shape == torch.Size([]):
-                pass
-            elif G.optim.state_dict()['state'][param_group][param].shape[0] == 1000:
-                G.optim.state_dict()['state'][param_group][param] = \
-                    G.optim.state_dict()['state'][param_group][param][500:n_class+500]
-
-D.optim.load_state_dict(
-      torch.load('%s/%s.pth' % (weight_root, 'D_optim')))
-
-for param_group in D.optim.state_dict()['state']:
-    for param in D.optim.state_dict()['state'][param_group]:
-        if param == 'step':
-            pass
-        else:
-            if D.optim.state_dict()['state'][param_group][param].shape == torch.Size([]):
-                pass
-            elif D.optim.state_dict()['state'][param_group][param].shape[0] == 1000:
-                D.optim.state_dict()['state'][param_group][param] = \
-                    D.optim.state_dict()['state'][param_group][param][500:n_class+500]
-
-for name, param in G.named_parameters():
-    if (name == "shared.weight"):
-        pass
-    elif (name == "blocks.4.0.conv1.weight"):
-        break
-    else:
-        param.requires_grad = False
-
-for name, param in D.named_parameters():
-    if (name == "blocks.5.0.conv1.weight"):
-        break
-    else:
-        param.requires_grad = False
+# G.optim.load_state_dict(
+#       torch.load('%s/%s.pth' % (weight_root, 'G_optim')))
+#
+# for param_group in G.optim.state_dict()['state']:
+#     for param in G.optim.state_dict()['state'][param_group]:
+#         if param == 'step':
+#             pass
+#         else:
+#             if G.optim.state_dict()['state'][param_group][param].shape == torch.Size([]):
+#                 pass
+#             elif G.optim.state_dict()['state'][param_group][param].shape[0] == 1000:
+#                 G.optim.state_dict()['state'][param_group][param] = \
+#                     G.optim.state_dict()['state'][param_group][param][500:n_class+500]
+#
+# D.optim.load_state_dict(
+#       torch.load('%s/%s.pth' % (weight_root, 'D_optim')))
+#
+# for param_group in D.optim.state_dict()['state']:
+#     for param in D.optim.state_dict()['state'][param_group]:
+#         if param == 'step':
+#             pass
+#         else:
+#             if D.optim.state_dict()['state'][param_group][param].shape == torch.Size([]):
+#                 pass
+#             elif D.optim.state_dict()['state'][param_group][param].shape[0] == 1000:
+#                 D.optim.state_dict()['state'][param_group][param] = \
+#                     D.optim.state_dict()['state'][param_group][param][500:n_class+500]
 
 ## Use a fresh optimizer
-G.optim = torch.optim.Adam(G.parameters(), lr=G_lr, betas=(beta1, 0.999), eps=eps)
-D.optim = torch.optim.Adam(D.parameters(), lr=D_lr, betas=(beta1, 0.999), eps=eps)
+emb_params = {}
+lin_params = {}
+bn_params = {}
+for name, param in G.named_parameters():
+    param.requires_grad = True
+    if ("shared" in name):
+        emb_params[name] = param
+    elif ("linear" in name):
+        lin_params[name] = param
+    elif ("bn" in name):
+        bn_params[name] = param
+    else:
+        param.requires_grad = False
+
+params = []
+params.append({"params":list(emb_params.values()), "lr":emb_lr})
+params.append({"params":list(lin_params.values()), "lr":lin_lr})
+params.append({"params":list(bn_params.values()), "lr":bn_lr})
+
+G.optim = torch.optim.Adam(params, lr=0, betas=(beta1, 0.999), eps=eps)
+
+emb_params = {}
+lin_params = {}
+att_params = {}
+for name, param in G.named_parameters():
+    param.requires_grad = True
+    if ("embed" in name):
+        emb_params[name] = param
+    elif ("linear" in name):
+        lin_params[name] = param
+    elif ("conv" in name):
+        param.requires_grad = False
+    else:
+        att_params[name] = param
+
+params = []
+params.append({"params":list(emb_params.values()), "lr":emb_lr})
+params.append({"params":list(lin_params.values()), "lr":lin_lr})
+params.append({"params":list(att_params.values()), "lr":att_lr})
+
+D.optim = torch.optim.Adam(params, lr=0, betas=(beta1, 0.999), eps=eps)
 
 print(G.optim)
 print(D.optim)
