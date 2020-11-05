@@ -23,7 +23,8 @@ print(D)
 for name, param in D.named_parameters():
     print(name)
 
-print(D.parameters())
+for name, param in G.parameters():
+    print(name)
 
 # G.optim.load_state_dict(
 #       torch.load('%s/%s.pth' % (weight_root, 'G_optim')))
