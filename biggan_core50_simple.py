@@ -54,11 +54,12 @@ n_class = 50
 nz = 120
 
 # Learning rate for optimizers
-att_lr = 0.0004
+att_lr = 0.0001
 conv_lr = 0.0001
 lin_lr = 0.0001
-emb_lr = 0.0004
+emb_lr = 0.0001
 bn_lr = 0.0001
+out_lr = 0.0001
 eps = 1e-8
 
 # Beta1 hyperparam for Adam optimizers
@@ -156,6 +157,8 @@ emb_params = {}
 lin_params = {}
 bn_params = {}
 conv_params = {}
+out_params = {}
+att_params = {}
 for name, param in G.named_parameters():
     param.requires_grad = True
     if ("shared" in name):
@@ -164,14 +167,21 @@ for name, param in G.named_parameters():
         lin_params[name] = param
     elif ("bn" in name):
         bn_params[name] = param
-    else:
+    elif ("conv" in name):
         conv_params[name] = param
+    elif ("output" in name):
+        out_params[name] = param
+    else:
+        att_params[name] = param
+
 
 params = []
 params.append({"params":list(emb_params.values()), "lr":emb_lr})
 params.append({"params":list(lin_params.values()), "lr":lin_lr})
 params.append({"params":list(bn_params.values()), "lr":bn_lr})
 params.append({"params":list(conv_params.values()), "lr":conv_lr})
+params.append({"params":list(out_params.values()), "lr":out_lr})
+params.append({"params":list(att_params.values()), "lr":att_lr})
 
 G.optim = torch.optim.Adam(params, lr=0, betas=(beta1, 0.999), eps=eps)
 
@@ -191,10 +201,10 @@ for name, param in G.named_parameters():
         att_params[name] = param
 
 params = []
-params.append({"params":list(emb_params.values()), "lr":emb_lr})
-params.append({"params":list(lin_params.values()), "lr":lin_lr})
-params.append({"params":list(att_params.values()), "lr":att_lr})
-params.append({"params":list(conv_params.values()), "lr":conv_lr})
+params.append({"params":list(emb_params.values()), "lr":4*emb_lr})
+params.append({"params":list(lin_params.values()), "lr":4*lin_lr})
+params.append({"params":list(att_params.values()), "lr":4*att_lr})
+params.append({"params":list(conv_params.values()), "lr":4*conv_lr})
 
 D.optim = torch.optim.Adam(params, lr=0, betas=(beta1, 0.999), eps=eps)
 
