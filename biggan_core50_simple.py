@@ -189,7 +189,7 @@ emb_params = {}
 lin_params = {}
 att_params = {}
 conv_params = {}
-for name, param in G.named_parameters():
+for name, param in D.named_parameters():
     param.requires_grad = True
     if ("embed" in name):
         emb_params[name] = param
