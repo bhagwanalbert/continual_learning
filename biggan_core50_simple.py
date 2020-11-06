@@ -55,7 +55,7 @@ nz = 120
 
 # Learning rate for optimizers
 att_lr = 0.0001
-conv_lr = 0.000001
+conv_lr = 0.00001
 lin_lr = 0.0001
 emb_lr = 0.0001
 bn_lr = 0.0001
