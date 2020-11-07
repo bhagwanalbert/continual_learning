@@ -55,7 +55,7 @@ nz = 120
 
 # Learning rate for optimizers
 att_lr = 0.0001
-conv_lr = 0.00001
+conv_lr = 0.0001
 lin_lr = 0.0001
 emb_lr = 0.0001
 bn_lr = 0.0001
@@ -203,8 +203,8 @@ for name, param in D.named_parameters():
 params = []
 params.append({"params":list(emb_params.values()), "lr":4*emb_lr})
 params.append({"params":list(lin_params.values()), "lr":4*lin_lr})
-params.append({"params":list(att_params.values()), "lr":4*att_lr})
-params.append({"params":list(conv_params.values()), "lr":4*conv_lr})
+params.append({"params":list(att_params.values()), "lr":0*att_lr})
+params.append({"params":list(conv_params.values()), "lr":0*conv_lr})
 
 D.optim = torch.optim.Adam(params, lr=0, betas=(beta1, 0.999), eps=eps)
 
