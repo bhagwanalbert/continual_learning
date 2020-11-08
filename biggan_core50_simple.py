@@ -201,10 +201,10 @@ for name, param in D.named_parameters():
         att_params[name] = param
 
 params = []
-params.append({"params":list(emb_params.values()), "lr":4*emb_lr})
-params.append({"params":list(lin_params.values()), "lr":4*lin_lr})
-params.append({"params":list(att_params.values()), "lr":4*att_lr})
-params.append({"params":list(conv_params.values()), "lr":4*conv_lr})
+params.append({"params":list(emb_params.values()), "lr":emb_lr})
+params.append({"params":list(lin_params.values()), "lr":lin_lr})
+params.append({"params":list(att_params.values()), "lr":att_lr})
+params.append({"params":list(conv_params.values()), "lr":conv_lr})
 
 D.optim = torch.optim.Adam(params, lr=0, betas=(beta1, 0.999), eps=eps)
 
