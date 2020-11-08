@@ -26,7 +26,7 @@ import losses
 from data_loader import CORE50
 
 # Create tensorboard writer object
-writer = SummaryWriter('logs/biggan')
+writer = SummaryWriter('logs/biggan2')
 
 # Root directory for dataset
 dataset = CORE50(root='/home/abhagwan/datasets/core50', scenario="nicv2_391")
