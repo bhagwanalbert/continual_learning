@@ -59,7 +59,7 @@ conv_lr = 0.0001
 lin_lr = 0.0000001
 emb_lr = 0.05
 bn_lr = 0.0005
-out_lr = 0.0001
+out_lr = 0.0000001
 eps = 1e-8
 
 # Beta1 hyperparam for Adam optimizers
