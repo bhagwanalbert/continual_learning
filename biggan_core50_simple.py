@@ -35,7 +35,7 @@ dataset = CORE50(root='/home/abhagwan/datasets/core50', scenario="nicv2_391")
 workers = 2
 
 # Batch size during training
-batch_size = 12
+batch_size = 20
 
 # Spatial size of training images. All images will be resized to this
 #   size using a transformer.
@@ -201,10 +201,10 @@ for name, param in D.named_parameters():
         att_params[name] = param
 
 params = []
-params.append({"params":list(emb_params.values()), "lr":emb_lr/2})
-params.append({"params":list(lin_params.values()), "lr":lin_lr/2})
-params.append({"params":list(att_params.values()), "lr":att_lr/2})
-params.append({"params":list(conv_params.values()), "lr":conv_lr/2})
+params.append({"params":list(emb_params.values()), "lr":emb_lr})
+params.append({"params":list(lin_params.values()), "lr":lin_lr})
+params.append({"params":list(att_params.values()), "lr":att_lr})
+params.append({"params":list(conv_params.values()), "lr":conv_lr})
 
 D.optim = torch.optim.Adam(params, lr=0, betas=(beta1, 0.999), eps=eps)
 
@@ -212,7 +212,7 @@ print(G.optim)
 print(D.optim)
 
 GD = BigGAN.G_D(G, D)
-GD = nn.DataParallel(GD, device_ids=[0, 1, 2, 5])
+GD = nn.DataParallel(GD, device_ids=[0, 1, 2, 3, 5])
 
 ## Test current BigGAN
 eval_z = torch.FloatTensor(n_imag*n_class, nz).normal_(0, 1)
@@ -382,6 +382,6 @@ for ep in range(num_epochs):
         writer.close()
 
     with torch.no_grad():
-        fake = nn.parallel.data_parallel(G, (eval_z, G.shared(eval_y)), device_ids=[0, 1, 2, 5])
+        fake = nn.parallel.data_parallel(G, (eval_z, G.shared(eval_y)), device_ids=[0, 1, 2, 3, 5])
     writer.add_image("Generated images", vutils.make_grid(fake, nrow=n_imag, padding=2, normalize=True))
     writer.close()
