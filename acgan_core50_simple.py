@@ -72,7 +72,7 @@ nz = 100 + n_class
 lr = 0.0002
 
 # Beta1 hyperparam for Adam optimizers
-beta1 = 0.5
+beta1 = 0.0
 
 # Images to view per class to test generator
 n_imag = 5
