@@ -208,8 +208,8 @@ for ep in range(num_epochs):
 
         ## Training with fake data now
         noise = torch.FloatTensor(y_mb.size(0), nz, 1, 1).normal_(0, 1)
-        #noise_ = np.random.normal(0, 1, (y_mb.size(0), nz))
-        noise_ = trunc_normal3.rvs(y_mb.size(0)*nz, 0)
+        noise_ = np.random.normal(0, 1, (y_mb.size(0), nz))
+        #noise_ = trunc_normal3.rvs(y_mb.size(0)*nz, 0)
         noise_ = noise_.reshape(y_mb.size(0),nz)
         label = np.random.randint(0, n_class, y_mb.size(0))
         onehot = np.zeros((y_mb.size(0), n_class))
