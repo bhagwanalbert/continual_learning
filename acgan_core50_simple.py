@@ -60,7 +60,7 @@ image_size = 128
 nc = 3
 
 # Number of training epochs
-num_epochs = 100
+num_epochs = 300
 
 # Number of classes of dataset
 n_class = 10
@@ -69,7 +69,7 @@ n_class = 10
 nz = 100 + n_class
 
 # Learning rate for optimizers
-lr = 0.0002
+lr = 0.00005
 
 # Beta1 hyperparam for Adam optimizers
 beta1 = 0.0
