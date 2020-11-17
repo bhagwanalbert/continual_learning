@@ -60,7 +60,7 @@ image_size = 128
 nc = 3
 
 # Number of training epochs
-num_epochs = 300
+num_epochs = 100
 
 # Number of classes of dataset
 n_class = 10
@@ -69,7 +69,7 @@ n_class = 10
 nz = 100 + n_class
 
 # Learning rate for optimizers
-lr = 0.00005
+lr = 0.0002
 
 # Beta1 hyperparam for Adam optimizers
 beta1 = 0.0
@@ -123,7 +123,7 @@ def weights_init(m):
 
 # Discriminator + classifier
 model = conditioned_discriminator(num_classes=n_class)
-gen = generator(nz)
+gen = generator_v2(nz)
 
 model.apply(weights_init)
 gen.apply(weights_init)
