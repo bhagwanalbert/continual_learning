@@ -86,10 +86,10 @@ use_cuda = True
 
 
 test_x, test_y = dataset.get_test_set()
-test_x = preprocess_imgs(test_x, norm=False, symmetric = True)
+test_x = preprocess_imgs(test_x, norm=True, symmetric = True)
 
 train_x, train_y = next(iter(dataset))
-train_x = preprocess_imgs(train_x, norm=False, symmetric = True)
+train_x = preprocess_imgs(train_x, norm=True, symmetric = True)
 train_y = train_y // 5
 
 train_x = torch.from_numpy(train_x).type(torch.FloatTensor)
