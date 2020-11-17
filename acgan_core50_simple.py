@@ -137,8 +137,9 @@ criterion_source = torch.nn.BCELoss()
 
 # Fix noise to view generated images
 eval_noise = torch.FloatTensor(n_imag*n_class, nz, 1, 1).normal_(0, 1)
-eval_noise_ = trunc_normal3.rvs(n_imag*n_class*nz, 0)
-eval_noise_ = eval_noise_.reshape(n_imag*n_class,nz)
+eval_noise_ = np.random.normal(0, 1, (n_imag*n_class, nz))
+#eval_noise_ = trunc_normal3.rvs(n_imag*n_class*nz, 0)
+#eval_noise_ = eval_noise_.reshape(n_imag*n_class,nz)
 eval_onehot = np.zeros((n_imag*n_class, n_class))
 
 for c in range(n_class):
@@ -186,7 +187,7 @@ for ep in range(num_epochs):
         real_label.fill_(0.9)
 
         fake_label = maybe_cuda(torch.FloatTensor(y_mb.size(0)), use_cuda=use_cuda)
-        fake_label.fill_(0.1)
+        fake_label.fill_(0.0)
 
         _, pred_label = torch.max(classes, 1)
         correct_cnt += (pred_label == y_mb).sum()
@@ -210,7 +211,7 @@ for ep in range(num_epochs):
         noise = torch.FloatTensor(y_mb.size(0), nz, 1, 1).normal_(0, 1)
         noise_ = np.random.normal(0, 1, (y_mb.size(0), nz))
         #noise_ = trunc_normal3.rvs(y_mb.size(0)*nz, 0)
-        noise_ = noise_.reshape(y_mb.size(0),nz)
+        #noise_ = noise_.reshape(y_mb.size(0),nz)
         label = np.random.randint(0, n_class, y_mb.size(0))
         onehot = np.zeros((y_mb.size(0), n_class))
         onehot[np.arange(y_mb.size(0)), label] = 1
