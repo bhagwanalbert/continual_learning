@@ -69,7 +69,10 @@ n_class = 10
 nz = 100 + n_class
 
 # Learning rate for optimizers
-lr = 0.0002
+conv_lr = 0.0001
+bn_lr = 0.0001
+fc_dis_lr = 0.00001
+fc_aux_lr = 0.00001
 
 # Beta1 hyperparam for Adam optimizers
 beta1 = 0.0
@@ -79,7 +82,7 @@ n_imag = 5
 
 # Set cuda device (based on your hardware)
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+os.environ["CUDA_VISIBLE_DEVICES"] = "5"
 
 # Use cuda or not
 use_cuda = True
@@ -125,18 +128,50 @@ def weights_init(m):
 model = conditioned_discriminator(num_classes=n_class)
 gen = generator(nz)
 
+conv_params = {}
+bn_params = {}
+fc_dis_params = {}
+fc_aux_params = {}
 for name, param in model.named_parameters():
-    print(name)
+    param.requires_grad = True
+    if (("0" in name) or ("2" in name) or ("5" in name) or ("8" in name) or ("11" in name)):
+        conv_params[name] = param
+    elif (("3" in name) or ("6" in name) or ("9" in name) or ("12" in name)):
+        bn_params[name] = param
+    elif ("fc_dis" in name):
+        fc_dis_params[name] = param
+    else:
+        fc_aux_params[name] = param
 
-for name, param in gen.named_parameters():
-    print(name)
 
-model.apply(weights_init)
-gen.apply(weights_init)
+params = []
+params.append({"params":list(conv_params.values()), "lr":conv_lr})
+params.append({"params":list(bn_params.values()), "lr":bn_lr})
+params.append({"params":list(fc_dis_params.values()), "lr":fc_dis_lr})
+params.append({"params":list(fc_aux_params.values()), "lr":fc_aux_lr})
 
 # Optimizer setup
 optimizer = torch.optim.Adam(model.parameters(), lr=lr, betas=(beta1, 0.999))
+
+conv_params = {}
+bn_params = {}
+for name, param in gen.named_parameters():
+    param.requires_grad = True
+    if (("0" in name) or ("3" in name) or ("6" in name) or ("9" in name) or ("12" in name) or ("15" in name)):
+        conv_params[name] = param
+    else:
+        bn_params[name] = param
+
+
+params = []
+params.append({"params":list(conv_params.values()), "lr":conv_lr})
+params.append({"params":list(bn_params.values()), "lr":bn_lr})
+
+# Optimizer setup
 optimG = torch.optim.Adam(gen.parameters(), lr=lr, betas=(beta1, 0.999))
+
+model.apply(weights_init)
+gen.apply(weights_init)
 
 criterion = torch.nn.NLLLoss()
 criterion_source = torch.nn.BCELoss()
