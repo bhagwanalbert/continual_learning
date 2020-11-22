@@ -212,7 +212,7 @@ print(G.optim)
 print(D.optim)
 
 GD = BigGAN.G_D(G, D)
-GD = nn.DataParallel(GD, device_ids=[0, 1, 2, 3, 4])
+GD = nn.DataParallel(GD, device_ids=[0, 1, 2, 3])
 
 ## Test current BigGAN
 eval_z = torch.FloatTensor(n_imag*n_class, nz).normal_(0, 1)
@@ -382,6 +382,6 @@ for ep in range(num_epochs):
         writer.close()
 
     with torch.no_grad():
-        fake = nn.parallel.data_parallel(G, (eval_z, G.shared(eval_y)), device_ids=[0, 1, 2, 3, 4])
+        fake = nn.parallel.data_parallel(G, (eval_z, G.shared(eval_y)), device_ids=[0, 1, 2, 3])
     writer.add_image("Generated images", vutils.make_grid(fake, nrow=n_imag, padding=2, normalize=True))
     writer.close()
