@@ -123,7 +123,13 @@ def weights_init(m):
 
 # Discriminator + classifier
 model = conditioned_discriminator(num_classes=n_class)
-gen = generator_v2(nz)
+gen = generator(nz)
+
+for name, param in model.named_parameters():
+    print(name)
+
+for name, param in gen.named_parameters():
+    print(name)
 
 model.apply(weights_init)
 gen.apply(weights_init)
