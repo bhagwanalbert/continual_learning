@@ -151,7 +151,7 @@ params.append({"params":list(fc_dis_params.values()), "lr":fc_dis_lr})
 params.append({"params":list(fc_aux_params.values()), "lr":fc_aux_lr})
 
 # Optimizer setup
-optimizer = torch.optim.Adam(model.parameters(), lr=lr, betas=(beta1, 0.999))
+optimizer = torch.optim.Adam(params, lr=0.0, betas=(beta1, 0.999))
 
 conv_params = {}
 bn_params = {}
@@ -168,7 +168,7 @@ params.append({"params":list(conv_params.values()), "lr":conv_lr})
 params.append({"params":list(bn_params.values()), "lr":bn_lr})
 
 # Optimizer setup
-optimG = torch.optim.Adam(gen.parameters(), lr=lr, betas=(beta1, 0.999))
+optimG = torch.optim.Adam(params, lr=0.0, betas=(beta1, 0.999))
 
 model.apply(weights_init)
 gen.apply(weights_init)
