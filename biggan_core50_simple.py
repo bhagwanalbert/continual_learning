@@ -279,12 +279,6 @@ train_y = train_y.to('cuda:0')
 x_mb = torch.split(train_x, batch_size)
 y_mb = torch.split(train_y, batch_size)
 
-print(x_mb[0].shape)
-print(y_mb[0].shape)
-D_fake, D_real = GD(eval_z, eval_y,
-                    x_mb[0], y_mb[0], train_G=False,
-                    split_D=False)
-
 tot_it_step = 0
 
 x_mb = torch.split(train_x, batch_size)
@@ -294,15 +288,13 @@ data_transforms = transforms.Compose([
         transforms.RandomHorizontalFlip()
         ])
 
-print(len(x_mb))
-
 num_iter = len(x_mb)//(num_D_steps*num_D_accumulations)
 
 for ep in range(num_epochs):
     print("training ep: ", ep)
 
     counter = 0
-    x_mb = data_transforms(x_mb)
+    x_mb_proc = data_transforms(x_mb)
 
     G.train()
     D.train()
@@ -331,16 +323,16 @@ for ep in range(num_epochs):
             y = y.to('cpu', torch.int64)
             y = y.to('cuda:0')
 
-            print(z.shape)
-            print(y.shape)
-            print(x_mb[counter].shape)
-            print(y_mb[counter].shape)
+            # print(z.shape)
+            # print(y.shape)
+            # print(x_mb_proc[counter].shape)
+            # print(y_mb[counter].shape)
             print(it)
             print(accumulation_index)
             print(counter)
 
             D_fake, D_real = GD(z, y,
-                                x_mb[counter], y_mb[counter], train_G=False,
+                                x_mb_proc[counter], y_mb[counter], train_G=False,
                                 split_D=False)
 
             # Compute components of D's loss, average them, and divide by
