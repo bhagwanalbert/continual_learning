@@ -164,8 +164,8 @@ for name, param in gen.named_parameters():
 
 
 params = []
-params.append({"params":list(conv_params.values()), "lr":conv_lr})
-params.append({"params":list(bn_params.values()), "lr":bn_lr})
+params.append({"params":list(conv_params.values()), "lr":4*conv_lr})
+params.append({"params":list(bn_params.values()), "lr":4*bn_lr})
 
 # Optimizer setup
 optimG = torch.optim.Adam(params, lr=0.0, betas=(beta1, 0.999))
@@ -186,7 +186,6 @@ eval_onehot = np.zeros((n_imag*n_class, n_class))
 for c in range(n_class):
     eval_onehot[np.arange(n_imag*c,n_imag*(c+1)), c] = 1
 
-print(np.argmax(eval_onehot, axis=1))
 eval_noise_[np.arange(n_imag*n_class), :n_class] = eval_onehot[np.arange(n_imag*n_class)]
 
 eval_noise_ = (torch.from_numpy(eval_noise_))
@@ -338,7 +337,6 @@ eval_onehot = np.zeros((n_imag*n_class, n_class))
 for c in range(n_class):
     eval_onehot[np.arange(n_imag*c,n_imag*(c+1)), c] = 1
 
-print(np.argmax(eval_onehot, axis=1))
 eval_noise_[np.arange(n_imag*n_class), :n_class] = eval_onehot[np.arange(n_imag*n_class)]
 
 eval_noise_ = (torch.from_numpy(eval_noise_))
