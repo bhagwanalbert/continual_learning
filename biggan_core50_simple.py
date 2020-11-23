@@ -290,7 +290,7 @@ data_transforms = transforms.Compose([
 
 num_iter = len(x_mb)//(num_D_steps*num_D_accumulations)
 
-print(x_mb.size)
+print(len(x_mb))
 print(x_mb[0].shape)
 
 x_mb_proc = data_transforms(x_mb)
