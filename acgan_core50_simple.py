@@ -71,8 +71,8 @@ nz = 100 + n_class
 # Learning rate for optimizers
 conv_lr = 0.0001
 bn_lr = 0.0001
-fc_dis_lr = 0.00001
-fc_aux_lr = 0.00001
+fc_dis_lr = 0.000001
+fc_aux_lr = 0.000001
 
 # Beta1 hyperparam for Adam optimizers
 beta1 = 0.0
