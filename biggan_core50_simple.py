@@ -275,8 +275,8 @@ train_y = train_y.to('cuda:0')
 
 tot_it_step = 0
 
-# x_mb = torch.split(train_x, batch_size)
-# y_mb = torch.split(train_y, batch_size)
+x_mb = torch.split(train_x, batch_size)
+y_mb = torch.split(train_y, batch_size)
 
 data_transforms = transforms.Compose([
         transforms.ToPILImage(mode='RGB')
