@@ -284,8 +284,8 @@ data_transforms = transforms.Compose([
 
 num_iter = len(x_mb)//(num_D_steps*num_D_accumulations)
 
-print(len(x_mb))
-print(x_mb[0].shape)
+print(train_x.shape)
+print(train_x[0].shape)
 
 train_x_proc = train_x.clone()
 
