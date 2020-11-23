@@ -290,6 +290,9 @@ data_transforms = transforms.Compose([
 
 num_iter = len(x_mb)//(num_D_steps*num_D_accumulations)
 
+print(x_mb.shape)
+print(x_mb[0].shape)
+
 x_mb_proc = data_transforms(x_mb)
 for idx in range(len(x_mb)):
     writer.add_image("Original images", vutils.make_grid(x_mb[idx], nrow=4, padding=2, normalize=True).cpu())
