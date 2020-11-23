@@ -270,19 +270,13 @@ writer.close()
 # Training Loop
 print("Starting Training Loop...")
 
-tot_it_step = 0
-it_x_ep = train_x.size(0) // batch_size
-
 train_x = train_x.to('cuda:0')
 train_y = train_y.to('cuda:0')
 
-x_mb = torch.split(train_x, batch_size)
-y_mb = torch.split(train_y, batch_size)
-
 tot_it_step = 0
 
-x_mb = torch.split(train_x, batch_size)
-y_mb = torch.split(train_y, batch_size)
+# x_mb = torch.split(train_x, batch_size)
+# y_mb = torch.split(train_y, batch_size)
 
 data_transforms = transforms.Compose([
         transforms.ToPILImage(mode='RGB')
@@ -293,14 +287,13 @@ num_iter = len(x_mb)//(num_D_steps*num_D_accumulations)
 print(len(x_mb))
 print(x_mb[0].shape)
 
-x_mb_proc = x_mb.clone()
+train_x_proc = train_x.clone()
 
-for idx in range(len(x_mb)):
-    for im in range(x_mb[idx].shape[0]):
-        im_proc = data_transforms((x_mb[idx][im].view(3,128,128)).cpu())
-        x_mb_proc[idx][im] = torch.tensor(im_proc).to('cuda:0')
-    writer.add_image("Original images", vutils.make_grid(x_mb[idx], nrow=4, padding=2, normalize=True).cpu())
-    writer.add_image("Transformed images", vutils.make_grid(x_mb_proc[idx], nrow=4, padding=2, normalize=True).cpu())
+for im in range(50):
+    im_proc = data_transforms((train_x[im].view(3,128,128)).cpu())
+    train_x_proc[im] = torch.tensor(im_proc).to('cuda:0')
+writer.add_image("Original images", vutils.make_grid(train_x[0:50], nrow=n_imag, padding=2, normalize=True).cpu())
+writer.add_image("Transformed images", vutils.make_grid(train_x_proc[0:50], nrow=n_imag, padding=2, normalize=True).cpu())
 
 writer.close()
 
