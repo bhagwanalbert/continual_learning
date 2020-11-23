@@ -296,7 +296,7 @@ print(x_mb[0].shape)
 
 for idx in range(len(x_mb)):
     for im in range(x_mb[idx].shape[0]):
-        im_proc = data_transforms((x_mb[idx][im].view(3,128,128)))
+        im_proc = data_transforms((x_mb[idx][im].view(3,128,128)).cpu())
         # writer.add_image("Original images", vutils.make_grid(x_mb[idx], nrow=4, padding=2, normalize=True).cpu())
         # writer.add_image("Transformed images", vutils.make_grid(x_mb_proc, nrow=4, padding=2, normalize=True).cpu())
 
