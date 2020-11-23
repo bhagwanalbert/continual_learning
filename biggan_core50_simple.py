@@ -290,6 +290,14 @@ data_transforms = transforms.Compose([
 
 num_iter = len(x_mb)//(num_D_steps*num_D_accumulations)
 
+x_mb_proc = data_transforms(x_mb)
+for idx in range(len(x_mb)):
+    writer.add_image("Original images", vutils.make_grid(x_mb[idx], nrow=4, padding=2, normalize=True).cpu())
+    writer.add_image("Transformed images", vutils.make_grid(x_mb_proc[idx], nrow=4, padding=2, normalize=True).cpu())
+
+writer.close()
+
+"""
 for ep in range(num_epochs):
     print("training ep: ", ep)
 
@@ -382,3 +390,4 @@ for ep in range(num_epochs):
         fake = nn.parallel.data_parallel(G, (eval_z, G.shared(eval_y)), device_ids=[0, 1, 2, 3])
     writer.add_image("Generated images", vutils.make_grid(fake, nrow=n_imag, padding=2, normalize=True))
     writer.close()
+"""
