@@ -285,6 +285,7 @@ x_mb = torch.split(train_x, batch_size)
 y_mb = torch.split(train_y, batch_size)
 
 data_transforms = transforms.Compose([
+        transforms.ToPILImage(),
         transforms.RandomHorizontalFlip()
         ])
 
@@ -294,7 +295,7 @@ print(len(x_mb))
 print(x_mb[0].shape)
 
 for idx in range(len(x_mb)):
-    x_mb_proc = data_transforms(transforms.ToPILImage()(x_mb[idx]).convert("RGB"))
+    x_mb_proc = data_transforms((x_mb[idx]))
     writer.add_image("Original images", vutils.make_grid(x_mb[idx], nrow=4, padding=2, normalize=True).cpu())
     writer.add_image("Transformed images", vutils.make_grid(x_mb_proc, nrow=4, padding=2, normalize=True).cpu())
 
