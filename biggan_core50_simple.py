@@ -57,7 +57,7 @@ nz = 120
 att_lr = 0.0001
 conv_lr = 0.0001
 lin_lr = 0.0000001
-emb_lr = 0.01
+emb_lr = 0.05
 bn_lr = 0.0005
 out_lr = 0.0001
 eps = 1e-8
@@ -290,6 +290,10 @@ tot_it_step = 0
 x_mb = torch.split(train_x, batch_size)
 y_mb = torch.split(train_y, batch_size)
 
+data_transforms = transforms.Compose([
+        transforms.RandomHorizontalFlip()
+        ])
+
 print(len(x_mb))
 
 num_iter = len(x_mb)//(num_D_steps*num_D_accumulations)
@@ -298,6 +302,7 @@ for ep in range(num_epochs):
     print("training ep: ", ep)
 
     counter = 0
+    x_mb = data_transforms(x_mb)
 
     G.train()
     D.train()
