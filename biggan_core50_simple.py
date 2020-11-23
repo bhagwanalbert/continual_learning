@@ -294,7 +294,7 @@ print(len(x_mb))
 print(x_mb[0].shape)
 
 for idx in range(len(x_mb)):
-    x_mb_proc = data_transforms(x_mb[idx])
+    x_mb_proc = data_transforms(transforms.ToPILImage()(x_mb[idx]).convert("RGB"))
     writer.add_image("Original images", vutils.make_grid(x_mb[idx], nrow=4, padding=2, normalize=True).cpu())
     writer.add_image("Transformed images", vutils.make_grid(x_mb_proc, nrow=4, padding=2, normalize=True).cpu())
 
