@@ -293,12 +293,12 @@ num_iter = len(x_mb)//(num_D_steps*num_D_accumulations)
 print(len(x_mb))
 print(x_mb[0].shape)
 
-x_mb_proc = x_mb
+x_mb_proc = x_mb.clone()
 
 for idx in range(len(x_mb)):
     for im in range(x_mb[idx].shape[0]):
         im_proc = data_transforms((x_mb[idx][im].view(3,128,128)).cpu())
-        x_mb_proc[idx][im] = transforms.ToTensor()(im_proc).to('cuda:0')
+        x_mb_proc[idx][im] = torch.tensor(im_proc).to('cuda:0')
     writer.add_image("Original images", vutils.make_grid(x_mb[idx], nrow=4, padding=2, normalize=True).cpu())
     writer.add_image("Transformed images", vutils.make_grid(x_mb_proc[idx], nrow=4, padding=2, normalize=True).cpu())
 
