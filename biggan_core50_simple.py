@@ -291,7 +291,7 @@ train_x_proc = train_x.clone()
 
 for im in range(50):
     im_proc = data_transforms((train_x[im]).cpu())
-    train_x_proc[im] = torch.tensor(im_proc).type(torch.FloatTensor).to('cuda:0')
+    train_x_proc[im] = torch.tensor(im_proc)
 writer.add_image("Original images", vutils.make_grid(train_x[0:50], nrow=n_imag, padding=2, normalize=True).cpu())
 writer.add_image("Transformed images", vutils.make_grid(train_x_proc[0:50], nrow=n_imag, padding=2, normalize=True).cpu())
 
