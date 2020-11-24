@@ -292,11 +292,12 @@ print(train_x[0].shape)
 
 train_x_proc = train_x.clone()
 
-train_x_proc = data_transforms((train_x).cpu())
-train_x_proc = train_x_proc.type(torch.FloatTensor)
+for im in range(train_x.shape[0]):
+    im_proc = data_transforms((train_x[im]).cpu())
+    train_x_proc[im] = im_proc.type(torch.FloatTensor)
 
-writer.add_image("Original images", vutils.make_grid(train_x[0:50], nrow=n_imag, padding=2, normalize=True).cpu())
-writer.add_image("Transformed images", vutils.make_grid(train_x_proc[0:50], nrow=n_imag, padding=2, normalize=True).cpu())
+writer.add_image("Original images", vutils.make_grid(train_x[2950:], nrow=n_imag, padding=2, normalize=True).cpu())
+writer.add_image("Transformed images", vutils.make_grid(train_x_proc[2950:], nrow=n_imag, padding=2, normalize=True).cpu())
 
 writer.close()
 
