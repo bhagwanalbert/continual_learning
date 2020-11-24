@@ -242,10 +242,10 @@ eval_y = eval_y.to('cuda:0')
 
 ## Load dataset
 test_x, test_y = dataset.get_test_set()
-test_x = preprocess_imgs(test_x, norm=False, symmetric = True)
+test_x = preprocess_imgs(test_x, norm=False, symmetric = False)
 
 train_x, train_y = next(iter(dataset))
-train_x = preprocess_imgs(train_x, norm=False, symmetric = True)
+train_x = preprocess_imgs(train_x, norm=False, symmetric = False)
 
 train_x = torch.from_numpy(train_x).type(torch.FloatTensor)
 train_y = torch.from_numpy(train_y).type(torch.LongTensor)
@@ -279,7 +279,6 @@ x_mb = torch.split(train_x, batch_size)
 y_mb = torch.split(train_y, batch_size)
 
 data_transforms = transforms.Compose([
-        transforms.Normalize((0.0,0.0,0.0), (1.0,1.0,1.0)),
         transforms.ToPILImage(mode='RGB'),
         transforms.RandomHorizontalFlip(),
         transforms.ToTensor(),
