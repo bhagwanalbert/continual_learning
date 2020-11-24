@@ -92,7 +92,7 @@ test_x, test_y = dataset.get_test_set()
 test_x = preprocess_imgs(test_x, norm=False, symmetric = True)
 
 train_x, train_y = next(iter(dataset))
-train_x = preprocess_imgs(train_x, norm=False, symmetric = True)
+train_x = preprocess_imgs(train_x, norm=False, symmetric = False)
 train_y = train_y // 5
 
 train_x = torch.from_numpy(train_x).type(torch.FloatTensor)
@@ -198,14 +198,28 @@ print("Starting Training Loop...")
 tot_it_step = 0
 it_x_ep = train_x.size(0) // batch_size
 
+data_transforms = transforms.Compose([
+        transforms.ToPILImage(mode='RGB'),
+        transforms.RandomHorizontalFlip(),
+        transforms.ToTensor(),
+        transforms.Normalize((0.5,0.5,0.5), (0.5,0.5,0.5))
+        ])
+
+train_x_proc = train_x.clone()
+
 for ep in range(num_epochs):
     print("training ep: ", ep)
+
+    for im in range(train_x.shape[0]):
+        im_proc = data_transforms((train_x[im]).cpu())
+        train_x_proc[im] = im_proc.type(torch.FloatTensor)
+
     for i in range(it_x_ep):
 
         start = i * batch_size
         end = (i + 1) * batch_size
 
-        x_mb = maybe_cuda(train_x[start:end], use_cuda=use_cuda)
+        x_mb = maybe_cuda(train_x_proc[start:end], use_cuda=use_cuda)
         y_mb = maybe_cuda(train_y[start:end], use_cuda=use_cuda)
 
         model.train()
