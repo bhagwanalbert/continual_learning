@@ -282,11 +282,6 @@ data_transforms = transforms.Compose([
         transforms.Normalize((0.5,0.5,0.5), (0.5,0.5,0.5))
         ])
 
-num_iter = len(x_mb)//(num_D_steps*num_D_accumulations)
-
-print(train_x.shape)
-print(train_x[0].shape)
-
 train_x_proc = train_x.clone()
 
 for ep in range(num_epochs):
@@ -300,6 +295,8 @@ for ep in range(num_epochs):
 
     x_mb = torch.split(train_x_proc, batch_size)
     y_mb = torch.split(train_y, batch_size)
+
+    num_iter = len(x_mb)//(num_D_steps*num_D_accumulations)
 
     G.train()
     D.train()
@@ -387,4 +384,3 @@ for ep in range(num_epochs):
         fake = nn.parallel.data_parallel(G, (eval_z, G.shared(eval_y)), device_ids=[0, 1, 2, 3])
     writer.add_image("Generated images", vutils.make_grid(fake, nrow=n_imag, padding=2, normalize=True))
     writer.close()
-    
