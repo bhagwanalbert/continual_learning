@@ -281,7 +281,7 @@ y_mb = torch.split(train_y, batch_size)
 data_transforms = transforms.Compose([
         transforms.ToPILImage(mode='RGB'),
         transforms.ToTensor(),
-        transforms.Normalize((0.0,0.0,0.0), (1.0,1.0,1.0))
+        transforms.Normalize((0.5,0.5,0.5), (0.5,0.5,0.5))
         ])
 
 num_iter = len(x_mb)//(num_D_steps*num_D_accumulations)
