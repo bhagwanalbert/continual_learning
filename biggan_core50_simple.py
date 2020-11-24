@@ -279,7 +279,7 @@ x_mb = torch.split(train_x, batch_size)
 y_mb = torch.split(train_y, batch_size)
 
 data_transforms = transforms.Compose([
-        transforms.ToPILImage(mode='RGB')
+        transforms.ToPILImage(mode='RGB'),
         transforms.ToTensor(),
         transforms.Normalize((0.0,0.0,0.0), (1.0,1.0,1.0))
         ])
