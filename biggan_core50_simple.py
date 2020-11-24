@@ -245,7 +245,7 @@ test_x, test_y = dataset.get_test_set()
 test_x = preprocess_imgs(test_x, norm=False, symmetric = True)
 
 train_x, train_y = next(iter(dataset))
-train_x = preprocess_imgs(train_x, norm=False, symmetric = False)
+train_x = preprocess_imgs(train_x, norm=False, symmetric = True)
 
 train_x = torch.from_numpy(train_x).type(torch.FloatTensor)
 train_y = torch.from_numpy(train_y).type(torch.LongTensor)
@@ -279,7 +279,9 @@ x_mb = torch.split(train_x, batch_size)
 y_mb = torch.split(train_y, batch_size)
 
 data_transforms = transforms.Compose([
-        transforms.ToPILImage(mode='RGB')
+        transforms.ToPILImage(mode='RGB'),
+        transforms.ToTensor(),
+        transforms.Normalize((0.0,), (1.0,))
         ])
 
 num_iter = len(x_mb)//(num_D_steps*num_D_accumulations)
@@ -291,7 +293,7 @@ train_x_proc = train_x.clone()
 
 for im in range(50):
     im_proc = data_transforms((train_x[im]).cpu())
-    train_x_proc[im] = transforms.ToTensor()(im_proc).type(torch.FloatTensor)
+    train_x_proc[im] = im_proc.type(torch.FloatTensor)
 writer.add_image("Original images", vutils.make_grid(train_x[0:50], nrow=n_imag, padding=2, normalize=True).cpu())
 writer.add_image("Transformed images", vutils.make_grid(train_x_proc[0:50], nrow=n_imag, padding=2, normalize=True).cpu())
 
