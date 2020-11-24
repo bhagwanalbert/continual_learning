@@ -71,8 +71,8 @@ nz = 100 + n_class
 # Learning rate for optimizers
 conv_lr = 0.0001
 bn_lr = 0.0001
-fc_dis_lr = 0.000001
-fc_aux_lr = 0.000001
+fc_dis_lr = 0.0001
+fc_aux_lr = 0.0001
 
 # Beta1 hyperparam for Adam optimizers
 beta1 = 0.0
@@ -292,20 +292,23 @@ for ep in range(num_epochs):
         source_acc_fake = correct_src_fake.item() / data_encountered
 
         ## Train the generator
-        optimG.zero_grad()
+        for step_G in range(4):
 
-        classes, source = model(noise_image)
+            optimG.zero_grad()
 
-        source_loss = criterion_source(source, real_label) #The generator tries to pass its images as real---so we pass the images as real to the cost function
-        class_loss = criterion(classes, label)
+            classes, source = model(noise_image)
 
-        loss_gen = source_loss + class_loss
+            source_loss = criterion_source(source, real_label) #The generator tries to pass its images as real---so we pass the images as real to the cost function
+            class_loss = criterion(classes, label)
 
-        loss_gen.backward()
-        optimG.step()
+            loss_gen = source_loss + class_loss
 
-        ave_loss_gen += loss_gen.item()
-        ave_loss_gen /= data_encountered
+            loss_gen.backward()
+            optimG.step()
+
+            ave_loss_gen += loss_gen.item()
+
+        ave_loss_gen /= data_encountered*4
 
         # Output training stats
         if i % 5 == 0:
