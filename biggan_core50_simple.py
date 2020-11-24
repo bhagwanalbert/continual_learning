@@ -387,4 +387,4 @@ for ep in range(num_epochs):
         fake = nn.parallel.data_parallel(G, (eval_z, G.shared(eval_y)), device_ids=[0, 1, 2, 3])
     writer.add_image("Generated images", vutils.make_grid(fake, nrow=n_imag, padding=2, normalize=True))
     writer.close()
-"""
+    
