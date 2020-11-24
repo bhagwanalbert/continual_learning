@@ -294,6 +294,24 @@ for ep in range(num_epochs):
         ## Train the generator
         for step_G in range(4):
 
+            ## Training with fake data now
+            noise = torch.FloatTensor(y_mb.size(0), nz, 1, 1).normal_(0, 1)
+            noise_ = np.random.normal(0, 1, (y_mb.size(0), nz))
+            #noise_ = trunc_normal3.rvs(y_mb.size(0)*nz, 0)
+            #noise_ = noise_.reshape(y_mb.size(0),nz)
+            label = np.random.randint(0, n_class, y_mb.size(0))
+            onehot = np.zeros((y_mb.size(0), n_class))
+            onehot[np.arange(y_mb.size(0)), label] = 1
+            noise_[np.arange(y_mb.size(0)), :n_class] = onehot[np.arange(y_mb.size(0))]
+            noise_ = (torch.from_numpy(noise_))
+            noise.data.copy_(noise_.view(y_mb.size(0), nz, 1, 1))
+            noise = maybe_cuda(noise, use_cuda=use_cuda)
+
+            label = ((torch.from_numpy(label)).long())
+            label = maybe_cuda(label, use_cuda=use_cuda)
+
+            noise_image = gen(noise)
+
             optimG.zero_grad()
 
             classes, source = model(noise_image)
