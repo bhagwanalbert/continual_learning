@@ -280,8 +280,8 @@ y_mb = torch.split(train_y, batch_size)
 
 data_transforms = transforms.Compose([
         transforms.ToPILImage(mode='RGB')
-        # transforms.ToTensor(),
-        # transforms.Normalize((0.0,), (1.0,))
+        transforms.ToTensor(),
+        transforms.Normalize((0.0,0.0,0.0), (1.0,1.0,1.0))
         ])
 
 num_iter = len(x_mb)//(num_D_steps*num_D_accumulations)
@@ -293,8 +293,8 @@ train_x_proc = train_x.clone()
 
 for im in range(50):
     im_proc = data_transforms((train_x[im]).cpu())
-    print(im_proc.getextrema())
-    train_x_proc[im] = transforms.ToTensor()(im_proc).type(torch.FloatTensor)
+    # print(im_proc.getextrema())
+    train_x_proc[im] = im_proc.type(torch.FloatTensor)
     print(torch.max(train_x_proc[im]))
     print(torch.min(train_x_proc[im]))
 
