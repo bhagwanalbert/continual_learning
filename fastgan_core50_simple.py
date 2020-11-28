@@ -16,8 +16,8 @@ from diffaug import DiffAugment
 from data_loader import CORE50
 from utils import *
 policy = 'color,translation'
-import lpips
-percept = lpips.PerceptualLoss(model='net-lin', net='vgg', use_gpu=True)
+from PerceptualSimilarity import mdoels
+percept = models.PerceptualLoss(model='net-lin', net='vgg', use_gpu=True)
 
 
 #torch.backends.cudnn.benchmark = True
