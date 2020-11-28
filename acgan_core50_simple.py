@@ -292,7 +292,7 @@ for ep in range(num_epochs):
         source_acc_fake = correct_src_fake.item() / data_encountered
 
         ## Train the generator
-        for step_G in range(4):
+        for step_G in range(2):
 
             ## Training with fake data now
             noise = torch.FloatTensor(y_mb.size(0), nz, 1, 1).normal_(0, 1)
