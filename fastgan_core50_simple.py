@@ -33,6 +33,7 @@ percept = models.PerceptualLoss(model='net-lin', net='vgg', use_gpu=True)
 writer = SummaryWriter('logs/fastgan')
 # Images to view per class to test generator
 n_imag = 5
+n_class = 10
 
 def crop_image_by_part(image, part):
     hw = image.shape[2]//2
