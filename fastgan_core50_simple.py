@@ -81,9 +81,9 @@ def train(args):
     num_epochs = 100
     saved_model_folder, saved_image_folder = get_dir(args)
 
-    device = torch.device("cpu")
+    device = 'cpu'
     if use_cuda:
-        device = torch.device("cuda:1")
+        device = 'cuda:1'
 
     transform_list = [
             transforms.ToPILImage(mode='RGB'),
