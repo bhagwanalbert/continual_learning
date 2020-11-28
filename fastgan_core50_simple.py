@@ -75,7 +75,7 @@ def train(args):
 
     device = torch.device("cpu")
     if use_cuda:
-        device = torch.device("cuda:0")
+        device = torch.device("cuda:1")
 
     transform_list = [
             transforms.ToPILImage(mode='RGB'),
