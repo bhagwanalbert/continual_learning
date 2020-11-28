@@ -1,4 +1,6 @@
 runs/
 logs/
 __pycache__/
-weights/
+weights/D*
+weights/G*
+weights/state_dict.pth
