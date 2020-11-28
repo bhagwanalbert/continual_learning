@@ -14,6 +14,7 @@ from operation import copy_G_params, load_params, get_dir
 from operation import ImageFolder, InfiniteSamplerWrapper
 from diffaug import DiffAugment
 from data_loader import CORE50
+from torch.utils.tensorboard import SummaryWriter
 from utils import *
 policy = 'color,translation'
 from PerceptualSimilarity import models
