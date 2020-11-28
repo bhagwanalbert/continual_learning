@@ -23,7 +23,7 @@ import os
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 
-percept = models.PerceptualLoss(model='net-lin', net='vgg', use_gpu=True, gpu_ids=[1])
+percept = models.PerceptualLoss(model='net-lin', net='vgg', use_gpu=True)
 
 
 #torch.backends.cudnn.benchmark = True
