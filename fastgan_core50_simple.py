@@ -16,7 +16,7 @@ from diffaug import DiffAugment
 from data_loader import CORE50
 from utils import *
 policy = 'color,translation'
-from PerceptualSimilarity import mdoels
+from PerceptualSimilarity import models
 percept = models.PerceptualLoss(model='net-lin', net='vgg', use_gpu=True)
 
 
