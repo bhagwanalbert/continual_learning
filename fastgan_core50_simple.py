@@ -17,7 +17,7 @@ from data_loader import CORE50
 from utils import *
 policy = 'color,translation'
 from PerceptualSimilarity import models
-percept = models.PerceptualLoss(model='net-lin', net='vgg', use_gpu=True)
+percept = models.PerceptualLoss(model='net-lin', net='vgg', use_gpu=True, gpu_ids=[1])
 
 
 #torch.backends.cudnn.benchmark = True
