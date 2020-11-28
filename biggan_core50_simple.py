@@ -31,9 +31,6 @@ writer = SummaryWriter('logs/biggan2')
 # Root directory for dataset
 dataset = CORE50(root='/home/abhagwan/datasets/core50', scenario="nicv2_391")
 
-# Number of workers for dataloader
-workers = 2
-
 # Batch size during training
 batch_size = 12
 
@@ -45,7 +42,7 @@ image_size = 128
 nc = 3
 
 # Number of training epochs
-num_epochs = 100
+num_epochs = 500
 
 # Number of classes of dataset
 n_class = 50
@@ -212,7 +209,7 @@ print(G.optim)
 print(D.optim)
 
 GD = BigGAN.G_D(G, D)
-GD = nn.DataParallel(GD, device_ids=[0, 1, 2, 3])
+GD = nn.DataParallel(GD, device_ids=[0, 2, 3, 6])
 
 ## Test current BigGAN
 eval_z = torch.FloatTensor(n_imag*n_class, nz).normal_(0, 1)
@@ -381,6 +378,6 @@ for ep in range(num_epochs):
         writer.close()
 
     with torch.no_grad():
-        fake = nn.parallel.data_parallel(G, (eval_z, G.shared(eval_y)), device_ids=[0, 1, 2, 3])
+        fake = nn.parallel.data_parallel(G, (eval_z, G.shared(eval_y)), device_ids=[0, 2, 3, 6])
     writer.add_image("Generated images", vutils.make_grid(fake, nrow=n_imag, padding=2, normalize=True))
     writer.close()
