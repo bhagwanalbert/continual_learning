@@ -97,9 +97,15 @@ def train(args):
 
     train_x, train_y = next(iter(dataset))
     train_x = preprocess_imgs(train_x, norm=False, symmetric = False)
+    train_y = train_y // 5
+
     train_x = torch.from_numpy(train_x).type(torch.FloatTensor)
+    train_y = torch.from_numpy(train_y).type(torch.LongTensor)
+
     indexes = np.random.permutation(train_y.size(0))
+
     train_x = train_x[indexes]
+    train_y = train_y[indexes]
 
     training_examples = None
 
