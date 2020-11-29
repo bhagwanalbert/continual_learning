@@ -202,27 +202,27 @@ def train(args):
             writer.add_scalar('generator_loss', -err_g.item(), tot_it_step)
             writer.close()
 
-            if iteration % (save_interval*10) == 0:
+            if tot_it_step % (save_interval*10) == 0:
                 backup_para = copy_G_params(netG)
                 load_params(netG, avg_param_G)
                 with torch.no_grad():
-                    vutils.save_image(netG(fixed_noise)[0].add(1).mul(0.5), saved_image_folder+'/%d.jpg'%iteration, nrow=4)
+                    vutils.save_image(netG(fixed_noise)[0].add(1).mul(0.5), saved_image_folder+'/%d.jpg'%tot_it_step, nrow=4)
                     vutils.save_image( torch.cat([
                             F.interpolate(real_image, 128),
                             rec_img_all, rec_img_small,
-                            rec_img_part]).add(1).mul(0.5), saved_image_folder+'/rec_%d.jpg'%iteration )
+                            rec_img_part]).add(1).mul(0.5), saved_image_folder+'/rec_%d.jpg'%tot_it_step )
                 load_params(netG, backup_para)
 
-            if iteration % (save_interval*50) == 0 or iteration == total_iterations:
+            if tot_it_step % (save_interval*50) == 0 or tot_it_step == it_x_ep:
                 backup_para = copy_G_params(netG)
                 load_params(netG, avg_param_G)
-                torch.save({'g':netG.state_dict(),'d':netD.state_dict()}, saved_model_folder+'/%d.pth'%iteration)
+                torch.save({'g':netG.state_dict(),'d':netD.state_dict()}, saved_model_folder+'/%d.pth'%tot_it_step)
                 load_params(netG, backup_para)
                 torch.save({'g':netG.state_dict(),
                             'd':netD.state_dict(),
                             'g_ema': avg_param_G,
                             'opt_g': optimizerG.state_dict(),
-                            'opt_d': optimizerD.state_dict()}, saved_model_folder+'/all_%d.pth'%iteration)
+                            'opt_d': optimizerD.state_dict()}, saved_model_folder+'/all_%d.pth'%tot_it_step)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='region gan')
