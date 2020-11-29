@@ -145,7 +145,7 @@ def train(args):
         current_iteration = int(checkpoint.split('_')[-1].split('.')[0])
         del ckpt
 
-    train_x_proc = train_x.clone()
+    train_x_proc = torch.zeros([train_x.size(0),train_x.size(1),im_size,im_size], dtype=torch.FloatTensor)
 
     # Training Loop
     print("Starting Training Loop...")
