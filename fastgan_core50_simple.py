@@ -185,7 +185,8 @@ def train(args):
 
             ## 3. train Generator
             netG.zero_grad()
-            pred_g = netD(fake_images, "fake")
+            input_dict = {"data":fake_images, "label":"fake"}
+            pred_g = netD(input_dict)
             err_g = -pred_g.mean()
 
             err_g.backward()
