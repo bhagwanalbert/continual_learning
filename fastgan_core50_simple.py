@@ -81,10 +81,6 @@ def train(args):
     num_epochs = 100
     saved_model_folder, saved_image_folder = get_dir(args)
 
-    device = 'cpu'
-    if use_cuda:
-        device = 'cuda:1'
-
     transform_list = [
             transforms.ToPILImage(mode='RGB'),
             transforms.Resize((int(im_size),int(im_size))),
@@ -126,11 +122,11 @@ def train(args):
     netD.apply(weights_init)
 
     netG = maybe_cuda(netG, use_cuda=use_cuda)
-    netD.to(device)
+    netD = maybe_cuda(netG, use_cuda=use_cuda)
 
     avg_param_G = copy_G_params(netG)
 
-    fixed_noise = torch.FloatTensor(8, nz).normal_(0, 1).to(device)
+    fixed_noise = maybe_cuda(torch.FloatTensor(8, nz).normal_(0, 1), use_cuda=use_cuda)
 
     if multi_gpu:
         netG = nn.DataParallel(netG.cuda())
@@ -172,7 +168,7 @@ def train(args):
             real_image = maybe_cuda(train_x_proc[start:end], use_cuda=use_cuda)
 
             current_batch_size = real_image.size(0)
-            noise = torch.Tensor(current_batch_size, nz).normal_(0, 1).to(device)
+            noise = maybe_cuda(torch.Tensor(current_batch_size, nz).normal_(0, 1), use_cuda=use_cuda)
 
             fake_images = netG(noise)
 
