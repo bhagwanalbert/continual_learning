@@ -237,10 +237,7 @@ class Discriminator(nn.Module):
         self.decoder_part = SimpleDecoder(ndf*4, nc)
         self.decoder_small = SimpleDecoder(ndf*4, nc)
 
-    def forward(self, input_dict):
-        imgs = input_dict["data"]
-        label = input_dict["label"]
-
+    def forward(self, imgs, label):
         if type(imgs) is not list:
             imgs = [F.interpolate(imgs, size=self.im_size), F.interpolate(imgs, size=128)]
         feat_2 = self.down_from_big(imgs[0])

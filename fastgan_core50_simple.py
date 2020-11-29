@@ -48,9 +48,8 @@ def crop_image_by_part(image, part):
 
 def train_d(net, data, label="real"):
     """Train function of discriminator"""
-    input_dict = {"data":data, "label":label}
     if label=="real":
-        pred, [rec_all, rec_small, rec_part], part = net(input_dict)
+        pred, [rec_all, rec_small, rec_part], part = net(data, label)
         err = F.relu(  torch.rand_like(pred) * 0.2 + 0.8 -  pred).mean() + \
             percept( rec_all, F.interpolate(data, rec_all.shape[2]) ).sum() +\
             percept( rec_small, F.interpolate(data, rec_small.shape[2]) ).sum() +\
@@ -58,7 +57,7 @@ def train_d(net, data, label="real"):
         err.backward()
         return pred.mean().item(), rec_all, rec_small, rec_part
     else:
-        pred = net(input_dict)
+        pred = net(data, label)
         err = F.relu( torch.rand_like(pred) * 0.2 + 0.8 + pred).mean()
         err.backward()
         return pred.mean().item()
@@ -185,8 +184,7 @@ def train(args):
 
             ## 3. train Generator
             netG.zero_grad()
-            input_dict = {"data":fake_images, "label":"fake"}
-            pred_g = netD(input_dict)
+            pred_g = netD(fake_images, "fake")
             err_g = -pred_g.mean()
 
             err_g.backward()
