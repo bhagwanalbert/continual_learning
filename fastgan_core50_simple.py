@@ -123,7 +123,7 @@ def train(args):
     netD.apply(weights_init)
 
     netG = maybe_cuda(netG, use_cuda=use_cuda)
-    netD = maybe_cuda(netG, use_cuda=use_cuda)
+    netD = maybe_cuda(netD, use_cuda=use_cuda)
 
     avg_param_G = copy_G_params(netG)
 
