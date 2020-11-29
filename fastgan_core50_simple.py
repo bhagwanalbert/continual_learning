@@ -88,7 +88,7 @@ def train(args):
             transforms.ToTensor(),
             transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
         ]
-    trans = transforms.Compose(transform_list)
+    data_transforms = transforms.Compose(transform_list)
 
     dataset = CORE50(root='/home/abhagwan/datasets/core50', scenario="nicv2_391")
 
