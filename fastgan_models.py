@@ -190,7 +190,7 @@ class DownBlock(nn.Module):
         return (self.main(feat) + self.direct(feat)) / 2
 
 class Discriminator(nn.Module):
-    def __init__(self, ndf=64, nc=3, im_size=512):
+    def __init__(self, ndf=64, nc=3, im_size=512, n_class=50):
         super(Discriminator, self).__init__()
         self.ndf = ndf
         self.im_size = im_size
@@ -237,6 +237,9 @@ class Discriminator(nn.Module):
         self.decoder_part = SimpleDecoder(ndf*4, nc)
         self.decoder_small = SimpleDecoder(ndf*4, nc)
 
+        self.fc_class = nn.Linear(ndf*16*8*8, num_classes)
+        self.softmax = nn.Softmax(dim=1)
+
     def forward(self, imgs, label):
         if type(imgs) is not list:
             imgs = [F.interpolate(imgs, size=self.im_size), F.interpolate(imgs, size=128)]
@@ -258,6 +261,9 @@ class Discriminator(nn.Module):
         feat_small = self.down_from_small(imgs[1])
         rf_1 = self.rf_from_128(feat_small)
 
+        flat_features = feat_last.contiguous().view(-1,self.ndf*16*8*8)
+        classes = self.softmax(self.fc_class(flat_features))
+
         if label=='real':
             rec_img_big = self.decoder_big(feat_last)
             rec_img_small = self.decoder_small(feat_small)
@@ -273,9 +279,9 @@ class Discriminator(nn.Module):
             if part==3:
                 rec_img_part = self.decoder_part(feat_32[:,:,8:,8:])
 
-            return torch.cat([rf_0, rf_1], dim=1) , [rec_img_big, rec_img_small, rec_img_part], part
+            return torch.cat([rf_0, rf_1], dim=1) , [rec_img_big, rec_img_small, rec_img_part], part, classes
 
-        return torch.cat([rf_0, rf_1], dim=1)
+        return torch.cat([rf_0, rf_1], dim=1), classes
 
 
 

@@ -46,19 +46,21 @@ def crop_image_by_part(image, part):
     if part==3:
         return image[:,:,hw:,hw:]
 
-def train_d(net, data, label="real"):
+def train_d(net, data, y, label="real"):
     """Train function of discriminator"""
     if label=="real":
-        pred, [rec_all, rec_small, rec_part], part = net(data, label)
+        pred, [rec_all, rec_small, rec_part], part, classes = net(data, label)
         err = F.relu(  torch.rand_like(pred) * 0.2 + 0.8 -  pred).mean() + \
             percept( rec_all, F.interpolate(data, rec_all.shape[2]) ).sum() +\
             percept( rec_small, F.interpolate(data, rec_small.shape[2]) ).sum() +\
             percept( rec_part, F.interpolate(crop_image_by_part(data, part), rec_part.shape[2]) ).sum()
+        err += nn.NLLLoss(classes,y)
         err.backward()
         return pred.mean().item(), rec_all, rec_small, rec_part
     else:
         pred = net(data, label)
         err = F.relu( torch.rand_like(pred) * 0.2 + 0.8 + pred).mean()
+        err += nn.NLLLoss(classes,y)
         err.backward()
         return pred.mean().item()
 
@@ -70,7 +72,8 @@ def train(args):
     im_size = args.im_size
     ndf = 64
     ngf = 64
-    nz = 256
+    n_class = 10
+    nz = 256 + n_class
     nlr = 0.0002
     nbeta1 = 0.5
     use_cuda = True
@@ -79,6 +82,8 @@ def train(args):
     current_iteration = 0
     save_interval = 100
     num_epochs = 100
+    n_imag = 5
+
     saved_model_folder, saved_image_folder = get_dir(args)
 
     transform_list = [
@@ -118,7 +123,7 @@ def train(args):
     netG = Generator(ngf=ngf, nz=nz, im_size=im_size)
     netG.apply(weights_init)
 
-    netD = Discriminator(ndf=ndf, im_size=im_size)
+    netD = Discriminator(ndf=ndf, im_size=im_size, n_class=n_class)
     netD.apply(weights_init)
 
     netG = maybe_cuda(netG, use_cuda=use_cuda)
@@ -126,7 +131,18 @@ def train(args):
 
     avg_param_G = copy_G_params(netG)
 
-    fixed_noise = maybe_cuda(torch.FloatTensor(8, nz).normal_(0, 1), use_cuda=use_cuda)
+    fixed_noise = torch.FloatTensor(n_imag*n_class, nz).normal_(0, 1)
+    fixed_noise_ = np.random.normal(0, 1, (n_imag*n_class, nz))
+    eval_onehot = np.zeros((n_imag*n_class, n_class))
+
+    for c in range(n_class):
+        eval_onehot[np.arange(n_imag*c,n_imag*(c+1)), c] = 1
+
+    fixed_noise_[np.arange(n_imag*n_class), :n_class] = eval_onehot[np.arange(n_imag*n_class)]
+
+    fixed_noise_ = (torch.from_numpy(fixed_noise_))
+    fixed_noise.data.copy_(fixed_noise_.view(n_imag*n_class, nz))
+    fixed_noise = maybe_cuda(fixed_noise, use_cuda=use_cuda)
 
     if multi_gpu:
         netG = nn.DataParallel(netG.cuda())
@@ -166,9 +182,22 @@ def train(args):
             end = (i + 1) * batch_size
 
             real_image = maybe_cuda(train_x_proc[start:end], use_cuda=use_cuda)
+            y_mb = maybe_cuda(train_y[start:end], use_cuda=use_cuda)
 
             current_batch_size = real_image.size(0)
-            noise = maybe_cuda(torch.Tensor(current_batch_size, nz).normal_(0, 1), use_cuda=use_cuda)
+
+            noise = torch.FloatTensor(current_batch_size, nz).normal_(0, 1)
+            noise_ = np.random.normal(0, 1, (current_batch_size, nz))
+            label = np.random.randint(0, n_class, current_batch_size)
+            onehot = np.zeros((current_batch_size, n_class))
+            onehot[np.arange(current_batch_size), label] = 1
+            noise_[np.arange(current_batch_size), :n_class] = onehot[np.arange(current_batch_size)]
+            noise_ = (torch.from_numpy(noise_))
+            noise.data.copy_(noise_.view(current_batch_size, nz))
+            noise = maybe_cuda(noise, use_cuda=use_cuda)
+
+            label = ((torch.from_numpy(label)).long())
+            label = maybe_cuda(label, use_cuda=use_cuda)
 
             fake_images = netG(noise)
 
@@ -178,14 +207,14 @@ def train(args):
             ## 2. train Discriminator
             netD.zero_grad()
 
-            err_dr, rec_img_all, rec_img_small, rec_img_part = train_d(netD, real_image, label="real")
-            train_d(netD, [fi.detach() for fi in fake_images], label="fake")
+            err_dr, rec_img_all, rec_img_small, rec_img_part = train_d(netD, real_image, y_mb, label="real")
+            train_d(netD, [fi.detach() for fi in fake_images], label, label="fake")
             optimizerD.step()
 
             ## 3. train Generator
             netG.zero_grad()
-            pred_g = netD(fake_images, "fake")
-            err_g = -pred_g.mean()
+            pred_g, classes = netD(fake_images, "fake")
+            err_g = -pred_g.mean() + nn.NLLLoss(classes,label)
 
             err_g.backward()
             optimizerG.step()
@@ -206,7 +235,7 @@ def train(args):
                 backup_para = copy_G_params(netG)
                 load_params(netG, avg_param_G)
                 with torch.no_grad():
-                    vutils.save_image(netG(fixed_noise)[0].add(1).mul(0.5), saved_image_folder+'/%d.jpg'%tot_it_step, nrow=4)
+                    vutils.save_image(netG(fixed_noise)[0].add(1).mul(0.5), saved_image_folder+'/%d.jpg'%tot_it_step, nrow=5)
                     vutils.save_image( torch.cat([
                             F.interpolate(real_image, 128),
                             rec_img_all, rec_img_small,
