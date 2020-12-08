@@ -237,7 +237,7 @@ class Discriminator(nn.Module):
         self.decoder_part = SimpleDecoder(ndf*4, nc)
         self.decoder_small = SimpleDecoder(ndf*4, nc)
 
-        self.fc_class = nn.Linear(ndf*16*8*8, num_classes)
+        self.fc_class = nn.Linear(ndf*16*8*8, n_class)
         self.softmax = nn.Softmax(dim=1)
 
     def forward(self, imgs, label):
