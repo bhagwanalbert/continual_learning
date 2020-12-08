@@ -217,7 +217,7 @@ def train(args):
             ## 2. train Discriminator
             netD.zero_grad()
 
-            err_dr_real, rec_img_all, rec_img_small, rec_img_part, err_class_fake = train_d(netD, real_image, y_mb, label="real")
+            err_dr_real, rec_img_all, rec_img_small, rec_img_part, err_class_real = train_d(netD, real_image, y_mb, label="real")
             class_acc = correct_cnt / data_encountered
             err_dr_fake, err_class_fake = train_d(netD, [fi.detach() for fi in fake_images], label, label="fake")
             optimizerD.step()
