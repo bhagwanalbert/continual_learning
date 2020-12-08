@@ -27,6 +27,7 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 percept = models.PerceptualLoss(model='net-lin', net='vgg', use_gpu=True)
 
 class_loss = nn.NLLLoss()
+correct_cnt = 0
 
 #torch.backends.cudnn.benchmark = True
 
@@ -55,15 +56,19 @@ def train_d(net, data, y, label="real"):
             percept( rec_all, F.interpolate(data, rec_all.shape[2]) ).sum() +\
             percept( rec_small, F.interpolate(data, rec_small.shape[2]) ).sum() +\
             percept( rec_part, F.interpolate(crop_image_by_part(data, part), rec_part.shape[2]) ).sum()
-        err += class_loss(classes,y)
+        conditioned_loss = class_loss(classes,y)
+        err += conditioned_loss
         err.backward()
-        return pred.mean().item(), rec_all, rec_small, rec_part
+        _, pred_label = torch.max(classes, 1)
+        correct_cnt += (pred_label == y).sum()
+        return pred.mean().item(), rec_all, rec_small, rec_part, conditioned_loss
     else:
         pred, classes = net(data, label)
         err = F.relu( torch.rand_like(pred) * 0.2 + 0.8 + pred).mean()
-        err += class_loss(classes,y)
+        conditioned_loss = class_loss(classes,y)
+        err += conditioned_loss
         err.backward()
-        return pred.mean().item()
+        return pred.mean().item(), conditioned_loss
 
 
 def train(args):
@@ -172,6 +177,8 @@ def train(args):
 
     for ep in range(num_epochs):
         print("training ep: ", ep)
+        data_encountered = 0
+        correct_cnt = 0
 
         for im in range(train_x.shape[0]):
             im_proc = data_transforms((train_x[im]).cpu())
@@ -186,6 +193,7 @@ def train(args):
             y_mb = maybe_cuda(train_y[start:end], use_cuda=use_cuda)
 
             current_batch_size = real_image.size(0)
+            data_encountered += current_batch_size
 
             noise = torch.FloatTensor(current_batch_size, nz).normal_(0, 1)
             noise_ = np.random.normal(0, 1, (current_batch_size, nz))
@@ -208,14 +216,16 @@ def train(args):
             ## 2. train Discriminator
             netD.zero_grad()
 
-            err_dr, rec_img_all, rec_img_small, rec_img_part = train_d(netD, real_image, y_mb, label="real")
-            train_d(netD, [fi.detach() for fi in fake_images], label, label="fake")
+            err_dr_real, rec_img_all, rec_img_small, rec_img_part, err_class_fake = train_d(netD, real_image, y_mb, label="real")
+            class_acc = correct_cnt.item() / data_encountered
+            err_dr_fake, err_class_fake = train_d(netD, [fi.detach() for fi in fake_images], label, label="fake")
             optimizerD.step()
 
             ## 3. train Generator
             netG.zero_grad()
             pred_g, classes = netD(fake_images, "fake")
-            err_g = -pred_g.mean() + class_loss(classes,label)
+            err_class_gen = class_loss(classes,label)
+            err_g = -pred_g.mean() + err_class_gen
 
             err_g.backward()
             optimizerG.step()
@@ -224,23 +234,29 @@ def train(args):
                 avg_p.mul_(0.999).add_(0.001 * p.data)
 
             if i % 100 == 0:
-                print("GAN: loss d: %.5f    loss g: %.5f"%(err_dr, -err_g.item()))
+                print("GAN: loss d: %.5f    loss g: %.5f"%(err_dr_real, -err_g.item()))
 
             tot_it_step +=1
 
-            writer.add_scalar('discriminator_loss', err_dr, tot_it_step)
+            writer.add_scalar('class_accuracy', class_acc, tot_it_step)
+            writer.add_scalar('discriminator_real_loss', err_dr_real, tot_it_step)
+            writer.add_scalar('discriminator_fake_loss', err_dr_fake, tot_it_step)
+            writer.add_scalar('discriminator_class_real_loss', err_class_real, tot_it_step)
+            writer.add_scalar('discriminator_class_fake_loss', err_class_fake, tot_it_step)
             writer.add_scalar('generator_loss', -err_g.item(), tot_it_step)
+            writer.add_scalar('generator_class_loss', err_class_gen, tot_it_step)
             writer.close()
 
-            if tot_it_step % (save_interval*10) == 0:
+            if (i == it_x_ep - 1):
                 backup_para = copy_G_params(netG)
                 load_params(netG, avg_param_G)
                 with torch.no_grad():
-                    vutils.save_image(netG(fixed_noise)[0].add(1).mul(0.5), saved_image_folder+'/%d.jpg'%tot_it_step, nrow=n_imag)
-                    vutils.save_image( torch.cat([
-                            F.interpolate(real_image, 128),
-                            rec_img_all, rec_img_small,
-                            rec_img_part]).add(1).mul(0.5), saved_image_folder+'/rec_%d.jpg'%tot_it_step )
+                    writer.add_image("Generated images", vutils.make_grid(netG(fixed_noise)[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
+                    # vutils.save_image(netG(fixed_noise)[0].add(1).mul(0.5), saved_image_folder+'/%d.jpg'%tot_it_step, nrow=n_imag)
+                    # vutils.save_image( torch.cat([
+                    #         F.interpolate(real_image, 128),
+                    #         rec_img_all, rec_img_small,
+                    #         rec_img_part]).add(1).mul(0.5), saved_image_folder+'/rec_%d.jpg'%tot_it_step )
                 load_params(netG, backup_para)
 
             if tot_it_step % (save_interval*50) == 0 or tot_it_step == it_x_ep:
