@@ -89,7 +89,7 @@ def train(args):
     nlr = 0.0002
     nbeta1 = 0.5
     use_cuda = True
-    multi_gpu = True
+    multi_gpu = False
     dataloader_workers = 8
     current_iteration = 0
     save_interval = 100
