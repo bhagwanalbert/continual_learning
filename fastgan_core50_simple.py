@@ -59,7 +59,7 @@ def train_d(net, data, y, label="real"):
         err.backward()
         return pred.mean().item(), rec_all, rec_small, rec_part
     else:
-        pred = net(data, label)
+        pred, classes = net(data, label)
         err = F.relu( torch.rand_like(pred) * 0.2 + 0.8 + pred).mean()
         err += class_loss(classes,y)
         err.backward()
