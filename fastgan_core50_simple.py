@@ -89,7 +89,7 @@ def train(args):
     nlr = 0.0002
     nbeta1 = 0.5
     use_cuda = True
-    multi_gpu = False
+    multi_gpu = True
     dataloader_workers = 8
     current_iteration = 0
     save_interval = 100
@@ -157,8 +157,8 @@ def train(args):
     fixed_noise = maybe_cuda(fixed_noise, use_cuda=use_cuda)
 
     if multi_gpu:
-        netG = nn.DataParallel(netG.cuda())
-        netD = nn.DataParallel(netD.cuda())
+        netG = nn.DataParallel(netG.cuda(),device_ids=[3, 0, 1, 4, 5])
+        netD = nn.DataParallel(netD.cuda(),device_ids=[3, 0, 1, 4, 5])
 
     optimizerG = optim.Adam(netG.parameters(), lr=nlr, betas=(nbeta1, 0.999))
     optimizerD = optim.Adam(netD.parameters(), lr=nlr, betas=(nbeta1, 0.999))
@@ -282,7 +282,7 @@ if __name__ == "__main__":
     parser.add_argument('--cuda', type=int, default=1, help='index of gpu to use')
     parser.add_argument('--name', type=str, default='test1', help='experiment name')
     parser.add_argument('--start_iter', type=int, default=0, help='the iteration to start training')
-    parser.add_argument('--batch_size', type=int, default=20, help='mini batch number of images')
+    parser.add_argument('--batch_size', type=int, default=100, help='mini batch number of images')
     parser.add_argument('--im_size', type=int, default=256, help='image resolution')
     parser.add_argument('--ckpt', type=str, default='None', help='checkpoint weight path')
 
