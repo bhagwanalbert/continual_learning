@@ -26,6 +26,7 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 
 percept = models.PerceptualLoss(model='net-lin', net='vgg', use_gpu=True)
 
+class_loss = nn.NLLLoss()
 
 #torch.backends.cudnn.benchmark = True
 
@@ -54,13 +55,13 @@ def train_d(net, data, y, label="real"):
             percept( rec_all, F.interpolate(data, rec_all.shape[2]) ).sum() +\
             percept( rec_small, F.interpolate(data, rec_small.shape[2]) ).sum() +\
             percept( rec_part, F.interpolate(crop_image_by_part(data, part), rec_part.shape[2]) ).sum()
-        err += nn.NLLLoss(classes,y)
+        err += class_loss(classes,y)
         err.backward()
         return pred.mean().item(), rec_all, rec_small, rec_part
     else:
         pred = net(data, label)
         err = F.relu( torch.rand_like(pred) * 0.2 + 0.8 + pred).mean()
-        err += nn.NLLLoss(classes,y)
+        err += class_loss(classes,y)
         err.backward()
         return pred.mean().item()
 
@@ -214,7 +215,7 @@ def train(args):
             ## 3. train Generator
             netG.zero_grad()
             pred_g, classes = netD(fake_images, "fake")
-            err_g = -pred_g.mean() + nn.NLLLoss(classes,label)
+            err_g = -pred_g.mean() + class_loss(classes,label)
 
             err_g.backward()
             optimizerG.step()
