@@ -138,8 +138,8 @@ def train(args):
     netD = Discriminator(ndf=ndf, im_size=im_size, n_class=n_class)
     netD.apply(weights_init)
 
-    netG = maybe_cuda(netG, use_cuda=use_cuda).to('cuda:3')
-    netD = maybe_cuda(netD, use_cuda=use_cuda).to('cuda:3')
+    netG = netG.to('cuda:3')
+    netD = netD.to('cuda:3')
 
     avg_param_G = copy_G_params(netG)
 
@@ -154,7 +154,7 @@ def train(args):
 
     fixed_noise_ = (torch.from_numpy(fixed_noise_))
     fixed_noise.data.copy_(fixed_noise_.view(n_imag*n_class, nz))
-    fixed_noise = maybe_cuda(fixed_noise, use_cuda=use_cuda).to('cuda:3')
+    fixed_noise = fixed_noise.to('cuda:3')
 
     if multi_gpu:
         netG = nn.DataParallel(netG.cuda(),device_ids=[3, 0, 1, 4, 5])
@@ -195,8 +195,8 @@ def train(args):
             start = i * batch_size
             end = (i + 1) * batch_size
 
-            real_image = maybe_cuda(train_x_proc[start:end], use_cuda=use_cuda).to('cuda:3')
-            y_mb = maybe_cuda(train_y[start:end], use_cuda=use_cuda).to('cuda:3')
+            real_image = train_x_proc[start:end].to('cuda:3')
+            y_mb = train_y[start:end].to('cuda:3')
 
             current_batch_size = real_image.size(0)
             data_encountered += current_batch_size
@@ -209,10 +209,10 @@ def train(args):
             noise_[np.arange(current_batch_size), :n_class] = onehot[np.arange(current_batch_size)]
             noise_ = (torch.from_numpy(noise_))
             noise.data.copy_(noise_.view(current_batch_size, nz))
-            noise = maybe_cuda(noise, use_cuda=use_cuda).to('cuda:3')
+            noise = noise.to('cuda:3')
 
             label = ((torch.from_numpy(label)).long())
-            label = maybe_cuda(label, use_cuda=use_cuda).to('cuda:3')
+            label = label.to('cuda:3')
 
             fake_images = netG(noise)
 
