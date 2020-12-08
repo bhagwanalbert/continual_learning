@@ -61,6 +61,10 @@ def train_d(net, data, y, label="real"):
         err += conditioned_loss
         err.backward()
         _, pred_label = torch.max(classes, 1)
+        print("real labels")
+        print(y)
+        print("predicted labels")
+        print(pred_label)
         correct_cnt += (pred_label == y).sum()
         return pred.mean().item(), rec_all, rec_small, rec_part, conditioned_loss
     else:
