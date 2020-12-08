@@ -57,11 +57,10 @@ def train_d(net, data, y, label="real"):
             percept( rec_all, F.interpolate(data, rec_all.shape[2]) ).sum() +\
             percept( rec_small, F.interpolate(data, rec_small.shape[2]) ).sum() +\
             percept( rec_part, F.interpolate(crop_image_by_part(data, part), rec_part.shape[2]) ).sum()
-        conditioned_loss = class_loss(classes,y)
+        conditioned_loss = class_loss(torch.log(classes),y)
         err += conditioned_loss
         err.backward()
         _, pred_label = torch.max(classes, 1)
-        print(classes)
         # print("real labels")
         # print(y)
         # print("predicted labels")
@@ -71,7 +70,7 @@ def train_d(net, data, y, label="real"):
     else:
         pred, classes = net(data, label)
         err = F.relu( torch.rand_like(pred) * 0.2 + 0.8 + pred).mean()
-        conditioned_loss = class_loss(classes,y)
+        conditioned_loss = class_loss(torch.log(classes),y)
         err += conditioned_loss
         err.backward()
         return pred.mean().item(), conditioned_loss
@@ -231,7 +230,7 @@ def train(args):
             ## 3. train Generator
             netG.zero_grad()
             pred_g, classes = netD(fake_images, "fake")
-            err_class_gen = class_loss(classes,label)
+            err_class_gen = class_loss(torch.log(classes),label)
             err_g = -pred_g.mean() + err_class_gen
 
             err_g.backward()
