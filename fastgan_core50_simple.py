@@ -210,6 +210,8 @@ def train(args):
             noise_ = (torch.from_numpy(noise_))
             noise.data.copy_(noise_.view(current_batch_size, nz))
             noise = maybe_cuda(noise, use_cuda=use_cuda).to('cuda:3')
+            print(noise)
+            print(netG)
 
             label = ((torch.from_numpy(label)).long())
             label = maybe_cuda(label, use_cuda=use_cuda).to('cuda:3')
