@@ -32,7 +32,7 @@ correct_cnt = 0
 #torch.backends.cudnn.benchmark = True
 
 # Create tensorboard writer object
-writer = SummaryWriter('logs/fastgan2')
+writer = SummaryWriter('logs/fastgan3')
 # Images to view per class to test generator
 n_imag = 5
 n_class = 10
