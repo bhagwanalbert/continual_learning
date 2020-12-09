@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 from torch.nn.utils import spectral_norm
 import torch.nn.functional as F
-from collections import OrderedDict
+
 import random
 
 seq = nn.Sequential
@@ -241,7 +241,6 @@ class Discriminator(nn.Module):
         self.softmax = nn.Softmax(dim=1)
 
     def forward(self, imgs, label):
-        print(label)
         if type(imgs) is not list:
             imgs = [F.interpolate(imgs, size=self.im_size), F.interpolate(imgs, size=128)]
         feat_2 = self.down_from_big(imgs[0])
@@ -265,8 +264,6 @@ class Discriminator(nn.Module):
         flat_features = feat_last.contiguous().view(-1,self.ndf*16*8*8)
         classes = self.softmax(self.fc_class(flat_features))
 
-        print(classes)
-
         if label=='real':
             rec_img_big = self.decoder_big(feat_last)
             rec_img_small = self.decoder_small(feat_small)
@@ -282,8 +279,9 @@ class Discriminator(nn.Module):
             if part==3:
                 rec_img_part = self.decoder_part(feat_32[:,:,8:,8:])
 
-            output = {"pred":torch.cat([rf_0, rf_1], dim=1), "rec":[rec_img_big, rec_img_small, rec_img_part], "part":part, "classes":classes}
-            return OrderedDict(output)
+            output = torch.cat([rf_0, rf_1], dim=1) , [rec_img_big, rec_img_small, rec_img_part], part, classes
+            print(output)
+            return output
 
         return torch.cat([rf_0, rf_1], dim=1), classes
 
