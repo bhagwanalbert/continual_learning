@@ -52,6 +52,8 @@ def train_d(net, data, y, label="real"):
     """Train function of discriminator"""
     global correct_cnt
     if label=="real":
+        print(data.shape)
+        print(data.type)
         pred, [rec_all, rec_small, rec_part], part, classes = net(data, label)
         err = F.relu(  torch.rand_like(pred) * 0.2 + 0.8 -  pred).mean() + \
             percept( rec_all, F.interpolate(data, rec_all.shape[2]) ).sum() +\
@@ -210,8 +212,6 @@ def train(args):
             noise_ = (torch.from_numpy(noise_))
             noise.data.copy_(noise_.view(current_batch_size, nz))
             noise = maybe_cuda(noise, use_cuda=use_cuda).to('cuda:3')
-            print(noise)
-            print(netG)
 
             label = ((torch.from_numpy(label)).long())
             label = maybe_cuda(label, use_cuda=use_cuda).to('cuda:3')
