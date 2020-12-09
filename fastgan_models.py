@@ -284,7 +284,7 @@ class Discriminator(nn.Module):
 
             # return torch.cat([rf_0, rf_1], dim=1) , [rec_img_big, rec_img_small, rec_img_part], part, classes
 
-        return torch.cat([rf_0, rf_1], dim=1), [0,1,2], 3, classes
+        return torch.cat([rf_0, rf_1], dim=1), classes
 
 
 
