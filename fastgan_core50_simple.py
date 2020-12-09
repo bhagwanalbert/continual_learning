@@ -53,7 +53,7 @@ def train_d(net, data, y, label="real"):
     global correct_cnt
     if label=="real":
         aux_label = torch.zeros(data.shape[0])
-        [pred, [rec_all, rec_small, rec_part], part, classes] = net(data, label)
+        pred, [rec_all, rec_small, rec_part], part, classes = net(data, label)
         err = F.relu(  torch.rand_like(pred) * 0.2 + 0.8 -  pred).mean() + \
             percept( rec_all, F.interpolate(data, rec_all.shape[2]) ).sum() +\
             percept( rec_small, F.interpolate(data, rec_small.shape[2]) ).sum() +\
@@ -62,10 +62,6 @@ def train_d(net, data, y, label="real"):
         err += conditioned_loss
         err.backward()
         _, pred_label = torch.max(classes, 1)
-        # print("real labels")
-        # print(y)
-        # print("predicted labels")
-        # print(pred_label)
         correct_cnt += (pred_label == y).sum()
         return pred.mean().item(), rec_all, rec_small, rec_part, conditioned_loss
     else:
