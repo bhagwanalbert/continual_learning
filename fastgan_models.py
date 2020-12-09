@@ -240,7 +240,7 @@ class Discriminator(nn.Module):
         self.fc_class = nn.Linear(ndf*16*8*8, n_class)
         self.softmax = nn.Softmax(dim=1)
 
-    def forward(self, imgs, label):
+    def forward(self, imgs, label, part=None):
         device = imgs.device
         if type(imgs) is not list:
             imgs = [F.interpolate(imgs, size=self.im_size), F.interpolate(imgs, size=128)]
@@ -269,7 +269,7 @@ class Discriminator(nn.Module):
             rec_img_big = self.decoder_big(feat_last)
             rec_img_small = self.decoder_small(feat_small)
 
-            part = random.randint(0, 3)
+            # part = random.randint(0, 3)
             rec_img_part = None
             if part==0:
                 rec_img_part = self.decoder_part(feat_32[:,:,:8,:8])
@@ -280,7 +280,7 @@ class Discriminator(nn.Module):
             if part==3:
                 rec_img_part = self.decoder_part(feat_32[:,:,8:,8:])
 
-            return torch.cat([rf_0, rf_1], dim=1).to(device) , [rec_img_big.to(device), rec_img_small.to(device), rec_img_part.to(device)], torch.Tensor([part]).to(device), classes.to(device)
+            return torch.cat([rf_0, rf_1], dim=1).to(device) , [rec_img_big.to(device), rec_img_small.to(device), rec_img_part.to(device)], classes.to(device)
 
         return torch.cat([rf_0, rf_1], dim=1).to(device), classes.to(device)
 

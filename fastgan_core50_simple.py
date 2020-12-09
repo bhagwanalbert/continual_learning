@@ -51,12 +51,13 @@ def crop_image_by_part(image, part):
 def train_d(net, data, y, label="real"):
     """Train function of discriminator"""
     global correct_cnt
+    part = random.randint(0, 3)
     if label=="real":
-        pred, [rec_all, rec_small, rec_part], part, classes = net(data, label)
+        pred, [rec_all, rec_small, rec_part], classes = net(data, label, part)
         err = F.relu(  torch.rand_like(pred) * 0.2 + 0.8 -  pred).mean() + \
             percept( rec_all, F.interpolate(data, rec_all.shape[2]) ).sum() +\
             percept( rec_small, F.interpolate(data, rec_small.shape[2]) ).sum() +\
-            percept( rec_part, F.interpolate(crop_image_by_part(data, int(part.item())), rec_part.shape[2]) ).sum()
+            percept( rec_part, F.interpolate(crop_image_by_part(data, part), rec_part.shape[2]) ).sum()
         conditioned_loss = class_loss(torch.log(classes),y)
         err += conditioned_loss
         err.backward()
