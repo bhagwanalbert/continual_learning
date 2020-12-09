@@ -280,7 +280,7 @@ class Discriminator(nn.Module):
             if part==3:
                 rec_img_part = self.decoder_part(feat_32[:,:,8:,8:])
 
-            return torch.cat([rf_0, rf_1], dim=1).to(device) , [rec_img_big.to(device), rec_img_small.to(device), rec_img_part.to(device)], part.to(device), classes.to(device)
+            return torch.cat([rf_0, rf_1], dim=1).to(device) , [rec_img_big.to(device), rec_img_small.to(device), rec_img_part.to(device)], torch.Tensor([part]).to(device), classes.to(device)
 
         return torch.cat([rf_0, rf_1], dim=1).to(device), classes.to(device)
 

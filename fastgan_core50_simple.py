@@ -56,7 +56,7 @@ def train_d(net, data, y, label="real"):
         err = F.relu(  torch.rand_like(pred) * 0.2 + 0.8 -  pred).mean() + \
             percept( rec_all, F.interpolate(data, rec_all.shape[2]) ).sum() +\
             percept( rec_small, F.interpolate(data, rec_small.shape[2]) ).sum() +\
-            percept( rec_part, F.interpolate(crop_image_by_part(data, part), rec_part.shape[2]) ).sum()
+            percept( rec_part, F.interpolate(crop_image_by_part(data, int(part.item())), rec_part.shape[2]) ).sum()
         conditioned_loss = class_loss(torch.log(classes),y)
         err += conditioned_loss
         err.backward()
