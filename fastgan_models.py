@@ -264,8 +264,8 @@ class Discriminator(nn.Module):
 
         flat_features = feat_last.contiguous().view(-1,self.ndf*16*8*8)
         classes = self.softmax(self.fc_class(flat_features))
-        
-        print("classes")
+
+        print(classes)
 
         if label=='real':
             rec_img_big = self.decoder_big(feat_last)
