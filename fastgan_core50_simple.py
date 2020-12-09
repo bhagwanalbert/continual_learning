@@ -153,6 +153,8 @@ def train(args):
     fixed_noise = maybe_cuda(fixed_noise, use_cuda=use_cuda).to('cuda:3')
 
     if multi_gpu:
+        torch.distributed.init_process_group(backend='nccl')
+
         netG = nn.parallel.DistributedDataParallel(netG,device_ids=[3, 0, 1, 4, 5])
         netD = nn.parallel.DistributedDataParallel(netD,device_ids=[3, 0, 1, 4, 5])
 
