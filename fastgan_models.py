@@ -241,6 +241,7 @@ class Discriminator(nn.Module):
         self.softmax = nn.Softmax(dim=1)
 
     def forward(self, imgs, label):
+        print(label)
         if type(imgs) is not list:
             imgs = [F.interpolate(imgs, size=self.im_size), F.interpolate(imgs, size=128)]
         feat_2 = self.down_from_big(imgs[0])
