@@ -52,7 +52,7 @@ def train_d(net, data, y, label="real"):
     """Train function of discriminator"""
     global correct_cnt
     if label=="real":
-        pred, [rec_all, rec_small, rec_part], part, classes = net(data, label).values()
+        pred, [rec_all, rec_small, rec_part], part, classes = net(data, label)
         err = F.relu(  torch.rand_like(pred) * 0.2 + 0.8 -  pred).mean() + \
             percept( rec_all, F.interpolate(data, rec_all.shape[2]) ).sum() +\
             percept( rec_small, F.interpolate(data, rec_small.shape[2]) ).sum() +\
@@ -153,8 +153,8 @@ def train(args):
     fixed_noise = maybe_cuda(fixed_noise, use_cuda=use_cuda).to('cuda:3')
 
     if multi_gpu:
-        netG = nn.DataParallel(netG,device_ids=[3, 0, 1, 4, 5])
-        netD = nn.DataParallel(netD,device_ids=[3, 0, 1, 4, 5])
+        netG = nn.parallel.DistributedDataParallel(netG,device_ids=[3, 0, 1, 4, 5])
+        netD = nn.parallel.DistributedDataParallel(netD,device_ids=[3, 0, 1, 4, 5])
 
     optimizerG = optim.Adam(netG.parameters(), lr=nlr, betas=(nbeta1, 0.999))
     optimizerD = optim.Adam(netD.parameters(), lr=nlr, betas=(nbeta1, 0.999))
