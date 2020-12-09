@@ -1,42 +1,20 @@
-from models import BigGAN
-import numpy as np
 import torch
-from torch import nn
+import torch.nn as nn
 
-n_class = 50
-# Root of weights
-weight_root = './weights'
+class dummy_net(nn.Module):
+    def __init__(self):
+        super(dummy_net, self).__init__()
+    def forward(self, input):
+        return input, [torch.zeros(1).to(input.device),torch.ones(1).to(input.device),2*torch.ones(1).to(input.device)], torch.zeros(4,4).to(input.device), torch.ones(10).to(input.device)
 
+model = dummy_net()
+model = nn.DataParallel(model, device_ids=[0,1,2,3,4])
 
-G = BigGAN.Generator(n_classes = n_class)
-D = BigGAN.Discriminator(n_classes = n_class)
+a, [b,c,d], e, f = model(torch.randn(100,2,2).to("cuda:0"))
 
-print(G)
-
-for name, param in G.named_parameters():
-    print(name)
-
-print(D)
-
-for name, param in D.named_parameters():
-    print(name)
-
-emb_params = {}
-lin_params = {}
-bn_params = {}
-conv_params = {}
-for name, param in G.named_parameters():
-    param.requires_grad = True
-    if ("shared" in name):
-        emb_params[name] = param
-    elif ("linear" in name):
-        lin_params[name] = param
-    elif ("bn" in name):
-        bn_params[name] = param
-    else:
-        conv_params[name] = param
-
-print(emb_params)
-print(lin_params)
-print(bn_params)
-print(conv_params)
+print(a)
+print(b)
+print(c)
+print(d)
+print(e)
+print(f)
