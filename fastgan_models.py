@@ -3,7 +3,7 @@ import torch.nn as nn
 from torch.nn.utils import spectral_norm
 import torch.nn.functional as F
 
-import random
+# import random
 
 seq = nn.Sequential
 

@@ -7,13 +7,12 @@ netD.apply(weights_init)
 netD = netD.to("cuda:0")
 netD = nn.DataParallel(netD,device_ids=[0, 1, 2, 3, 4])
 
-pred, [rec_all, rec_small, rec_part], part, classes = netD(torch.randn(20,3,256,256).to("cuda:0"), "real")
+pred, [rec_all, rec_small, rec_part], classes = netD(torch.randn(20,3,256,256).to("cuda:0"), "real", 2)
 
 print(pred.shape)
 print(rec_all.shape)
 print(rec_small.shape)
 print(rec_part.shape)
-print(part)
 print(classes.shape)
 
 # class dummy_net(nn.Module):

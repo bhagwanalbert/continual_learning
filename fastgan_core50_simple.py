@@ -20,6 +20,8 @@ policy = 'color,translation'
 from PerceptualSimilarity import models
 import os
 
+import random
+
 # Set cuda device (based on your hardware)
 # os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 # os.environ["CUDA_VISIBLE_DEVICES"] = "3"
