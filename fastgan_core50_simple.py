@@ -52,7 +52,7 @@ def train_d(net, data, y, label="real"):
     """Train function of discriminator"""
     global correct_cnt
     if label=="real":
-        pred, part, classes = net(data, label)
+        pred, [rec_all, rec_small, rec_part], part, classes = net(data, label).values()
         err = F.relu(  torch.rand_like(pred) * 0.2 + 0.8 -  pred).mean() + \
             percept( rec_all, F.interpolate(data, rec_all.shape[2]) ).sum() +\
             percept( rec_small, F.interpolate(data, rec_small.shape[2]) ).sum() +\
