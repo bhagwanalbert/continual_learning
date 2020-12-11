@@ -242,35 +242,53 @@ class Discriminator(nn.Module):
 
     def forward(self, imgs, label, part=None):
         device = imgs[0].device
-
+        print(device)
         if type(imgs) is not list:
             imgs = [F.interpolate(imgs, size=self.im_size), F.interpolate(imgs, size=128)]
-            print(imgs[0].device == imgs[1].device)
+            print(imgs[0].device)
+            print(imgs[1].device)
 
         feat_2 = self.down_from_big(imgs[0])
+        print(feat_2.device)
         feat_4 = self.down_4(feat_2)
+        print(feat_4.device)
         feat_8 = self.down_8(feat_4)
+        print(feat_8.device)
 
         feat_16 = self.down_16(feat_8)
+        print(feat_16.device)
         feat_16 = self.se_2_16(feat_2, feat_16)
+        print(feat_16.device)
 
         feat_32 = self.down_32(feat_16)
+        print(feat_32.device)
         feat_32 = self.se_4_32(feat_4, feat_32)
+        print(feat_32.device)
 
         feat_last = self.down_64(feat_32)
+        print(feat_last.device)
         feat_last = self.se_8_64(feat_8, feat_last)
+        print(feat_last.device)
 
         rf_0 = self.rf_big(feat_last)
+        print(rf_0.device)
 
         feat_small = self.down_from_small(imgs[1])
+        print(feat_small.device)
         rf_1 = self.rf_from_128(feat_small)
+        print(rf_1.device)
 
         flat_features = feat_last.contiguous().view(-1,self.ndf*16*8*8)
+        print(flat_features.device)
         classes = self.softmax(self.fc_class(flat_features))
+        print(classes.device)
 
         if label=='real':
             rec_img_big = self.decoder_big(feat_last)
+            print(rec_img_big.device)
+
             rec_img_small = self.decoder_small(feat_small)
+            print(rec_img_small.device)
 
             # part = random.randint(0, 3)
             rec_img_part = None
@@ -282,6 +300,7 @@ class Discriminator(nn.Module):
                 rec_img_part = self.decoder_part(feat_32[:,:,8:,:8])
             if part==3:
                 rec_img_part = self.decoder_part(feat_32[:,:,8:,8:])
+            print(rec_img_part.device)
 
             return torch.cat([rf_0, rf_1], dim=1).to(device) , [rec_img_big.to(device), rec_img_small.to(device), rec_img_part.to(device)], classes.to(device)
 
