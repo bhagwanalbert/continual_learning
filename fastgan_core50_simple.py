@@ -137,8 +137,8 @@ def train(args):
     netD = Discriminator(ndf=ndf, im_size=im_size, n_class=n_class)
     netD.apply(weights_init)
 
-    netG = maybe_cuda(netG, use_cuda=use_cuda).to('cuda:0')
-    netD = maybe_cuda(netD, use_cuda=use_cuda).to('cuda:0')
+    netG = maybe_cuda(netG, use_cuda=use_cuda).to('cuda:5')
+    netD = maybe_cuda(netD, use_cuda=use_cuda).to('cuda:5')
 
     avg_param_G = copy_G_params(netG)
 
@@ -153,11 +153,11 @@ def train(args):
 
     fixed_noise_ = (torch.from_numpy(fixed_noise_))
     fixed_noise.data.copy_(fixed_noise_.view(n_imag*n_class, nz))
-    fixed_noise = maybe_cuda(fixed_noise, use_cuda=use_cuda).to('cuda:0')
+    fixed_noise = maybe_cuda(fixed_noise, use_cuda=use_cuda).to('cuda:5')
 
     if multi_gpu:
-        netG = nn.DataParallel(netG,device_ids=[0, 1, 2, 3, 4])
-        netD = nn.DataParallel(netD,device_ids=[0, 1, 2, 3, 4])
+        netG = nn.DataParallel(netG,device_ids=[5, 0, 1, 2, 3, 4])
+        netD = nn.DataParallel(netD,device_ids=[5, 0, 1, 2, 3, 4])
 
     optimizerG = optim.Adam(netG.parameters(), lr=nlr, betas=(nbeta1, 0.999))
     optimizerD = optim.Adam(netD.parameters(), lr=nlr, betas=(nbeta1, 0.999))
@@ -194,8 +194,8 @@ def train(args):
             start = i * batch_size
             end = (i + 1) * batch_size
 
-            real_image = maybe_cuda(train_x_proc[start:end], use_cuda=use_cuda).to('cuda:0')
-            y_mb = maybe_cuda(train_y[start:end], use_cuda=use_cuda).to('cuda:0')
+            real_image = maybe_cuda(train_x_proc[start:end], use_cuda=use_cuda).to('cuda:5')
+            y_mb = maybe_cuda(train_y[start:end], use_cuda=use_cuda).to('cuda:5')
 
             current_batch_size = real_image.size(0)
             data_encountered += current_batch_size
@@ -208,10 +208,10 @@ def train(args):
             noise_[np.arange(current_batch_size), :n_class] = onehot[np.arange(current_batch_size)]
             noise_ = (torch.from_numpy(noise_))
             noise.data.copy_(noise_.view(current_batch_size, nz))
-            noise = maybe_cuda(noise, use_cuda=use_cuda).to('cuda:0')
+            noise = maybe_cuda(noise, use_cuda=use_cuda).to('cuda:5')
 
             label = ((torch.from_numpy(label)).long())
-            label = maybe_cuda(label, use_cuda=use_cuda).to('cuda:0')
+            label = maybe_cuda(label, use_cuda=use_cuda).to('cuda:5')
 
             fake_images = netG(noise)
 
