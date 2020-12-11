@@ -245,12 +245,7 @@ class Discriminator(nn.Module):
 
         if type(imgs) is not list:
             imgs = [F.interpolate(imgs, size=self.im_size), F.interpolate(imgs, size=128)]
-            print("GPU device: ")
-            print(device)
-            print("1st device: ")
-            print(imgs[0].device)
-            print("2nd device: ")
-            print(imgs[1].device)
+            print(imgs[0].device == imgs[1].device)
 
         feat_2 = self.down_from_big(imgs[0])
         feat_4 = self.down_4(feat_2)
