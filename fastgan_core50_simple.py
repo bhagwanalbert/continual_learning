@@ -26,7 +26,7 @@ import random
 # os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 # os.environ["CUDA_VISIBLE_DEVICES"] = "3"
 
-percept = models.PerceptualLoss(model='net-lin', net='vgg', use_gpu=True)
+percept = models.PerceptualLoss(model='net-lin', net='vgg', use_gpu=True, gpu_ids=[5, 0, 1, 2, 3, 4])
 
 class_loss = nn.NLLLoss()
 correct_cnt = 0
@@ -281,7 +281,7 @@ if __name__ == "__main__":
     parser.add_argument('--cuda', type=int, default=1, help='index of gpu to use')
     parser.add_argument('--name', type=str, default='test1', help='experiment name')
     parser.add_argument('--start_iter', type=int, default=0, help='the iteration to start training')
-    parser.add_argument('--batch_size', type=int, default=12, help='mini batch number of images')
+    parser.add_argument('--batch_size', type=int, default=20, help='mini batch number of images')
     parser.add_argument('--im_size', type=int, default=256, help='image resolution')
     parser.add_argument('--ckpt', type=str, default='None', help='checkpoint weight path')
 

@@ -22,7 +22,7 @@ netD.apply(weights_init)
 netD = netD.to("cuda:5")
 netD = nn.DataParallel(netD,device_ids=[5])
 class_loss = nn.NLLLoss()
-percept = models.PerceptualLoss(model='net-lin', net='vgg', use_gpu=True)
+percept = models.PerceptualLoss(model='net-lin', net='vgg', use_gpu=True, gpu_ids=[5])
 
 data = torch.randn(12,3,256,256).to("cuda:5")
 part = random.randint(0, 3)
@@ -35,6 +35,7 @@ err = F.relu(  torch.rand_like(pred) * 0.2 + 0.8 -  pred).mean() + \
     percept( rec_part, F.interpolate(crop_image_by_part(data, part), rec_part.shape[2]) ).sum()
 conditioned_loss = class_loss(torch.log(classes),y)
 err += conditioned_loss
+err.backward()
 
 print(pred.shape)
 print(rec_all.shape)
