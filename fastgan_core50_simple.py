@@ -26,7 +26,7 @@ import random
 # os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 # os.environ["CUDA_VISIBLE_DEVICES"] = "3"
 
-percept = models.PerceptualLoss(model='net-lin', net='vgg', use_gpu=True, gpu_ids=[5, 0, 1, 2, 3, 4])
+percept = models.PerceptualLoss(model='net-lin', net='vgg', use_gpu=True, gpu_ids=[5])
 
 class_loss = nn.NLLLoss()
 correct_cnt = 0
