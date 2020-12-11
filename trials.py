@@ -20,7 +20,7 @@ def crop_image_by_part(image, part):
 netD = Discriminator(ndf=64, im_size=256, n_class=10)
 netD.apply(weights_init)
 netD = netD.to("cuda:5")
-netD = nn.DataParallel(netD,device_ids=[5, 0, 1, 2, 3, 4])
+netD = nn.DataParallel(netD,device_ids=[5, 1, 2, 3, 4])
 class_loss = nn.NLLLoss()
 percept = models.PerceptualLoss(model='net-lin', net='vgg', use_gpu=True)
 
