@@ -281,7 +281,7 @@ if __name__ == "__main__":
     parser.add_argument('--cuda', type=int, default=1, help='index of gpu to use')
     parser.add_argument('--name', type=str, default='test1', help='experiment name')
     parser.add_argument('--start_iter', type=int, default=0, help='the iteration to start training')
-    parser.add_argument('--batch_size', type=int, default=50, help='mini batch number of images')
+    parser.add_argument('--batch_size', type=int, default=40, help='mini batch number of images')
     parser.add_argument('--im_size', type=int, default=256, help='image resolution')
     parser.add_argument('--ckpt', type=str, default='None', help='checkpoint weight path')
 
