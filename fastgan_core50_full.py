@@ -132,8 +132,8 @@ def train(args):
     fixed_noise = maybe_cuda(fixed_noise, use_cuda=use_cuda).to('cuda:5')
 
     if multi_gpu:
-        netG = nn.DataParallel(netG,device_ids=[5, 0, 1, 2, 6, 7])
-        netD = nn.DataParallel(netD,device_ids=[5, 0, 1, 2, 6, 7])
+        netG = nn.DataParallel(netG,device_ids=[5, 0, 1, 2, 3, 4, 6, 7])
+        netD = nn.DataParallel(netD,device_ids=[5, 0, 1, 2, 3, 4, 6, 7])
 
     optimizerG = optim.Adam(netG.parameters(), lr=nlr, betas=(nbeta1, 0.999))
     optimizerD = optim.Adam(netD.parameters(), lr=nlr, betas=(nbeta1, 0.999))
@@ -173,9 +173,9 @@ def train(args):
 
         for c in range(n_class):
             if training_examples == None:
-                training_examples = train_x[train_y.numpy() == c][:5]
+                training_examples = train_x[train_y.numpy() == c][:n_imag]
             else:
-                training_examples = torch.cat((training_examples, train_x[train_y.numpy() == c][:5]))
+                training_examples = torch.cat((training_examples, train_x[train_y.numpy() == c][:n_imag]))
 
         writer.add_image("Training images", vutils.make_grid(training_examples, nrow=n_imag, padding=2, normalize=True).cpu())
         writer.close()
@@ -275,7 +275,7 @@ def train(args):
                 for p, avg_p in zip(netG.parameters(), avg_param_G):
                     avg_p.mul_(0.999).add_(0.001 * p.data)
 
-                if i % 100 == 0:
+                if i % 20 == 0:
                     print("GAN: loss d: %.5f    loss g: %.5f"%(err_dr_real, -err_g.item()))
 
                 tot_it_step +=1
