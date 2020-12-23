@@ -34,10 +34,7 @@ correct_cnt = 0
 #torch.backends.cudnn.benchmark = True
 
 # Create tensorboard writer object
-writer = SummaryWriter('logs/fastgan3')
-# Images to view per class to test generator
-n_imag = 5
-n_class = 10
+writer = SummaryWriter('logs/fastgan4')
 
 def crop_image_by_part(image, part):
     hw = image.shape[2]//2
@@ -93,7 +90,9 @@ def train(args):
     current_iteration = 0
     save_interval = 100
     num_epochs = 100
-    n_imag = 5
+    n_imag = 10
+    prev_imag = 54
+    train_prev = False
 
     saved_model_folder, saved_image_folder = get_dir(args)
 
@@ -149,16 +148,17 @@ def train(args):
         current_iteration = int(checkpoint.split('_')[-1].split('.')[0])
         del ckpt
 
+    enc_classes = {i:0 for i in range(n_class)}
+
     # Training Loop
     print("Starting Training Loop...")
-
+    tot_it_step = 0
     for i, train_batch in enumerate(dataset):
 
         print("Incremental batch no.: ", i)
 
         train_x, train_y = train_batch
         train_x = preprocess_imgs(train_x, norm=False, symmetric = False)
-        train_y = train_y
 
         train_x = torch.from_numpy(train_x).type(torch.FloatTensor)
         train_y = torch.from_numpy(train_y).type(torch.LongTensor)
@@ -168,6 +168,7 @@ def train(args):
         train_x = train_x[indexes]
         train_y = train_y[indexes]
 
+        # Show some new training images
         training_examples = None
 
         for c in range(n_class):
@@ -179,9 +180,39 @@ def train(args):
         writer.add_image("Training images", vutils.make_grid(training_examples, nrow=n_imag, padding=2, normalize=True).cpu())
         writer.close()
 
+        # Add images from previous generator
+        if i != 0 and train_prev:
+            prev_label = np.array(list({x:enc_classes[x] for x in enc_classes if enc_classes[x]==1}.keys()))
+            # Compute noise to generate previous learnt images
+            prev_noise = torch.FloatTensor(prev_imag*len(prev_label), nz).normal_(0, 1)
+            prev_noise_ = np.random.normal(0, 1, (prev_imag*len(prev_label), nz))
+            prev_onehot = np.zeros((prev_imag*len(prev_label), n_class))
+            prev_onehot[np.arange(prev_imag*len(prev_label)), np.repeat(prev_label,prev_imag)] = 1
+            prev_noise_[np.arange(prev_imag*len(prev_label)), :n_class] = prev_onehot[np.arange(prev_imag*len(prev_label))]
+            prev_noise_ = (torch.from_numpy(prev_noise_))
+            prev_noise.data.copy_(prev_noise_.view(prev_imag*len(prev_label), nz))
+            prev_noise = maybe_cuda(prev_noise, use_cuda=use_cuda).to('cuda:5')
+
+            prev_y = ((torch.from_numpy(np.repeat(prev_label,prev_imag))).long())
+            prev_y = maybe_cuda(prev_y, use_cuda=use_cuda).to('cuda:5')
+
+            with torch.no_grad():
+                prev_x = netG(prev_noise)
+
+            train_x = torch.cat((train_x,prev_x),0)
+            train_y = torch.cat((train_y,prev_y),0)
+
+            indexes = np.random.permutation(train_y.size(0))
+
+            train_x = train_x[indexes]
+            train_y = train_y[indexes]
+
+        # Update encountered classes
+        for y in train_y:
+            enc_classes[i] |= 1
+
         train_x_proc = torch.zeros([train_x.size(0),train_x.size(1),im_size,im_size]).type(torch.FloatTensor)
 
-        tot_it_step = 0
         it_x_ep = train_x.size(0) // batch_size
 
         for ep in range(num_epochs):
@@ -204,9 +235,11 @@ def train(args):
                 current_batch_size = real_image.size(0)
                 data_encountered += current_batch_size
 
+                current_classes = np.array(list({x:enc_classes[x] for x in enc_classes if enc_classes[x]==1}.keys()))
+
                 noise = torch.FloatTensor(current_batch_size, nz).normal_(0, 1)
                 noise_ = np.random.normal(0, 1, (current_batch_size, nz))
-                label = np.random.randint(0, n_class, current_batch_size)
+                label = np.random.choice(current_classes, current_batch_size)
                 onehot = np.zeros((current_batch_size, n_class))
                 onehot[np.arange(current_batch_size), label] = 1
                 noise_[np.arange(current_batch_size), :n_class] = onehot[np.arange(current_batch_size)]
