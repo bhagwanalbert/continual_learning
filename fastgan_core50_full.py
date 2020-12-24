@@ -147,7 +147,7 @@ def train(args):
         optimizerD.load_state_dict(ckpt['opt_d'])
         start_batch = int(checkpoint.split('_')[-2].split('.')[0])
         start_epoch = int(checkpoint.split('_')[-1].split('.')[0])
-        if (start_epoch = num_epochs - 1):
+        if (start_epoch == num_epochs - 1):
             start_batch += 1
         del ckpt
 
