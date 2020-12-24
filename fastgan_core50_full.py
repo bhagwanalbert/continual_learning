@@ -167,8 +167,8 @@ def train(args):
 
         indexes = np.random.permutation(train_y.size(0))
 
-        train_x = train_x[indexes]
-        train_y = train_y[indexes]
+        train_x = train_x[indexes].to('cuda:5')
+        train_y = train_y[indexes].to('cuda:5')
 
         # Show some new training images
         training_examples = None
