@@ -200,6 +200,7 @@ def train(args):
 
             with torch.no_grad():
                 prev_x = netG(prev_noise)
+                print(prev_x)
 
             train_x = torch.cat((train_x,prev_x),0)
             train_y = torch.cat((train_y,prev_y),0)
