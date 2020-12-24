@@ -92,7 +92,7 @@ def train(args):
     num_epochs = 100
     n_imag = 10
     prev_imag = 54
-    train_prev = False
+    train_prev = True
 
     saved_model_folder, saved_image_folder = get_dir(args)
 
@@ -210,6 +210,7 @@ def train(args):
         # Update encountered classes
         for y in train_y:
             enc_classes[y.item()] |= 1
+        print(enc_classes)
 
         train_x_proc = torch.zeros([train_x.size(0),train_x.size(1),im_size,im_size]).type(torch.FloatTensor)
 
@@ -289,16 +290,15 @@ def train(args):
             writer.add_scalar('generator_class_loss', err_class_gen, tot_it_step)
             writer.close()
 
-            if tot_it_step % (save_interval*50) == 0 or tot_it_step == it_x_ep:
-                backup_para = copy_G_params(netG)
-                load_params(netG, avg_param_G)
-                torch.save({'g':netG.state_dict(),'d':netD.state_dict()}, saved_model_folder+'/%d.pth'%tot_it_step)
-                load_params(netG, backup_para)
-                torch.save({'g':netG.state_dict(),
-                            'd':netD.state_dict(),
-                            'g_ema': avg_param_G,
-                            'opt_g': optimizerG.state_dict(),
-                            'opt_d': optimizerD.state_dict()}, saved_model_folder+'/all_%d.pth'%tot_it_step)
+            backup_para = copy_G_params(netG)
+            load_params(netG, avg_param_G)
+            torch.save({'g':netG.state_dict(),'d':netD.state_dict()}, saved_model_folder+'/%d.pth'%ep)
+            load_params(netG, backup_para)
+            torch.save({'g':netG.state_dict(),
+                        'd':netD.state_dict(),
+                        'g_ema': avg_param_G,
+                        'opt_g': optimizerG.state_dict(),
+                        'opt_d': optimizerD.state_dict()}, saved_model_folder+'/all_%d.pth'%ep)
 
         backup_para = copy_G_params(netG)
         load_params(netG, avg_param_G)
