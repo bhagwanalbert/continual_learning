@@ -158,6 +158,7 @@ def train(args):
         print("Incremental batch no.: ", i)
 
         train_x, train_y = train_batch
+        print(train_y)
         train_x = preprocess_imgs(train_x, norm=False, symmetric = False)
 
         train_x = torch.from_numpy(train_x).type(torch.FloatTensor)
@@ -236,6 +237,7 @@ def train(args):
                 data_encountered += current_batch_size
 
                 current_classes = np.array(list({x:enc_classes[x] for x in enc_classes if enc_classes[x]==1}.keys()))
+                print(current_classes)
 
                 noise = torch.FloatTensor(current_batch_size, nz).normal_(0, 1)
                 noise_ = np.random.normal(0, 1, (current_batch_size, nz))
@@ -278,27 +280,27 @@ def train(args):
                 if i % 20 == 0:
                     print("GAN: loss d: %.5f    loss g: %.5f"%(err_dr_real, -err_g.item()))
 
-                tot_it_step +=1
+            tot_it_step +=1
 
-                writer.add_scalar('class_accuracy', class_acc, tot_it_step)
-                writer.add_scalar('discriminator_real_loss', err_dr_real, tot_it_step)
-                writer.add_scalar('discriminator_fake_loss', err_dr_fake, tot_it_step)
-                writer.add_scalar('discriminator_class_real_loss', err_class_real, tot_it_step)
-                writer.add_scalar('discriminator_class_fake_loss', err_class_fake, tot_it_step)
-                writer.add_scalar('generator_loss', -err_g.item(), tot_it_step)
-                writer.add_scalar('generator_class_loss', err_class_gen, tot_it_step)
-                writer.close()
+            writer.add_scalar('class_accuracy', class_acc, tot_it_step)
+            writer.add_scalar('discriminator_real_loss', err_dr_real, tot_it_step)
+            writer.add_scalar('discriminator_fake_loss', err_dr_fake, tot_it_step)
+            writer.add_scalar('discriminator_class_real_loss', err_class_real, tot_it_step)
+            writer.add_scalar('discriminator_class_fake_loss', err_class_fake, tot_it_step)
+            writer.add_scalar('generator_loss', -err_g.item(), tot_it_step)
+            writer.add_scalar('generator_class_loss', err_class_gen, tot_it_step)
+            writer.close()
 
-                if tot_it_step % (save_interval*50) == 0 or tot_it_step == it_x_ep:
-                    backup_para = copy_G_params(netG)
-                    load_params(netG, avg_param_G)
-                    torch.save({'g':netG.state_dict(),'d':netD.state_dict()}, saved_model_folder+'/%d.pth'%tot_it_step)
-                    load_params(netG, backup_para)
-                    torch.save({'g':netG.state_dict(),
-                                'd':netD.state_dict(),
-                                'g_ema': avg_param_G,
-                                'opt_g': optimizerG.state_dict(),
-                                'opt_d': optimizerD.state_dict()}, saved_model_folder+'/all_%d.pth'%tot_it_step)
+            if tot_it_step % (save_interval*50) == 0 or tot_it_step == it_x_ep:
+                backup_para = copy_G_params(netG)
+                load_params(netG, avg_param_G)
+                torch.save({'g':netG.state_dict(),'d':netD.state_dict()}, saved_model_folder+'/%d.pth'%tot_it_step)
+                load_params(netG, backup_para)
+                torch.save({'g':netG.state_dict(),
+                            'd':netD.state_dict(),
+                            'g_ema': avg_param_G,
+                            'opt_g': optimizerG.state_dict(),
+                            'opt_d': optimizerD.state_dict()}, saved_model_folder+'/all_%d.pth'%tot_it_step)
 
         backup_para = copy_G_params(netG)
         load_params(netG, avg_param_G)
