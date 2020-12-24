@@ -102,6 +102,8 @@ def train(args):
             transforms.ToTensor(),
             transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
         ]
+    resize = transforms.Resize((int(im_size),int(im_size)))
+
     data_transforms = transforms.Compose(transform_list)
 
     dataset = CORE50(root='/home/abhagwan/datasets/core50', scenario="nicv2_391")
@@ -201,7 +203,7 @@ def train(args):
             with torch.no_grad():
                 prev_x = netG(prev_noise)[0]
 
-            train_x = torch.cat((train_x.to('cuda:5'),prev_x),0)
+            train_x = torch.cat((resize(train_x).to('cuda:5'),prev_x),0)
             train_y = torch.cat((train_y.to('cuda:5'),prev_y),0)
 
             indexes = np.random.permutation(train_y.size(0))
