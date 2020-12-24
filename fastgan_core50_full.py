@@ -167,8 +167,8 @@ def train(args):
 
         indexes = np.random.permutation(train_y.size(0))
 
-        train_x = train_x[indexes].to('cuda:5')
-        train_y = train_y[indexes].to('cuda:5')
+        train_x = train_x[indexes]
+        train_y = train_y[indexes]
 
         # Show some new training images
         training_examples = None
@@ -201,8 +201,8 @@ def train(args):
             with torch.no_grad():
                 prev_x = netG(prev_noise)[0]
 
-            train_x = torch.cat((train_x,prev_x),0)
-            train_y = torch.cat((train_y,prev_y),0)
+            train_x = torch.cat((train_x.to('cuda:5'),prev_x),0)
+            train_y = torch.cat((train_y.to('cuda:5'),prev_y),0)
 
             indexes = np.random.permutation(train_y.size(0))
 
