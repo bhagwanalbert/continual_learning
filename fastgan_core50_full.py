@@ -87,8 +87,8 @@ def train(args):
     use_cuda = True
     multi_gpu = True
     dataloader_workers = 8
-    current_iteration = 0
-    save_interval = 100
+    start_batch = 0
+    start_epoch = 0
     num_epochs = 100
     n_imag = 10
     prev_imag = 54
@@ -139,13 +139,14 @@ def train(args):
     optimizerD = optim.Adam(netD.parameters(), lr=nlr, betas=(nbeta1, 0.999))
 
     if checkpoint != 'None':
-        ckpt = torch.load(checkpoint)
+        ckpt = torch.load(saved_model_folder+"/"+checkpoint)
         netG.load_state_dict(ckpt['g'])
         netD.load_state_dict(ckpt['d'])
         avg_param_G = ckpt['g_ema']
         optimizerG.load_state_dict(ckpt['opt_g'])
         optimizerD.load_state_dict(ckpt['opt_d'])
-        current_iteration = int(checkpoint.split('_')[-1].split('.')[0])
+        start_batch = int(checkpoint.split('_')[-2].split('.')[0])
+        start_epoch = int(checkpoint.split('_')[-1].split('.')[0])
         del ckpt
 
     enc_classes = {i:0 for i in range(n_class)}
@@ -156,7 +157,10 @@ def train(args):
     for i, train_batch in enumerate(dataset):
 
         print("Incremental batch no.: ", i)
-
+        if (i < start_batch):
+            print("Skipping batch, already trained in checkpoint")
+            continue
+            
         train_x, train_y = train_batch
         train_x = preprocess_imgs(train_x, norm=False, symmetric = False)
 
@@ -216,7 +220,7 @@ def train(args):
 
         it_x_ep = train_x.size(0) // batch_size
 
-        for ep in range(num_epochs):
+        for ep in range(start_epoch,num_epochs):
             print("training ep: ", ep)
             data_encountered = 0
             correct_cnt = 0
@@ -292,13 +296,13 @@ def train(args):
 
             backup_para = copy_G_params(netG)
             load_params(netG, avg_param_G)
-            torch.save({'g':netG.state_dict(),'d':netD.state_dict()}, saved_model_folder+'/%d.pth'%ep)
+            torch.save({'g':netG.state_dict(),'d':netD.state_dict()}, saved_model_folder+'/%d_%d.pth'%(i,ep))
             load_params(netG, backup_para)
             torch.save({'g':netG.state_dict(),
                         'd':netD.state_dict(),
                         'g_ema': avg_param_G,
                         'opt_g': optimizerG.state_dict(),
-                        'opt_d': optimizerD.state_dict()}, saved_model_folder+'/all_%d.pth'%ep)
+                        'opt_d': optimizerD.state_dict()}, saved_model_folder+'/all_%d_%d.pth'%(i,ep))
 
         backup_para = copy_G_params(netG)
         load_params(netG, avg_param_G)
