@@ -138,6 +138,7 @@ def train(args):
     optimizerG = optim.Adam(netG.parameters(), lr=nlr, betas=(nbeta1, 0.999))
     optimizerD = optim.Adam(netD.parameters(), lr=nlr, betas=(nbeta1, 0.999))
 
+    enc_classes = {i:0 for i in range(n_class)}
     if checkpoint != 'None':
         ckpt = torch.load(saved_model_folder+"/"+checkpoint)
         netG.load_state_dict(ckpt['g'])
@@ -149,9 +150,8 @@ def train(args):
         start_epoch = int(checkpoint.split('_')[-1].split('.')[0])
         if (start_epoch == num_epochs - 1):
             start_batch += 1
+        enc_classes = ckpt['trained_classes']
         del ckpt
-
-    enc_classes = {i:0 for i in range(n_class)}
 
     # Training Loop
     print("Starting Training Loop...")
@@ -304,7 +304,8 @@ def train(args):
                         'd':netD.state_dict(),
                         'g_ema': avg_param_G,
                         'opt_g': optimizerG.state_dict(),
-                        'opt_d': optimizerD.state_dict()}, saved_model_folder+'/all_%d_%d.pth'%(i,ep))
+                        'opt_d': optimizerD.state_dict(),
+                        'trained_classes': enc_classes}, saved_model_folder+'/all_%d_%d.pth'%(i,ep))
 
         backup_para = copy_G_params(netG)
         load_params(netG, avg_param_G)
