@@ -147,6 +147,8 @@ def train(args):
         optimizerD.load_state_dict(ckpt['opt_d'])
         start_batch = int(checkpoint.split('_')[-2].split('.')[0])
         start_epoch = int(checkpoint.split('_')[-1].split('.')[0])
+        if (start_epoch = num_epochs - 1):
+            start_batch += 1
         del ckpt
 
     enc_classes = {i:0 for i in range(n_class)}
@@ -160,7 +162,7 @@ def train(args):
         if (i < start_batch):
             print("Skipping batch, already trained in checkpoint")
             continue
-            
+
         train_x, train_y = train_batch
         train_x = preprocess_imgs(train_x, norm=False, symmetric = False)
 
