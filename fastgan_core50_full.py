@@ -102,9 +102,16 @@ def train(args):
             transforms.ToTensor(),
             transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
         ]
-    resize = transforms.Resize((int(im_size),int(im_size)))
+
+    transform_list_aux = [
+            transforms.ToPILImage(mode='RGB'),
+            transforms.Resize((int(im_size),int(im_size))),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
+        ]
 
     data_transforms = transforms.Compose(transform_list)
+    data_transforms_aux = transforms.Compose(transform_list_aux)
 
     dataset = CORE50(root='/home/abhagwan/datasets/core50', scenario="nicv2_391")
 
@@ -184,6 +191,11 @@ def train(args):
         writer.add_image("Training images", vutils.make_grid(training_examples, nrow=n_imag, padding=2, normalize=True).cpu())
         writer.close()
 
+        train_x_proc = torch.zeros([train_x.size(0),train_x.size(1),im_size,im_size]).type(torch.FloatTensor)
+        for im in range(train_x.shape[0]):
+            im_proc = data_transforms_aux((train_x[im]).cpu())
+            train_x_proc[im] = im_proc.type(torch.FloatTensor)
+
         # Add images from previous generator
         if i != 0 and train_prev:
             prev_label = np.array(list({x:enc_classes[x] for x in enc_classes if enc_classes[x]==1}.keys()))
@@ -203,7 +215,7 @@ def train(args):
             with torch.no_grad():
                 prev_x = netG(prev_noise)[0]
 
-            train_x = torch.cat((resize(train_x).to('cuda:5'),prev_x),0)
+            train_x = torch.cat((train_x_proc.to('cuda:5'),prev_x),0)
             train_y = torch.cat((train_y.to('cuda:5'),prev_y),0)
 
             indexes = np.random.permutation(train_y.size(0))
