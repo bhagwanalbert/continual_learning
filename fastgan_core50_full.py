@@ -158,7 +158,6 @@ def train(args):
         print("Incremental batch no.: ", i)
 
         train_x, train_y = train_batch
-        print(np.unique(train_y))
         train_x = preprocess_imgs(train_x, norm=False, symmetric = False)
 
         train_x = torch.from_numpy(train_x).type(torch.FloatTensor)
@@ -211,7 +210,7 @@ def train(args):
         # Update encountered classes
         for y in train_y:
             enc_classes[y.item()] |= 1
-        print(enc_classes)
+
         train_x_proc = torch.zeros([train_x.size(0),train_x.size(1),im_size,im_size]).type(torch.FloatTensor)
 
         it_x_ep = train_x.size(0) // batch_size
@@ -237,7 +236,6 @@ def train(args):
                 data_encountered += current_batch_size
 
                 current_classes = np.array(list({x:enc_classes[x] for x in enc_classes if enc_classes[x]==1}.keys()))
-                print(current_classes)
 
                 noise = torch.FloatTensor(current_batch_size, nz).normal_(0, 1)
                 noise_ = np.random.normal(0, 1, (current_batch_size, nz))
