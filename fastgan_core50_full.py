@@ -88,7 +88,6 @@ def train(args):
     multi_gpu = True
     dataloader_workers = 8
     start_batch = 0
-    start_epoch = 0
     num_epochs = 100
     n_imag = 10
     prev_imag = 54
@@ -146,10 +145,7 @@ def train(args):
         avg_param_G = ckpt['g_ema']
         optimizerG.load_state_dict(ckpt['opt_g'])
         optimizerD.load_state_dict(ckpt['opt_d'])
-        start_batch = int(checkpoint.split('_')[-2].split('.')[0])
-        start_epoch = int(checkpoint.split('_')[-1].split('.')[0])
-        if (start_epoch == num_epochs - 1):
-            start_batch += 1
+        start_batch = int(checkpoint.split('_')[-2].split('.')[0])+1
         enc_classes = ckpt['trained_classes']
         del ckpt
 
@@ -222,7 +218,7 @@ def train(args):
 
         it_x_ep = train_x.size(0) // batch_size
 
-        for ep in range(start_epoch,num_epochs):
+        for ep in range(num_epochs):
             print("training ep: ", ep)
             data_encountered = 0
             correct_cnt = 0
@@ -296,16 +292,17 @@ def train(args):
             writer.add_scalar('generator_class_loss', err_class_gen, tot_it_step)
             writer.close()
 
-            backup_para = copy_G_params(netG)
-            load_params(netG, avg_param_G)
-            torch.save({'g':netG.state_dict(),'d':netD.state_dict()}, saved_model_folder+'/%d_%d.pth'%(i,ep))
-            load_params(netG, backup_para)
-            torch.save({'g':netG.state_dict(),
-                        'd':netD.state_dict(),
-                        'g_ema': avg_param_G,
-                        'opt_g': optimizerG.state_dict(),
-                        'opt_d': optimizerD.state_dict(),
-                        'trained_classes': enc_classes}, saved_model_folder+'/all_%d_%d.pth'%(i,ep))
+            # backup_para = copy_G_params(netG)
+            # load_params(netG, avg_param_G)
+            # torch.save({'g':netG.state_dict(),'d':netD.state_dict()}, saved_model_folder+'/%d_%d.pth'%(i,ep))
+            # load_params(netG, backup_para)
+            if (ep == num_epochs - 1):
+                torch.save({'g':netG.state_dict(),
+                            'd':netD.state_dict(),
+                            'g_ema': avg_param_G,
+                            'opt_g': optimizerG.state_dict(),
+                            'opt_d': optimizerD.state_dict(),
+                            'trained_classes': enc_classes}, saved_model_folder+'/all_%d_%d.pth'%(i,ep))
 
         backup_para = copy_G_params(netG)
         load_params(netG, avg_param_G)
