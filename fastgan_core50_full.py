@@ -199,8 +199,7 @@ def train(args):
             prev_y = maybe_cuda(prev_y, use_cuda=use_cuda).to('cuda:5')
 
             with torch.no_grad():
-                prev_x = netG(prev_noise)
-                print(prev_x)
+                prev_x = netG(prev_noise)[0]
 
             train_x = torch.cat((train_x,prev_x),0)
             train_y = torch.cat((train_y,prev_y),0)
