@@ -210,7 +210,7 @@ def train(args):
 
         # Update encountered classes
         for y in train_y:
-            enc_classes[i] |= 1
+            enc_classes[y] |= 1
         print(enc_classes)
         train_x_proc = torch.zeros([train_x.size(0),train_x.size(1),im_size,im_size]).type(torch.FloatTensor)
 
