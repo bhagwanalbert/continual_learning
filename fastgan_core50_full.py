@@ -97,7 +97,6 @@ def train(args):
 
     transform_list = [
             transforms.ToPILImage(mode='RGB'),
-            transforms.Resize((int(im_size),int(im_size))),
             transforms.RandomHorizontalFlip(),
             transforms.ToTensor(),
             transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
@@ -107,7 +106,6 @@ def train(args):
             transforms.ToPILImage(mode='RGB'),
             transforms.Resize((int(im_size),int(im_size))),
             transforms.ToTensor(),
-            transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
         ]
 
     data_transforms = transforms.Compose(transform_list)
@@ -212,8 +210,12 @@ def train(args):
             prev_y = ((torch.from_numpy(np.repeat(prev_label,prev_imag))).long())
             prev_y = maybe_cuda(prev_y, use_cuda=use_cuda).to('cuda:5')
 
+            backup_para = copy_G_params(netG)
+            load_params(netG, avg_param_G)
             with torch.no_grad():
-                prev_x = netG(prev_noise)[0]
+                prev_x = netG(fixed_noise)[0].add(1).mul(0.5)
+                writer.add_image("Previous images", vutils.make_grid(prev_x, nrow=prev_imag, padding=2, normalize=True))
+            load_params(netG, backup_para)
 
             train_x = torch.cat((train_x_proc.to('cuda:5'),prev_x),0)
             train_y = torch.cat((train_y.to('cuda:5'),prev_y),0)
@@ -311,6 +313,7 @@ def train(args):
             # torch.save({'g':netG.state_dict(),'d':netD.state_dict()}, saved_model_folder+'/%d_%d.pth'%(i,ep))
             # load_params(netG, backup_para)
             if (ep == num_epochs - 1):
+                print("saving in: /all_%d_%d.pth"%(i,ep))
                 torch.save({'g':netG.state_dict(),
                             'd':netD.state_dict(),
                             'g_ema': avg_param_G,
