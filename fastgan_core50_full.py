@@ -189,12 +189,11 @@ def train(args):
         writer.add_image("Training images", vutils.make_grid(training_examples, nrow=n_imag, padding=2, normalize=True).cpu())
         writer.close()
 
-        print(train_x.shape)
         train_x_proc = torch.zeros([train_x.size(0),train_x.size(1),im_size,im_size]).type(torch.FloatTensor)
         for im in range(train_x.shape[0]):
             im_proc = data_transforms_aux((train_x[im]).cpu())
             train_x_proc[im] = im_proc.type(torch.FloatTensor)
-        print(train_x_proc.shape)
+
         # Add images from previous generator
         if i != 0 and train_prev:
             prev_label = np.array(list({x:enc_classes[x] for x in enc_classes if enc_classes[x]==1}.keys()))
@@ -214,17 +213,15 @@ def train(args):
             backup_para = copy_G_params(netG)
             load_params(netG, avg_param_G)
             with torch.no_grad():
-                prev_x = netG(fixed_noise)[0].add(1).mul(0.5)
+                prev_x = netG(prev_noise)[0].add(1).mul(0.5)
                 writer.add_image("Previous images", vutils.make_grid(prev_x, nrow=prev_imag, padding=2, normalize=True))
             load_params(netG, backup_para)
 
-            print(prev_x.shape)
             train_x = torch.cat((train_x_proc.to('cuda:5'),prev_x),0)
             train_y = torch.cat((train_y.to('cuda:5'),prev_y),0)
 
             indexes = np.random.permutation(train_y.size(0))
 
-            print(train_x.shape)
             train_x = train_x[indexes]
             train_y = train_y[indexes]
 
