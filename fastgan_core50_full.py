@@ -225,8 +225,11 @@ def train(args):
             print(train_y)
             print(train_y.size(0))
             print(indexes)
+            print(np.min(indexes))
+            print(np.max(indexes))
             train_x = train_x[indexes]
-            train_y = train_y[indexes]
+            train_y = train_y[0]
+            print(train_y)
 
         # Update encountered classes
         for y in train_y:
