@@ -222,6 +222,9 @@ def train(args):
 
             indexes = np.random.permutation(train_y.size(0))
 
+            print(train_y)
+            print(train_y.size(0))
+            print(indexes)
             train_x = train_x[indexes]
             train_y = train_y[indexes]
 
