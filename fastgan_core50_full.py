@@ -225,9 +225,9 @@ def train(args):
             print(train_y)
             print(train_y.size(0))
             print(indexes)
-            print(np.min(indexes))
-            print(np.max(indexes))
+            print(train_x.shape)
             train_x = train_x[indexes]
+            print(train_x)
             train_y = train_y[0]
             print(train_y)
 
