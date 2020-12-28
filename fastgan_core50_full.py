@@ -220,9 +220,18 @@ def train(args):
                 filter = pred_label == prev_y
                 correct_prev = filter.sum()
                 print(correct_prev.item()/prev_y.size(0))
-                writer.add_image("Previous images", vutils.make_grid(prev_x, nrow=prev_imag, padding=2, normalize=True))
+                # writer.add_image("Previous images", vutils.make_grid(prev_x, nrow=prev_imag, padding=2, normalize=True))
+                prev_x_filt = torch.zeros([correct_prev.item(),prev_x.size(1),im_size,im_size]).type(torch.FloatTensor)
+                prev_x_filt = maybe_cuda(prev_x_filt, use_cuda=use_cuda).to('cuda:5')
+                idx = 0
                 for f in range(filter.size(0)):
                     prev_x[f] = filter[f]*prev_x[f]
+                    if filter[f] == 1:
+                        prev_x_filt[idx] = prev[f]
+                        idx += 1
+                prev_x = prev_x_filt
+                del prev_x_filt
+                # writer.add_image("Previous images", vutils.make_grid(prev_x, nrow=prev_imag, padding=2, normalize=True))
                 writer.add_image("Previous images", vutils.make_grid(prev_x, nrow=prev_imag, padding=2, normalize=True))
                 writer.close()
             load_params(netG, backup_para)
