@@ -215,7 +215,7 @@ def train(args):
             with torch.no_grad():
                 prev_x = netG(prev_noise)[0].add(1).mul(0.5)
                 part = random.randint(0, 3)
-                pred, [rec_all, rec_small, rec_part], classes = net(prev_x, "real", part)
+                pred, [rec_all, rec_small, rec_part], classes = netD(prev_x, "real", part)
                 _, pred_label = torch.max(classes, 1)
                 correct_prev = (pred_label == prev_y).sum()
                 print(correct_prev/prev_y.size(0))
