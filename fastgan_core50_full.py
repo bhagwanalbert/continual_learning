@@ -223,14 +223,19 @@ def train(args):
                 # writer.add_image("Previous images", vutils.make_grid(prev_x, nrow=prev_imag, padding=2, normalize=True))
                 prev_x_filt = torch.zeros([correct_prev.item(),prev_x.size(1),im_size,im_size]).type(torch.FloatTensor)
                 prev_x_filt = maybe_cuda(prev_x_filt, use_cuda=use_cuda).to('cuda:5')
+                prev_y_filt = torch.zeros([correct_prev.item()])
+                prev_y_filt = maybe_cuda(prev_y_filt, use_cuda=use_cuda).to('cuda:5')
                 idx = 0
                 for f in range(filter.size(0)):
                     prev_x[f] = filter[f]*prev_x[f]
                     if filter[f] == 1:
                         prev_x_filt[idx] = prev_x[f]
+                        prev_y_filt[idx] = prev_y[f]
                         idx += 1
                 prev_x = prev_x_filt
+                prev_y = prev_y_filt
                 del prev_x_filt
+                del prev_y_filt
                 # writer.add_image("Previous images", vutils.make_grid(prev_x, nrow=prev_imag, padding=2, normalize=True))
                 writer.add_image("Previous images", vutils.make_grid(prev_x, nrow=prev_imag, padding=2, normalize=True))
                 writer.close()
