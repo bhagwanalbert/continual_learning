@@ -218,7 +218,7 @@ def train(args):
                 pred, [rec_all, rec_small, rec_part], classes = netD(prev_x, "real", part)
                 _, pred_label = torch.max(classes, 1)
                 correct_prev = (pred_label == prev_y).sum()
-                print(correct_prev/prev_y.size(0))
+                print(correct_prev.item()/prev_y.size(0))
                 writer.add_image("Previous images", vutils.make_grid(prev_x, nrow=prev_imag, padding=2, normalize=True))
             load_params(netG, backup_para)
 
