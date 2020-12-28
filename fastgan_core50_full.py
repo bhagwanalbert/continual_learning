@@ -227,7 +227,7 @@ def train(args):
                 for f in range(filter.size(0)):
                     prev_x[f] = filter[f]*prev_x[f]
                     if filter[f] == 1:
-                        prev_x_filt[idx] = prev[f]
+                        prev_x_filt[idx] = prev_x[f]
                         idx += 1
                 prev_x = prev_x_filt
                 del prev_x_filt
