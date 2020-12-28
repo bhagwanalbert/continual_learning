@@ -219,7 +219,7 @@ def train(args):
                 _, pred_label = torch.max(classes, 1)
                 correct_prev = (pred_label == prev_y).sum()
                 print(correct_prev.item()/prev_y.size(0))
-                writer.add_image("Previous images", vutils.make_grid(prev_x, nrow=prev_imag, padding=2, normalize=True))
+                writer.add_image("Previous images", vutils.make_grid((pred_label == prev_y)*prev_x, nrow=prev_imag, padding=2, normalize=True))
             load_params(netG, backup_para)
 
             train_x = torch.cat((train_x_proc.to('cuda:5'),prev_x),0)
