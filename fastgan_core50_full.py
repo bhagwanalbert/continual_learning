@@ -214,6 +214,11 @@ def train(args):
             load_params(netG, avg_param_G)
             with torch.no_grad():
                 prev_x = netG(prev_noise)[0].add(1).mul(0.5)
+                part = random.randint(0, 3)
+                pred, [rec_all, rec_small, rec_part], classes = net(prev_x, "real", part)
+                _, pred_label = torch.max(classes, 1)
+                correct_prev = (pred_label == prev_y).sum()
+                print(correct_prev/prev_y.size(0))
                 writer.add_image("Previous images", vutils.make_grid(prev_x, nrow=prev_imag, padding=2, normalize=True))
             load_params(netG, backup_para)
 
@@ -243,10 +248,10 @@ def train(args):
                 im_proc = data_transforms((train_x[im]).cpu())
                 train_x_proc[im] = im_proc.type(torch.FloatTensor)
 
-            for i in range(it_x_ep):
+            for it in range(it_x_ep):
 
-                start = i * batch_size
-                end = (i + 1) * batch_size
+                start = it * batch_size
+                end = (it + 1) * batch_size
 
                 real_image = maybe_cuda(train_x_proc[start:end], use_cuda=use_cuda).to('cuda:5')
                 y_mb = maybe_cuda(train_y[start:end], use_cuda=use_cuda).to('cuda:5')
@@ -294,7 +299,7 @@ def train(args):
                 for p, avg_p in zip(netG.parameters(), avg_param_G):
                     avg_p.mul_(0.999).add_(0.001 * p.data)
 
-                if i % 20 == 0:
+                if it % 20 == 0:
                     print("GAN: loss d: %.5f    loss g: %.5f"%(err_dr_real, -err_g.item()))
 
             tot_it_step +=1
