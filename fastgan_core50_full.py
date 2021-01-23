@@ -91,7 +91,7 @@ def train(args):
     num_epochs = 100
     n_imag = 10
     prev_imag = 50
-    train_prev = True
+    n_im_mb = 2
 
     saved_model_folder, saved_image_folder = get_dir(args)
 
@@ -195,7 +195,7 @@ def train(args):
             train_x_proc[im] = im_proc.type(torch.FloatTensor)
 
         # Add images from previous generator
-        if i != 0 and train_prev:
+        if i != 0:
             prev_label = np.array(list({x:enc_classes[x] for x in enc_classes if enc_classes[x]==1}.keys()))
             # Compute noise to generate previous learnt images
             prev_noise = torch.FloatTensor(prev_imag*len(prev_label), nz).normal_(0, 1)
@@ -241,23 +241,20 @@ def train(args):
                 writer.close()
             load_params(netG, backup_para)
 
-
-            train_x = torch.cat((train_x_proc.to('cuda:5'),prev_x),0)
-            train_y = torch.cat((train_y.to('cuda:5'),prev_y),0)
-
-            indexes = np.random.permutation(train_y.size(0))
-
-            train_x = train_x[indexes]
-            train_y = train_y[indexes]
-
         # Update encountered classes
         for y in train_y:
             enc_classes[y.item()] |= 1
         print(enc_classes)
 
+        train_x = train_x_proc
         train_x_proc = torch.zeros([train_x.size(0),train_x.size(1),im_size,im_size]).type(torch.FloatTensor)
 
-        it_x_ep = train_x.size(0) // batch_size
+        if i != 0:
+            prev_x_proc = torch.zeros([prev_x.size(0),prev_x.size(1),im_size,im_size]).type(torch.FloatTensor)
+            current_batch_size = (prev_label.size + 1)*n_im_mb
+            it_x_ep = (train_x.size(0) + prev_x.size(0)) // current_batch_size
+        else:
+            it_x_ep = train_x.size(0) // batch_size
 
         for ep in range(num_epochs):
             print("training ep: ", ep)
@@ -267,16 +264,43 @@ def train(args):
             for im in range(train_x.shape[0]):
                 im_proc = data_transforms((train_x[im]).cpu())
                 train_x_proc[im] = im_proc.type(torch.FloatTensor)
+            if i != 0:
+                for im in range(prev_x.shape[0]):
+                    im_proc = data_transforms((prev_x[im]).cpu())
+                    prev_x_proc[im] = im_proc.type(torch.FloatTensor)
 
             for it in range(it_x_ep):
 
-                start = it * batch_size
-                end = (it + 1) * batch_size
+                if i != 0:
+                    start = it * n_im_mb
+                    end = (it + 1) * n_im_mb
+                    real_image = maybe_cuda(train_x_proc[start:end], use_cuda=use_cuda).to('cuda:5')
+                    y_mb = maybe_cuda(train_y[start:end], use_cuda=use_cuda).to('cuda:5')
 
-                real_image = maybe_cuda(train_x_proc[start:end], use_cuda=use_cuda).to('cuda:5')
-                y_mb = maybe_cuda(train_y[start:end], use_cuda=use_cuda).to('cuda:5')
+                    for c in prev_label:
+                        prev_x_aux = prev_x[prev_y.numpy() == c]
+                        prev_y_aux = prev_y[prev_y.numpy() == c]
+                        indexes = random.randint(0, prev_x_aux.size(0)-1, n_im_mb)
+                        real_image = torch.cat((real_image, maybe_cuda(prev_x_aux[indexes], use_cuda=use_cuda).to('cuda:5')))
+                        y_mb = torch.cat((y_mb, maybe_cuda(prev_y[indexes], use_cuda=use_cuda).to('cuda:5')))
 
-                current_batch_size = real_image.size(0)
+                    del prev_x_aux
+                    del prev_y_aux
+
+                    indexes = np.random.permutation(y_mb.size(0))
+
+                    real_image = real_image[indexes]
+                    y_mb = y_mb[indexes]
+
+                else:
+                    start = it * batch_size
+                    end = (it + 1) * batch_size
+
+                    real_image = maybe_cuda(train_x_proc[start:end], use_cuda=use_cuda).to('cuda:5')
+                    y_mb = maybe_cuda(train_y[start:end], use_cuda=use_cuda).to('cuda:5')
+
+                    current_batch_size = real_image.size(0)
+
                 data_encountered += current_batch_size
 
                 current_classes = np.array(list({x:enc_classes[x] for x in enc_classes if enc_classes[x]==1}.keys()))
@@ -358,7 +382,7 @@ if __name__ == "__main__":
     parser.add_argument('--cuda', type=int, default=1, help='index of gpu to use')
     parser.add_argument('--name', type=str, default='test1', help='experiment name')
     parser.add_argument('--start_iter', type=int, default=0, help='the iteration to start training')
-    parser.add_argument('--batch_size', type=int, default=50, help='mini batch number of images')
+    parser.add_argument('--batch_size', type=int, default=20, help='mini batch number of images')
     parser.add_argument('--im_size', type=int, default=256, help='image resolution')
     parser.add_argument('--ckpt', type=str, default='None', help='checkpoint weight path')
 
