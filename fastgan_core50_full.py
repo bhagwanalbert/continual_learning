@@ -241,8 +241,6 @@ def train(args):
                 writer.close()
             load_params(netG, backup_para)
 
-            print(train_y)
-            print(prev_y)
 
             train_x = torch.cat((train_x_proc.to('cuda:5'),prev_x),0)
             train_y = torch.cat((train_y.to('cuda:5'),prev_y),0)
@@ -360,7 +358,7 @@ if __name__ == "__main__":
     parser.add_argument('--cuda', type=int, default=1, help='index of gpu to use')
     parser.add_argument('--name', type=str, default='test1', help='experiment name')
     parser.add_argument('--start_iter', type=int, default=0, help='the iteration to start training')
-    parser.add_argument('--batch_size', type=int, default=20, help='mini batch number of images')
+    parser.add_argument('--batch_size', type=int, default=50, help='mini batch number of images')
     parser.add_argument('--im_size', type=int, default=256, help='image resolution')
     parser.add_argument('--ckpt', type=str, default='None', help='checkpoint weight path')
 
