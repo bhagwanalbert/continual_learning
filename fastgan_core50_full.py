@@ -22,6 +22,8 @@ import os
 
 import random
 
+import numpy as np
+
 # Set cuda device (based on your hardware)
 # os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 # os.environ["CUDA_VISIBLE_DEVICES"] = "3"
@@ -280,7 +282,7 @@ def train(args):
                     for c in prev_label:
                         prev_x_aux = prev_x_proc[prev_y.cpu().numpy() == c]
                         prev_y_aux = prev_y[prev_y.cpu().numpy() == c]
-                        indexes = random.randint(0, (prev_x_aux.size(0)-1), size = n_im_mb)
+                        indexes = np.random.randint(0, (prev_x_aux.size(0)-1), size = n_im_mb)
                         real_image = torch.cat((real_image, maybe_cuda(prev_x_aux[indexes], use_cuda=use_cuda).to('cuda:5')))
                         y_mb = torch.cat((y_mb, maybe_cuda(prev_y[indexes], use_cuda=use_cuda).to('cuda:5')))
 
