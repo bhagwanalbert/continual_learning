@@ -90,7 +90,7 @@ def train(args):
     start_batch = 0
     num_epochs = 100
     n_imag = 10
-    prev_imag = 54
+    prev_imag = 50
     train_prev = True
 
     saved_model_folder, saved_image_folder = get_dir(args)
@@ -138,8 +138,8 @@ def train(args):
     fixed_noise = maybe_cuda(fixed_noise, use_cuda=use_cuda).to('cuda:5')
 
     if multi_gpu:
-        netG = nn.DataParallel(netG,device_ids=[5, 0, 1, 2, 3, 4, 6, 7])
-        netD = nn.DataParallel(netD,device_ids=[5, 0, 1, 2, 3, 4, 6, 7])
+        netG = nn.DataParallel(netG,device_ids=[5, 1, 2, 3, 4])
+        netD = nn.DataParallel(netD,device_ids=[5, 1, 2, 3, 4])
 
     optimizerG = optim.Adam(netG.parameters(), lr=nlr, betas=(nbeta1, 0.999))
     optimizerD = optim.Adam(netD.parameters(), lr=nlr, betas=(nbeta1, 0.999))
@@ -240,6 +240,9 @@ def train(args):
                 writer.add_image("Previous images", vutils.make_grid(prev_x, nrow=prev_imag, padding=2, normalize=True))
                 writer.close()
             load_params(netG, backup_para)
+
+            print(train_y)
+            print(prev_y)
 
             train_x = torch.cat((train_x_proc.to('cuda:5'),prev_x),0)
             train_y = torch.cat((train_y.to('cuda:5'),prev_y),0)
