@@ -280,7 +280,7 @@ def train(args):
                     for c in prev_label:
                         prev_x_aux = prev_x_proc[prev_y.cpu().numpy() == c]
                         prev_y_aux = prev_y[prev_y.cpu().numpy() == c]
-                        indexes = random.randint(0, prev_x_aux.size(0)-1, n_im_mb)
+                        indexes = random.randint(0, (prev_x_aux.size(0)-1), size = n_im_mb)
                         real_image = torch.cat((real_image, maybe_cuda(prev_x_aux[indexes], use_cuda=use_cuda).to('cuda:5')))
                         y_mb = torch.cat((y_mb, maybe_cuda(prev_y[indexes], use_cuda=use_cuda).to('cuda:5')))
 
