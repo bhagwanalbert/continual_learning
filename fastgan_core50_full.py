@@ -253,7 +253,7 @@ def train(args):
 
         if i != 0:
             prev_x_proc = torch.zeros([prev_x.size(0),prev_x.size(1),im_size,im_size]).type(torch.FloatTensor)
-            current_batch_size = (prev_label.size + 1)*n_im_mb
+            current_batch_size = (prev_label.size + 2)*n_im_mb
             it_x_ep = (train_x.size(0) + prev_x.size(0)) // current_batch_size
         else:
             it_x_ep = train_x.size(0) // batch_size
@@ -274,8 +274,8 @@ def train(args):
             for it in range(it_x_ep):
 
                 if i != 0:
-                    start = it * n_im_mb
-                    end = (it + 1) * n_im_mb
+                    start = it * n_im_mb*2
+                    end = (it + 1) * n_im_mb*2
                     real_image = maybe_cuda(train_x_proc[start:end], use_cuda=use_cuda).to('cuda:5')
                     y_mb = maybe_cuda(train_y[start:end], use_cuda=use_cuda).to('cuda:5')
 
@@ -302,6 +302,8 @@ def train(args):
                     y_mb = maybe_cuda(train_y[start:end], use_cuda=use_cuda).to('cuda:5')
 
                     current_batch_size = real_image.size(0)
+
+                print(real_image.shape)
 
                 data_encountered += current_batch_size
 
