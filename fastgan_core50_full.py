@@ -199,6 +199,7 @@ def train(args):
         # Add images from previous generator
         if i != 0:
             prev_label = np.array(list({x:enc_classes[x] for x in enc_classes if enc_classes[x]==1}.keys()))
+            print(prev_label)
             # Compute noise to generate previous learnt images
             prev_noise = torch.FloatTensor(prev_imag*len(prev_label), nz).normal_(0, 1)
             prev_noise_ = np.random.normal(0, 1, (prev_imag*len(prev_label), nz))
