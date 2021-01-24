@@ -85,12 +85,14 @@ def train(args):
     n_class = 50
     nz = 256 + n_class
     nlr = 0.0002
+    ilr = nlr/4
     nbeta1 = 0.5
     use_cuda = True
     multi_gpu = True
     dataloader_workers = 8
     start_batch = 0
     num_epochs = 100
+    inum_epochs = 20
     n_imag = 10
     prev_imag = 50
     n_im_mb = 2
@@ -255,6 +257,7 @@ def train(args):
             prev_x_proc = torch.zeros([prev_x.size(0),prev_x.size(1),im_size,im_size]).type(torch.FloatTensor)
             current_batch_size = (prev_label.size + 1)*n_im_mb
             it_x_ep = train_x.size(0) // n_im_mb
+            print(it_x_ep)
         else:
             it_x_ep = train_x.size(0) // batch_size
 
