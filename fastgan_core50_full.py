@@ -36,7 +36,7 @@ correct_cnt = 0
 #torch.backends.cudnn.benchmark = True
 
 # Create tensorboard writer object
-writer = SummaryWriter('logs/fastgan5')
+writer = SummaryWriter('logs/fastgan4')
 
 def crop_image_by_part(image, part):
     hw = image.shape[2]//2
@@ -199,7 +199,6 @@ def train(args):
         # Add images from previous generator
         if i != 0:
             prev_label = np.array(list({x:enc_classes[x] for x in enc_classes if enc_classes[x]==1}.keys()))
-            print(prev_label)
             # Compute noise to generate previous learnt images
             prev_noise = torch.FloatTensor(prev_imag*len(prev_label), nz).normal_(0, 1)
             prev_noise_ = np.random.normal(0, 1, (prev_imag*len(prev_label), nz))
@@ -255,7 +254,6 @@ def train(args):
         if i != 0:
             prev_x_proc = torch.zeros([prev_x.size(0),prev_x.size(1),im_size,im_size]).type(torch.FloatTensor)
             current_batch_size = (prev_label.size + 1)*n_im_mb
-            print(current_batch_size)
             it_x_ep = train_x.size(0) // current_batch_size
         else:
             it_x_ep = train_x.size(0) // batch_size
@@ -280,8 +278,6 @@ def train(args):
                     end = (it + 1) * n_im_mb
                     real_image = maybe_cuda(train_x_proc[start:end], use_cuda=use_cuda).to('cuda:5')
                     y_mb = maybe_cuda(train_y[start:end], use_cuda=use_cuda).to('cuda:5')
-                    print(real_image.shape)
-                    print(y_mb)
 
                     for c in prev_label:
                         prev_x_aux = prev_x_proc[prev_y.cpu().numpy() == c]
@@ -289,8 +285,6 @@ def train(args):
                         indexes = np.random.randint(0, (prev_x_aux.size(0)), size = n_im_mb)
                         real_image = torch.cat((real_image, maybe_cuda(prev_x_aux[indexes], use_cuda=use_cuda).to('cuda:5')))
                         y_mb = torch.cat((y_mb, maybe_cuda(prev_y_aux[indexes], use_cuda=use_cuda).to('cuda:5')))
-                        print(real_image.shape)
-                        print(y_mb)
 
                     del prev_x_aux
                     del prev_y_aux
