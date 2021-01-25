@@ -93,7 +93,7 @@ def train(args):
     start_batch = 0
     num_epochs = 100
     inum_epochs = 1
-    n_imag = 10
+    n_imag = 5
     prev_imag = 10
     n_im_mb = 1
 
