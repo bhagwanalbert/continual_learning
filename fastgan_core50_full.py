@@ -94,7 +94,7 @@ def train(args):
     num_epochs = 100
     inum_epochs = 20
     n_imag = 10
-    prev_imag = 50
+    prev_imag = 20
     n_im_mb = 2
 
     saved_model_folder, saved_image_folder = get_dir(args)
@@ -142,8 +142,8 @@ def train(args):
     fixed_noise = maybe_cuda(fixed_noise, use_cuda=use_cuda).to('cuda:5')
 
     if multi_gpu:
-        netG = nn.DataParallel(netG,device_ids=[5, 0, 1, 2, 3, 4, 7, 9])
-        netD = nn.DataParallel(netD,device_ids=[5, 0, 1, 2, 3, 4, 7, 9])
+        netG = nn.DataParallel(netG,device_ids=[5, 0, 1, 2, 3, 4, 6, 7, 8, 9])
+        netD = nn.DataParallel(netD,device_ids=[5, 0, 1, 2, 3, 4, 6, 7, 8, 9])
 
     optimizerG = optim.Adam(netG.parameters(), lr=nlr, betas=(nbeta1, 0.999))
     optimizerD = optim.Adam(netD.parameters(), lr=nlr, betas=(nbeta1, 0.999))
