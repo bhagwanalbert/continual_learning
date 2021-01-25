@@ -154,8 +154,8 @@ def train(args):
     if checkpoint != 'None':
         ckpt = torch.load(saved_model_folder+"/"+checkpoint)
         if not multi_gpu:
-            netG.load_state_dict(dict(zip(netG.keys(), ckpt['g'].values())))
-            netD.load_state_dict(dict(zip(netD.keys(), ckpt['d'].values())))
+            netG.load_state_dict(dict(zip(netG.state_dict().keys(), ckpt['g'].values())))
+            netD.load_state_dict(dict(zip(netD.state_dict().keys(), ckpt['d'].values())))
         else:
             netG.load_state_dict(ckpt['g'])
             netD.load_state_dict(ckpt['d'])
