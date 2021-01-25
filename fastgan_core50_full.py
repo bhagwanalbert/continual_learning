@@ -145,7 +145,7 @@ def train(args):
         netG = nn.DataParallel(netG,device_ids=[5, 1, 2, 3, 4])
         netD = nn.DataParallel(netD,device_ids=[5, 1, 2, 3, 4])
 
-    optimizerG = optim.Adam(netG.parameters(), lr=nlr, betas=(nbeta1, 0.999))
+    optimizerG = optim.Adam(netG.parameters(), lr=ilr, betas=(nbeta1, 0.999))
     optimizerD = optim.Adam(netD.parameters(), lr=nlr, betas=(nbeta1, 0.999))
 
     print(optimizerG)
