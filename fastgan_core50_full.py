@@ -363,7 +363,6 @@ def train(args):
 
                 del real_image
                 del y_mb
-                del real_image
                 del fake_images
 
             tot_it_step +=1
