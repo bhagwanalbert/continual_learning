@@ -276,10 +276,12 @@ def train(args):
             for im in range(train_x.shape[0]):
                 im_proc = data_transforms((train_x[im]).cpu())
                 train_x_proc[im] = im_proc.type(torch.FloatTensor)
+            del train_x
             if i != 0:
                 for im in range(prev_x.shape[0]):
                     im_proc = data_transforms((prev_x[im]).cpu())
                     prev_x_proc[im] = im_proc.type(torch.FloatTensor)
+                del prev_x
 
             for it in range(it_x_ep):
 
