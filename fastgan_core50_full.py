@@ -94,7 +94,7 @@ def train(args):
     num_epochs = 100
     inum_epochs = 1
     n_imag = 10
-    prev_imag = 20
+    prev_imag = 10
     n_im_mb = 2
 
     saved_model_folder, saved_image_folder = get_dir(args)
