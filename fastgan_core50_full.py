@@ -148,8 +148,6 @@ def train(args):
     optimizerG = optim.Adam(netG.parameters(), lr=nlr, betas=(nbeta1, 0.999))
     optimizerD = optim.Adam(netD.parameters(), lr=nlr, betas=(nbeta1, 0.999))
 
-    print(optimizerG)
-
     enc_classes = {i:0 for i in range(n_class)}
     if checkpoint != 'None':
         ckpt = torch.load(saved_model_folder+"/"+checkpoint)
