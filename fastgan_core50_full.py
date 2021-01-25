@@ -142,8 +142,8 @@ def train(args):
     fixed_noise = maybe_cuda(fixed_noise, use_cuda=use_cuda).to('cuda:5')
 
     if multi_gpu:
-        netG = nn.DataParallel(netG,device_ids=[5, 1, 2, 3, 4])
-        netD = nn.DataParallel(netD,device_ids=[5, 1, 2, 3, 4])
+        netG = nn.DataParallel(netG,device_ids=[5, 0, 1, 2, 3, 4, 6, 7, 8, 9])
+        netD = nn.DataParallel(netD,device_ids=[5, 0, 1, 2, 3, 4, 6, 7, 8, 9])
 
     optimizerG = optim.Adam(netG.parameters(), lr=nlr, betas=(nbeta1, 0.999))
     optimizerD = optim.Adam(netD.parameters(), lr=nlr, betas=(nbeta1, 0.999))
