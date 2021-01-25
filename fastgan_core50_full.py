@@ -145,7 +145,7 @@ def train(args):
         netG = nn.DataParallel(netG,device_ids=[5, 1, 2, 3, 4])
         netD = nn.DataParallel(netD,device_ids=[5, 1, 2, 3, 4])
 
-    optimizerG = optim.Adam(netG.parameters(), lr=ilr, betas=(nbeta1, 0.999))
+    optimizerG = optim.Adam(netG.parameters(), lr=nlr, betas=(nbeta1, 0.999))
     optimizerD = optim.Adam(netD.parameters(), lr=nlr, betas=(nbeta1, 0.999))
 
     print(optimizerG)
@@ -156,9 +156,8 @@ def train(args):
         netG.load_state_dict(ckpt['g'])
         netD.load_state_dict(ckpt['d'])
         avg_param_G = ckpt['g_ema']
-        optimizerG.load_state_dict(ckpt['opt_g'])
-        optimizerD.load_state_dict(ckpt['opt_d'])
-        print(optimizerG)
+        optimizerG = optim.Adam(netG.parameters(), lr=ilr, betas=(nbeta1, 0.999))
+        optimizerD = optim.Adam(netD.parameters(), lr=ilr, betas=(nbeta1, 0.999))
         start_batch = int(checkpoint.split('_')[-2].split('.')[0])+1
         enc_classes = ckpt['trained_classes']
         del ckpt
