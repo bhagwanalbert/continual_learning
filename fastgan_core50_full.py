@@ -340,7 +340,7 @@ def train(args):
                 ## 2. train Discriminator
                 netD.zero_grad()
 
-                err_dr_real, rec_img_all, rec_img_small, rec_img_part, err_class_real = train_d(netD, real_image, y_mb, label="real")
+                err_dr_real, _, _, _, err_class_real = train_d(netD, real_image, y_mb, label="real")
                 class_acc = correct_cnt.item() / data_encountered
                 err_dr_fake, err_class_fake = train_d(netD, [fi.detach() for fi in fake_images], label, label="fake")
                 optimizerD.step()
@@ -359,6 +359,9 @@ def train(args):
 
                 if it % 20 == 0:
                     print("GAN: loss d: %.5f    loss g: %.5f"%(err_dr_real, -err_g.item()))
+
+                del real_image
+                del y_mb
 
             tot_it_step +=1
 
