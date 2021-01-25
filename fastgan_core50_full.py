@@ -95,7 +95,7 @@ def train(args):
     inum_epochs = 1
     n_imag = 10
     prev_imag = 10
-    n_im_mb = 2
+    n_im_mb = 1
 
     saved_model_folder, saved_image_folder = get_dir(args)
 
@@ -392,7 +392,7 @@ def train(args):
 
         del train_x_proc
         del prev_x_proc
-        
+
         backup_para = copy_G_params(netG)
         load_params(netG, avg_param_G)
         with torch.no_grad():
