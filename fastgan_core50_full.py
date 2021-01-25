@@ -390,6 +390,9 @@ def train(args):
                             'opt_d': optimizerD.state_dict(),
                             'trained_classes': enc_classes}, saved_model_folder+'/all_%d_%d.pth'%(i,ep))
 
+        del train_x_proc
+        del prev_x_proc
+        
         backup_para = copy_G_params(netG)
         load_params(netG, avg_param_G)
         with torch.no_grad():
