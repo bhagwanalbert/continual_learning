@@ -334,6 +334,9 @@ def train(args):
 
                 fake_images = netG(noise)
 
+                del noise
+                del noise_
+
                 real_image = DiffAugment(real_image, policy=policy)
                 fake_images = [DiffAugment(fake, policy=policy) for fake in fake_images]
 
