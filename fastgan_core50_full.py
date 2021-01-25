@@ -88,11 +88,11 @@ def train(args):
     ilr = nlr/4
     nbeta1 = 0.5
     use_cuda = True
-    multi_gpu = True
+    multi_gpu = False
     dataloader_workers = 8
     start_batch = 0
     num_epochs = 100
-    inum_epochs = 20
+    inum_epochs = 1
     n_imag = 10
     prev_imag = 20
     n_im_mb = 2
