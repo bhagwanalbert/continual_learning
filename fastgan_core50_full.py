@@ -155,10 +155,10 @@ def train(args):
         ckpt = torch.load(saved_model_folder+"/"+checkpoint)
         netG.load_state_dict(ckpt['g'])
         netD.load_state_dict(ckpt['d'])
-        print(optimizerG)
         avg_param_G = ckpt['g_ema']
         optimizerG.load_state_dict(ckpt['opt_g'])
         optimizerD.load_state_dict(ckpt['opt_d'])
+        print(optimizerG)
         start_batch = int(checkpoint.split('_')[-2].split('.')[0])+1
         enc_classes = ckpt['trained_classes']
         del ckpt
