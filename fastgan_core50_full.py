@@ -244,7 +244,6 @@ def train(args):
                 prev_x = prev_x_filt
                 prev_y = prev_y_filt
                 del prev_x_filt
-                torch.cuda.empty_cache()
                 del prev_y_filt
                 torch.cuda.empty_cache()
                 # writer.add_image("Previous images", vutils.make_grid(prev_x, nrow=prev_imag, padding=2, normalize=True))
@@ -302,7 +301,6 @@ def train(args):
                         y_mb = torch.cat((y_mb, maybe_cuda(prev_y_aux[indexes], use_cuda=use_cuda).to('cuda:5')))
 
                     del prev_x_aux
-                    torch.cuda.empty_cache()
                     del prev_y_aux
                     torch.cuda.empty_cache()
 
@@ -340,7 +338,6 @@ def train(args):
                 fake_images = netG(noise)
 
                 del noise
-                torch.cuda.empty_cache()
                 del noise_
                 torch.cuda.empty_cache()
 
@@ -371,9 +368,7 @@ def train(args):
                     print("GAN: loss d: %.5f    loss g: %.5f"%(err_dr_real, -err_g.item()))
 
                 del real_image
-                torch.cuda.empty_cache()
                 del y_mb
-                torch.cuda.empty_cache()
                 del fake_images
                 torch.cuda.empty_cache()
 
@@ -402,7 +397,6 @@ def train(args):
                             'trained_classes': enc_classes}, saved_model_folder+'/all_%d_%d.pth'%(i,ep))
 
         del train_x_proc
-        torch.cuda.empty_cache()
         del prev_x_proc
 
         print(torch.cuda.memory_allocated('cuda:5'))
