@@ -92,7 +92,7 @@ def train(args):
     dataloader_workers = 8
     start_batch = 0
     num_epochs = 100
-    inum_epochs = 1
+    inum_epochs = 20
     n_imag = 5
     prev_imag = 10
     n_im_mb = 1
@@ -261,7 +261,7 @@ def train(args):
 
         if i != 0:
             prev_x_proc = torch.zeros([prev_x.size(0),prev_x.size(1),im_size,im_size]).type(torch.FloatTensor)
-            current_batch_size = (prev_label.size + 1)*n_im_mb
+            current_batch_size = (prev_label.size + 2)*n_im_mb
             num_epochs = inum_epochs
             it_x_ep = train_x.size(0) // n_im_mb
             print(it_x_ep)
@@ -288,8 +288,8 @@ def train(args):
             for it in range(it_x_ep):
 
                 if i != 0:
-                    start = it * n_im_mb
-                    end = (it + 1) * n_im_mb
+                    start = it * n_im_mb*2
+                    end = (it + 1) * n_im_mb*2
                     real_image = maybe_cuda(train_x_proc[start:end], use_cuda=use_cuda).to('cuda:5')
                     y_mb = maybe_cuda(train_y[start:end], use_cuda=use_cuda).to('cuda:5')
 
@@ -398,12 +398,7 @@ def train(args):
 
         del train_x_proc
         del prev_x_proc
-
-        print(torch.cuda.memory_allocated('cuda:5'))
-        print(torch.cuda.memory_reserved('cuda:5'))
         torch.cuda.empty_cache()
-        print(torch.cuda.memory_allocated('cuda:5'))
-        print(torch.cuda.memory_reserved('cuda:5'))
 
         backup_para = copy_G_params(netG)
         load_params(netG, avg_param_G)
