@@ -268,22 +268,22 @@ def train(args):
         else:
             it_x_ep = train_x.size(0) // batch_size
 
+        for im in range(train_x.shape[0]):
+            im_proc = data_transforms((train_x[im]).cpu())
+            train_x_proc[im] = im_proc.type(torch.FloatTensor)
+        del train_x
+        torch.cuda.empty_cache()
+        if i != 0:
+            for im in range(prev_x.shape[0]):
+                im_proc = data_transforms((prev_x[im]).cpu())
+                prev_x_proc[im] = im_proc.type(torch.FloatTensor)
+            del prev_x
+            torch.cuda.empty_cache()
+
         for ep in range(num_epochs):
             print("training ep: ", ep)
             data_encountered = 0
             correct_cnt = 0
-
-            for im in range(train_x.shape[0]):
-                im_proc = data_transforms((train_x[im]).cpu())
-                train_x_proc[im] = im_proc.type(torch.FloatTensor)
-            del train_x
-            torch.cuda.empty_cache()
-            if i != 0:
-                for im in range(prev_x.shape[0]):
-                    im_proc = data_transforms((prev_x[im]).cpu())
-                    prev_x_proc[im] = im_proc.type(torch.FloatTensor)
-                del prev_x
-                torch.cuda.empty_cache()
 
             for it in range(it_x_ep):
 
