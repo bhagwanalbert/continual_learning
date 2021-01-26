@@ -96,7 +96,7 @@ def train(args):
     n_imag = 5
     prev_imag = 10
     n_im_mb = 1
-    factor = 2
+    factor = 1
 
     saved_model_folder, saved_image_folder = get_dir(args)
 
