@@ -163,6 +163,7 @@ def train(args):
         start_batch = int(checkpoint.split('_')[-2].split('.')[0])+1
         enc_classes = ckpt['trained_classes']
         del ckpt
+        torch.cuda.empty_cache()
 
     # Training Loop
     print("Starting Training Loop...")
@@ -244,6 +245,7 @@ def train(args):
                 prev_y = prev_y_filt
                 del prev_x_filt
                 del prev_y_filt
+                torch.cuda.empty_cache()
                 # writer.add_image("Previous images", vutils.make_grid(prev_x, nrow=prev_imag, padding=2, normalize=True))
                 writer.add_image("Previous images", vutils.make_grid(prev_x, nrow=prev_imag, padding=2, normalize=True))
                 writer.close()
@@ -275,11 +277,13 @@ def train(args):
                 im_proc = data_transforms((train_x[im]).cpu())
                 train_x_proc[im] = im_proc.type(torch.FloatTensor)
             del train_x
+            torch.cuda.empty_cache()
             if i != 0:
                 for im in range(prev_x.shape[0]):
                     im_proc = data_transforms((prev_x[im]).cpu())
                     prev_x_proc[im] = im_proc.type(torch.FloatTensor)
                 del prev_x
+                torch.cuda.empty_cache()
 
             for it in range(it_x_ep):
 
@@ -298,6 +302,7 @@ def train(args):
 
                     del prev_x_aux
                     del prev_y_aux
+                    torch.cuda.empty_cache()
 
                     indexes = np.random.permutation(y_mb.size(0))
 
@@ -334,6 +339,7 @@ def train(args):
 
                 del noise
                 del noise_
+                torch.cuda.empty_cache()
 
                 real_image = DiffAugment(real_image, policy=policy)
                 fake_images = [DiffAugment(fake, policy=policy) for fake in fake_images]
@@ -364,6 +370,7 @@ def train(args):
                 del real_image
                 del y_mb
                 del fake_images
+                torch.cuda.empty_cache()
 
             tot_it_step +=1
 
