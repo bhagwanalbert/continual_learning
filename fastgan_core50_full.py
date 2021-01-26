@@ -392,11 +392,11 @@ def train(args):
         del train_x_proc
         del prev_x_proc
 
-        print(torch.cuda.memory_allocated())
-        print(torch.cuda.memory_reserved())
+        print(torch.cuda.memory_allocated('cuda:5'))
+        print(torch.cuda.memory_reserved('cuda:5'))
         torch.cuda.empty_cache()
-        print(torch.cuda.memory_allocated())
-        print(torch.cuda.memory_reserved())
+        print(torch.cuda.memory_allocated('cuda:5'))
+        print(torch.cuda.memory_reserved('cuda:5'))
 
         backup_para = copy_G_params(netG)
         load_params(netG, avg_param_G)
