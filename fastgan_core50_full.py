@@ -408,7 +408,12 @@ def train(args):
         backup_para = copy_G_params(netG)
         load_params(netG, avg_param_G)
         with torch.no_grad():
-            writer.add_image("Generated images", vutils.make_grid(netG(fixed_noise)[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
+            writer.add_image("Generated images C0-9", vutils.make_grid(netG(fixed_noise[0:n_imag*10])[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
+            writer.add_image("Generated images C10-19", vutils.make_grid(netG(fixed_noise[n_imag*10:n_imag*20])[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
+            writer.add_image("Generated images C20-29", vutils.make_grid(netG(fixed_noise[n_imag*20:n_imag*30])[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
+            writer.add_image("Generated images C30-39", vutils.make_grid(netG(fixed_noise[n_imag*30:n_imag*40])[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
+            writer.add_image("Generated images C40-49", vutils.make_grid(netG(fixed_noise[n_imag*40:n_imag*50])[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
+
         load_params(netG, backup_para)
 
 if __name__ == "__main__":
