@@ -77,6 +77,8 @@ def train_d(net, data, y, label="real"):
 def train(args):
     global correct_cnt
 
+    torch.autograd.detect_anomaly(True)
+
     checkpoint = args.ckpt
     batch_size = args.batch_size
     im_size = args.im_size
