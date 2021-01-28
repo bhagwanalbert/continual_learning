@@ -77,7 +77,7 @@ def train_d(net, data, y, label="real"):
 def train(args):
     global correct_cnt
 
-    torch.autograd.detect_anomaly(True)
+    torch.autograd.set_detect_anomaly(True)
 
     checkpoint = args.ckpt
     batch_size = args.batch_size
