@@ -55,11 +55,18 @@ def train_d(net, data, y, label="real"):
     part = random.randint(0, 3)
     if label=="real":
         pred, [rec_all, rec_small, rec_part], classes = net(data, label, part)
+        print("Real images")
+        print(torch.max(pred))
+        print(torch.min(pred))
         err = F.relu(  torch.rand_like(pred) * 0.2 + 0.8 -  pred).mean() + \
             percept( rec_all, F.interpolate(data, rec_all.shape[2]) ).sum() +\
             percept( rec_small, F.interpolate(data, rec_small.shape[2]) ).sum() +\
             percept( rec_part, F.interpolate(crop_image_by_part(data, part), rec_part.shape[2]) ).sum()
+        print(err)
+        print(torch.max(classes))
+        print(torch.min(classes))
         conditioned_loss = class_loss(torch.log(classes),y)
+        print(conditioned_loss)
         err += conditioned_loss
         err.backward()
         _, pred_label = torch.max(classes, 1)
@@ -67,8 +74,15 @@ def train_d(net, data, y, label="real"):
         return pred.mean().item(), rec_all, rec_small, rec_part, conditioned_loss
     else:
         pred, classes = net(data, label)
+        print("Fake images")
+        print(torch.max(pred))
+        print(torch.min(pred))
         err = F.relu( torch.rand_like(pred) * 0.2 + 0.8 + pred).mean()
+        print(err)
+        print(torch.max(classes))
+        print(torch.min(classes))
         conditioned_loss = class_loss(torch.log(classes),y)
+        print(conditioned_loss)
         err += conditioned_loss
         err.backward()
         return pred.mean().item(), conditioned_loss
