@@ -81,7 +81,7 @@ def train_d(net, data, y, label="real"):
         print(err)
         print(torch.max(classes))
         print(torch.min(classes))
-        conditioned_loss = class_loss(torch.log(classes),y)
+        conditioned_loss = class_loss(torch.log(classes+1e-12),y)
         print(conditioned_loss)
         err += conditioned_loss
         err.backward()
