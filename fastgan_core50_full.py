@@ -32,6 +32,7 @@ percept = models.PerceptualLoss(model='net-lin', net='vgg', use_gpu=True, gpu_id
 
 class_loss = nn.NLLLoss()
 correct_cnt = 0
+eps = 1e-12
 
 #torch.backends.cudnn.benchmark = True
 
@@ -52,6 +53,7 @@ def crop_image_by_part(image, part):
 def train_d(net, data, y, label="real"):
     """Train function of discriminator"""
     global correct_cnt
+    global eps
     part = random.randint(0, 3)
     if label=="real":
         pred, [rec_all, rec_small, rec_part], classes = net(data, label, part)
@@ -65,7 +67,7 @@ def train_d(net, data, y, label="real"):
         print(err)
         print(torch.max(classes))
         print(torch.min(classes))
-        conditioned_loss = class_loss(torch.log(classes),y)
+        conditioned_loss = class_loss(torch.log(classes+eps),y)
         print(conditioned_loss)
         err += conditioned_loss
         err.backward()
@@ -81,7 +83,7 @@ def train_d(net, data, y, label="real"):
         print(err)
         print(torch.max(classes))
         print(torch.min(classes))
-        conditioned_loss = class_loss(torch.log(classes+1e-12),y)
+        conditioned_loss = class_loss(torch.log(classes+eps),y)
         print(conditioned_loss)
         err += conditioned_loss
         err.backward()
@@ -372,7 +374,7 @@ def train(args):
                 ## 3. train Generator
                 netG.zero_grad()
                 pred_g, classes = netD(fake_images, "fake")
-                err_class_gen = class_loss(torch.log(classes),label)
+                err_class_gen = class_loss(torch.log(classes+eps),label)
                 err_g = -pred_g.mean() + 100*err_class_gen
 
                 err_g.backward()
