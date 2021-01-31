@@ -266,9 +266,6 @@ class Discriminator(nn.Module):
         flat_features = feat_last.contiguous().view(-1,self.ndf*16*8*8)
         classes = self.softmax(self.fc_class(flat_features))
 
-        print("Discriminator")
-        print(torch.sum(torch.isnan(classes)))
-        print(torch.sum(torch.isnan(flat_features)))
         if label=='real':
             rec_img_big = self.decoder_big(feat_last)
             rec_img_small = self.decoder_small(feat_small)
