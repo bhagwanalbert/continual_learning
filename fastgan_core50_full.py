@@ -106,7 +106,7 @@ def train(args):
     ilr = nlr/4
     nbeta1 = 0.5
     use_cuda = True
-    multi_gpu = False
+    multi_gpu = True
     dataloader_workers = 8
     start_batch = 0
     num_epochs = 100
@@ -161,8 +161,8 @@ def train(args):
     fixed_noise = maybe_cuda(fixed_noise, use_cuda=use_cuda).to('cuda:5')
 
     if multi_gpu:
-        netG = nn.DataParallel(netG,device_ids=[5, 0, 1, 2, 3, 4, 6, 7, 8, 9])
-        netD = nn.DataParallel(netD,device_ids=[5, 0, 1, 2, 3, 4, 6, 7, 8, 9])
+        netG = nn.DataParallel(netG,device_ids=[5, 0, 1, 2, 3, 4])
+        netD = nn.DataParallel(netD,device_ids=[5, 0, 1, 2, 3, 4])
 
     optimizerG = optim.Adam(netG.parameters(), lr=nlr, betas=(nbeta1, 0.999))
     optimizerD = optim.Adam(netD.parameters(), lr=nlr, betas=(nbeta1, 0.999))
