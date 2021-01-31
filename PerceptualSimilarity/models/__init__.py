@@ -10,6 +10,8 @@ from torch.autograd import Variable
 
 from PerceptualSimilarity.models import dist_model
 
+eps = 1e-12
+
 class PerceptualLoss(torch.nn.Module):
     def __init__(self, model='net-lin', net='alex', colorspace='rgb', spatial=False, use_gpu=True, gpu_ids=[0], version='0.1'): # VGG using our perceptually-learned weights (LPIPS metric)
     # def __init__(self, model='net', net='vgg', use_gpu=True): # "default" way of using VGG as a perceptual loss
@@ -40,14 +42,14 @@ class PerceptualLoss(torch.nn.Module):
         return self.model.forward(target, pred)
 
 def normalize_tensor(in_feat,eps=1e-10):
-    norm_factor = torch.sqrt(torch.sum(in_feat**2,dim=1,keepdim=True))
+    norm_factor = torch.sqrt(torch.sum(in_feat**2,dim=1,keepdim=True)+eps)
     return in_feat/(norm_factor+eps)
 
 def l2(p0, p1, range=255.):
     return .5*np.mean((p0 / range - p1 / range)**2)
 
 def psnr(p0, p1, peak=255.):
-    return 10*np.log10(peak**2/np.mean((1.*p0-1.*p1)**2))
+    return 10*np.log10(peak**2/np.mean((1.*p0-1.*p1)**2)+eps)
 
 def dssim(p0, p1, range=255.):
     return (1 - compare_ssim(p0, p1, data_range=range, multichannel=True)) / 2.
