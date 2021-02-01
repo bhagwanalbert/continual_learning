@@ -265,6 +265,8 @@ class Discriminator(nn.Module):
         rf_1 = self.rf_from_128(feat_small)
 
         flat_features = feat_last.contiguous().view(-1,self.ndf*16*8*8)
+        print(torch.max(self.fc_class(flat_features)))
+        print(torch.min(self.fc_class(flat_features)))
         classes = self.softmax(self.fc_class(flat_features)+eps)
 
         if label=='real':
