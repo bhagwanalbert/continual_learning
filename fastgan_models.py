@@ -6,6 +6,7 @@ import torch.nn.functional as F
 # import random
 
 seq = nn.Sequential
+eps = 1e-12
 
 def weights_init(m):
     classname = m.__class__.__name__
@@ -264,7 +265,7 @@ class Discriminator(nn.Module):
         rf_1 = self.rf_from_128(feat_small)
 
         flat_features = feat_last.contiguous().view(-1,self.ndf*16*8*8)
-        classes = self.softmax(self.fc_class(flat_features))
+        classes = self.softmax(self.fc_class(flat_features)+eps)
 
         if label=='real':
             rec_img_big = self.decoder_big(feat_last)
