@@ -361,6 +361,8 @@ def train(args):
                 netG.zero_grad()
                 pred_g, classes = netD(fake_images, "fake")
                 err_class_gen = class_loss(torch.log(classes+eps),label)
+                print(torch.sum(torch.isnan(classes)))
+                print(err_class_gen)
                 err_g = -pred_g.mean() + 0.1*err_class_gen*(-pred_g.mean().detach())/err_class_gen.detach()
 
                 err_g.backward()
