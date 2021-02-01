@@ -92,7 +92,7 @@ def train(args):
     ilr = nlr/4
     nbeta1 = 0.5
     use_cuda = True
-    multi_gpu = True
+    multi_gpu = False
     dataloader_workers = 8
     start_batch = 0
     num_epochs = 100
@@ -361,7 +361,7 @@ def train(args):
                 netG.zero_grad()
                 pred_g, classes = netD(fake_images, "fake")
                 err_class_gen = class_loss(torch.log(classes+eps),label)
-                err_g = -pred_g.mean() + 500*err_class_gen
+                err_g = -pred_g.mean() + 100*err_class_gen
 
                 err_g.backward()
                 optimizerG.step()
@@ -388,7 +388,7 @@ def train(args):
             writer.add_scalar('generator_class_loss', err_class_gen, tot_it_step)
             writer.close()
 
-            if i == 0:
+            if i != 0:
                 backup_para = copy_G_params(netG)
                 load_params(netG, avg_param_G)
                 with torch.no_grad():
