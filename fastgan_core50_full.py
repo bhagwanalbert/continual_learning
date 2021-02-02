@@ -37,7 +37,7 @@ eps = 1e-12
 #torch.backends.cudnn.benchmark = True
 
 # Create tensorboard writer object
-writer = SummaryWriter('logs/fastgan6')
+writer = SummaryWriter('logs/fastgan7')
 
 def crop_image_by_part(image, part):
     hw = image.shape[2]//2
