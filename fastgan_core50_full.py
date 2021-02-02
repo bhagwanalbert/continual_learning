@@ -217,52 +217,53 @@ def train(args):
             train_x_proc[im] = im_proc.type(torch.FloatTensor)
 
         # Add images from previous generator
-        if i != 0 and not cumulative:
+        if i != 0:
             prev_label = np.array(list({x:enc_classes[x] for x in enc_classes if enc_classes[x]==1}.keys()))
-            # Compute noise to generate previous learnt images
-            prev_noise = torch.FloatTensor(prev_imag*len(prev_label), nz).normal_(0, 1)
-            prev_noise_ = np.random.normal(0, 1, (prev_imag*len(prev_label), nz))
-            prev_onehot = np.zeros((prev_imag*len(prev_label), n_class))
-            prev_onehot[np.arange(prev_imag*len(prev_label)), np.repeat(prev_label,prev_imag)] = 1
-            prev_noise_[np.arange(prev_imag*len(prev_label)), :n_class] = prev_onehot[np.arange(prev_imag*len(prev_label))]
-            prev_noise_ = (torch.from_numpy(prev_noise_))
-            prev_noise.data.copy_(prev_noise_.view(prev_imag*len(prev_label), nz))
-            prev_noise = maybe_cuda(prev_noise, use_cuda=use_cuda).to('cuda:5')
+            if not cumulative:
+                # Compute noise to generate previous learnt images
+                prev_noise = torch.FloatTensor(prev_imag*len(prev_label), nz).normal_(0, 1)
+                prev_noise_ = np.random.normal(0, 1, (prev_imag*len(prev_label), nz))
+                prev_onehot = np.zeros((prev_imag*len(prev_label), n_class))
+                prev_onehot[np.arange(prev_imag*len(prev_label)), np.repeat(prev_label,prev_imag)] = 1
+                prev_noise_[np.arange(prev_imag*len(prev_label)), :n_class] = prev_onehot[np.arange(prev_imag*len(prev_label))]
+                prev_noise_ = (torch.from_numpy(prev_noise_))
+                prev_noise.data.copy_(prev_noise_.view(prev_imag*len(prev_label), nz))
+                prev_noise = maybe_cuda(prev_noise, use_cuda=use_cuda).to('cuda:5')
 
-            prev_y = ((torch.from_numpy(np.repeat(prev_label,prev_imag))).long())
-            prev_y = maybe_cuda(prev_y, use_cuda=use_cuda).to('cuda:5')
+                prev_y = ((torch.from_numpy(np.repeat(prev_label,prev_imag))).long())
+                prev_y = maybe_cuda(prev_y, use_cuda=use_cuda).to('cuda:5')
 
-            backup_para = copy_G_params(netG)
-            load_params(netG, avg_param_G)
-            with torch.no_grad():
-                prev_x = netG(prev_noise)[0].add(1).mul(0.5)
-                part = random.randint(0, 3)
-                pred, [rec_all, rec_small, rec_part], classes = netD(prev_x, "real", part)
-                _, pred_label = torch.max(classes, 1)
-                filter = pred_label == prev_y
-                correct_prev = filter.sum()
-                print(correct_prev.item()/prev_y.size(0))
-                # writer.add_image("Previous images", vutils.make_grid(prev_x, nrow=prev_imag, padding=2, normalize=True))
-                prev_x_filt = torch.zeros([correct_prev.item(),prev_x.size(1),im_size,im_size]).type(torch.FloatTensor)
-                prev_x_filt = maybe_cuda(prev_x_filt, use_cuda=use_cuda).to('cuda:5')
-                prev_y_filt = torch.zeros([correct_prev.item()]).type(torch.LongTensor)
-                prev_y_filt = maybe_cuda(prev_y_filt, use_cuda=use_cuda).to('cuda:5')
-                idx = 0
-                for f in range(filter.size(0)):
-                    prev_x[f] = filter[f]*prev_x[f]
-                    if filter[f] == 1:
-                        prev_x_filt[idx] = prev_x[f]
-                        prev_y_filt[idx] = prev_y[f]
-                        idx += 1
-                prev_x = prev_x_filt
-                prev_y = prev_y_filt
-                del prev_x_filt
-                del prev_y_filt
-                torch.cuda.empty_cache()
-                # writer.add_image("Previous images", vutils.make_grid(prev_x, nrow=prev_imag, padding=2, normalize=True))
-                writer.add_image("Previous images", vutils.make_grid(prev_x, nrow=prev_imag, padding=2, normalize=True))
-                writer.close()
-            load_params(netG, backup_para)
+                backup_para = copy_G_params(netG)
+                load_params(netG, avg_param_G)
+                with torch.no_grad():
+                    prev_x = netG(prev_noise)[0].add(1).mul(0.5)
+                    part = random.randint(0, 3)
+                    pred, [rec_all, rec_small, rec_part], classes = netD(prev_x, "real", part)
+                    _, pred_label = torch.max(classes, 1)
+                    filter = pred_label == prev_y
+                    correct_prev = filter.sum()
+                    print(correct_prev.item()/prev_y.size(0))
+                    # writer.add_image("Previous images", vutils.make_grid(prev_x, nrow=prev_imag, padding=2, normalize=True))
+                    prev_x_filt = torch.zeros([correct_prev.item(),prev_x.size(1),im_size,im_size]).type(torch.FloatTensor)
+                    prev_x_filt = maybe_cuda(prev_x_filt, use_cuda=use_cuda).to('cuda:5')
+                    prev_y_filt = torch.zeros([correct_prev.item()]).type(torch.LongTensor)
+                    prev_y_filt = maybe_cuda(prev_y_filt, use_cuda=use_cuda).to('cuda:5')
+                    idx = 0
+                    for f in range(filter.size(0)):
+                        prev_x[f] = filter[f]*prev_x[f]
+                        if filter[f] == 1:
+                            prev_x_filt[idx] = prev_x[f]
+                            prev_y_filt[idx] = prev_y[f]
+                            idx += 1
+                    prev_x = prev_x_filt
+                    prev_y = prev_y_filt
+                    del prev_x_filt
+                    del prev_y_filt
+                    torch.cuda.empty_cache()
+                    # writer.add_image("Previous images", vutils.make_grid(prev_x, nrow=prev_imag, padding=2, normalize=True))
+                    writer.add_image("Previous images", vutils.make_grid(prev_x, nrow=prev_imag, padding=2, normalize=True))
+                    writer.close()
+                load_params(netG, backup_para)
 
         # Update encountered classes
         for y in train_y:
