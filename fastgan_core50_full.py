@@ -99,8 +99,8 @@ def train(args):
     inum_epochs = 20
     n_imag = 5
     prev_imag = 10
-    n_im_mb = 1
-    factor = 3
+    n_im_mb = 2
+    factor = 2
     cumulative = True
 
     saved_model_folder, saved_image_folder = get_dir(args)
