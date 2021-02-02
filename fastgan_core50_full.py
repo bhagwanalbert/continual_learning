@@ -284,7 +284,7 @@ def train(args):
 
         if i != 0:
             prev_x_proc = torch.zeros([prev_x.size(0),prev_x.size(1),im_size,im_size]).type(torch.FloatTensor)
-            current_batch_size = (prev_label.size + 2)*n_im_mb
+            current_batch_size = (prev_label.size + factor)*n_im_mb
             num_epochs = inum_epochs
             it_x_ep = train_x.size(0) // (n_im_mb*factor)
             print(it_x_ep)
