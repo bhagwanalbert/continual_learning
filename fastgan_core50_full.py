@@ -89,7 +89,7 @@ def train(args):
     n_class = 50
     nz = 256 + n_class
     nlr = 0.0002
-    ilr = nlr/4
+    ilr = nlr
     nbeta1 = 0.5
     use_cuda = True
     multi_gpu = False
