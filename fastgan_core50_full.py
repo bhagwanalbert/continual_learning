@@ -101,6 +101,7 @@ def train(args):
     prev_imag = 10
     n_im_mb = 1
     factor = 1
+    cumulative = True
 
     saved_model_folder, saved_image_folder = get_dir(args)
 
@@ -178,6 +179,13 @@ def train(args):
         print("Incremental batch no.: ", i)
         if (i < start_batch):
             print("Skipping batch, already trained in checkpoint")
+            if cumulative:
+                prev_x, prev_y = train_batch
+                prev_x = preprocess_imgs(prev_x, norm=False, symmetric = False)
+
+                prev_x = torch.from_numpy(prev_x).type(torch.FloatTensor)
+                prev_y = torch.from_numpy(prev_y).type(torch.LongTensor)
+
             continue
 
         train_x, train_y = train_batch
@@ -209,7 +217,7 @@ def train(args):
             train_x_proc[im] = im_proc.type(torch.FloatTensor)
 
         # Add images from previous generator
-        if i != 0:
+        if i != 0 and not cumulative:
             prev_label = np.array(list({x:enc_classes[x] for x in enc_classes if enc_classes[x]==1}.keys()))
             # Compute noise to generate previous learnt images
             prev_noise = torch.FloatTensor(prev_imag*len(prev_label), nz).normal_(0, 1)
