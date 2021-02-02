@@ -99,9 +99,10 @@ def train(args):
     inum_epochs = 20
     n_imag = 5
     prev_imag = 10
-    n_im_mb = 2
-    factor = 2
+    n_im_mb = 1
+    factor = 3
     cumulative = True
+    num_accumulations = 1
 
     saved_model_folder, saved_image_folder = get_dir(args)
 
@@ -286,7 +287,7 @@ def train(args):
             prev_x_proc = torch.zeros([prev_x.size(0),prev_x.size(1),im_size,im_size]).type(torch.FloatTensor)
             current_batch_size = (prev_label.size + factor)*n_im_mb
             num_epochs = inum_epochs
-            it_x_ep = train_x.size(0) // (n_im_mb*factor)
+            it_x_ep = train_x.size(0) // (n_im_mb*factor*num_accumulations)
             print(it_x_ep)
         else:
             it_x_ep = train_x.size(0) // batch_size
@@ -369,19 +370,39 @@ def train(args):
 
                 ## 2. train Discriminator
                 netD.zero_grad()
-
-                err_dr_real, _, _, _, err_class_real = train_d(netD, real_image, y_mb, label="real")
-                class_acc = correct_cnt.item() / data_encountered
-                err_dr_fake, err_class_fake = train_d(netD, [fi.detach() for fi in fake_images], label, label="fake")
+                for n in range(num_accumulations):
+                    err_dr_real, _, _, _, err_class_real = train_d(netD, real_image, y_mb, label="real")
+                    class_acc = correct_cnt.item() / data_encountered
+                    err_dr_fake, err_class_fake = train_d(netD, [fi.detach() for fi in fake_images], label, label="fake")
                 optimizerD.step()
 
                 ## 3. train Generator
-                netG.zero_grad()
-                pred_g, classes = netD(fake_images, "fake")
-                err_class_gen = class_loss(torch.log(classes+eps),label)
-                err_g = -pred_g.mean() + 0.01*err_class_gen*(-pred_g.mean().detach())/(err_class_gen.detach()+eps)
+                noise = torch.FloatTensor(current_batch_size, nz).normal_(0, 1)
+                noise_ = np.random.normal(0, 1, (current_batch_size, nz))
+                label = np.random.choice(current_classes, current_batch_size)
+                onehot = np.zeros((current_batch_size, n_class))
+                onehot[np.arange(current_batch_size), label] = 1
+                noise_[np.arange(current_batch_size), :n_class] = onehot[np.arange(current_batch_size)]
+                noise_ = (torch.from_numpy(noise_))
+                noise.data.copy_(noise_.view(current_batch_size, nz))
+                noise = maybe_cuda(noise, use_cuda=use_cuda).to('cuda:5')
 
-                err_g.backward()
+                label = ((torch.from_numpy(label)).long())
+                label = maybe_cuda(label, use_cuda=use_cuda).to('cuda:5')
+
+                fake_images = netG(noise)
+
+                del noise
+                del noise_
+                torch.cuda.empty_cache()
+
+                netG.zero_grad()
+                for n in range(num_accumulations):
+                    pred_g, classes = netD(fake_images, "fake")
+                    err_class_gen = class_loss(torch.log(classes+eps),label)
+                    err_g = -pred_g.mean() + 0.01*err_class_gen*(-pred_g.mean().detach())/(err_class_gen.detach()+eps)
+
+                    err_g.backward()
                 optimizerG.step()
 
                 for p, avg_p in zip(netG.parameters(), avg_param_G):
