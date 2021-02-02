@@ -89,7 +89,7 @@ def train(args):
     n_class = 50
     nz = 256 + n_class
     nlr = 0.0002
-    ilr = nlr/10
+    ilr = nlr/4
     nbeta1 = 0.5
     use_cuda = True
     multi_gpu = False
@@ -361,7 +361,7 @@ def train(args):
                 netG.zero_grad()
                 pred_g, classes = netD(fake_images, "fake")
                 err_class_gen = class_loss(torch.log(classes+eps),label)
-                err_g = -pred_g.mean() + 0.1*err_class_gen*(-pred_g.mean().detach())/(err_class_gen.detach()+eps)
+                err_g = -pred_g.mean() + 0.01*err_class_gen*(-pred_g.mean().detach())/(err_class_gen.detach()+eps)
 
                 err_g.backward()
                 optimizerG.step()
