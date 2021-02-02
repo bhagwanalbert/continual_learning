@@ -216,6 +216,15 @@ def train(args):
             im_proc = data_transforms_aux((train_x[im]).cpu())
             train_x_proc[im] = im_proc.type(torch.FloatTensor)
 
+        if cumulative:
+            prev_x_proc = torch.zeros([prev_x.size(0),prev_x.size(1),im_size,im_size]).type(torch.FloatTensor)
+            for im in range(prev_x.shape[0]):
+                im_proc = data_transforms_aux((prev_x[im]).cpu())
+                prev_x_proc[im] = im_proc.type(torch.FloatTensor)
+            prev_x = prev_x_proc
+            del prev_x_proc
+            torch.cuda.empty_cache()
+
         # Add images from previous generator
         if i != 0:
             prev_label = np.array(list({x:enc_classes[x] for x in enc_classes if enc_classes[x]==1}.keys()))
