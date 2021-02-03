@@ -100,7 +100,7 @@ def train(args):
     n_imag = 5
     prev_imag = 10
     n_im_mb = 1
-    factor = 4
+    factor = 10
     cumulative = True
     num_accumulations = 1
 
