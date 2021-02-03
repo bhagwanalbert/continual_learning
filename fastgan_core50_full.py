@@ -96,7 +96,7 @@ def train(args):
     dataloader_workers = 8
     start_batch = 0
     num_epochs = 100
-    inum_epochs = 20
+    inum_epochs = 100
     n_imag = 5
     prev_imag = 10
     n_im_mb = 1
