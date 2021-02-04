@@ -222,6 +222,9 @@ def get_accuracy_custom(model, criterion, batch_size, test_x, test_y, device,
     pattern_per_class = [0] * num_class
     test_it = test_y.shape[0] // batch_size + 1
 
+    print(num_class)
+    print(test_it)
+
     with torch.no_grad():
 
         for i in range(test_it):
@@ -231,6 +234,9 @@ def get_accuracy_custom(model, criterion, batch_size, test_x, test_y, device,
 
             x = maybe_cuda(test_x[start:end], use_cuda=use_cuda).to(device)
             y = maybe_cuda(test_y[start:end], use_cuda=use_cuda).to(device)
+
+            print(x.shape)
+            print(y.shape)
 
             pred, classes = model(x, "test", device=device)
 

@@ -195,6 +195,10 @@ def train(args):
         del ckpt
         torch.cuda.empty_cache()
 
+    print(test_x_proc.shape)
+    ave_loss, acc, accs, source_acc = get_accuracy_custom(netD, class_loss, 15, test_x_proc, test_y, 'cuda:5', use_cuda)
+    print(accs)
+
     # Training Loop
     print("Starting Training Loop...")
     tot_it_step = 0
