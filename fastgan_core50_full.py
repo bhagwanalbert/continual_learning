@@ -37,7 +37,7 @@ eps = 1e-12
 #torch.backends.cudnn.benchmark = True
 
 # Create tensorboard writer object
-writer = SummaryWriter('logs/fastgan6')
+writer = SummaryWriter('logs/fastgan8')
 
 def crop_image_by_part(image, part):
     hw = image.shape[2]//2
@@ -96,13 +96,13 @@ def train(args):
     dataloader_workers = 8
     start_batch = 0
     num_epochs = 100
-    inum_epochs = 100
+    inum_epochs = 20
     n_imag = 5
     prev_imag = 10
     n_im_mb = 1
     factor = 3
     cumulative = True
-    num_accumulations = 1
+    num_accumulations = 4
 
     saved_model_folder, saved_image_folder = get_dir(args)
 
@@ -338,97 +338,103 @@ def train(args):
             for it in range(it_x_ep):
 
                 if i != 0:
-                    start = it * n_im_mb*factor
-                    end = (it + 1) * n_im_mb*factor
-                    real_image = maybe_cuda(train_x_proc[start:end], use_cuda=use_cuda).to('cuda:5')
-                    y_mb = maybe_cuda(train_y[start:end], use_cuda=use_cuda).to('cuda:5')
+                    real_images = [0]*num_accumulations
+                    real_labels = [0]*num_accumulations
+                    for n in range(num_accumulations):
+                        start = (it*num_accumulations + n) * n_im_mb*factor
+                        end = (it*num_accumulations + n + 1) * n_im_mb*factor
+                        real_images[n] = maybe_cuda(train_x_proc[start:end], use_cuda=use_cuda).to('cuda:5')
+                        real_labels[n] = maybe_cuda(train_y[start:end], use_cuda=use_cuda).to('cuda:5')
 
-                    for c in prev_label:
-                        prev_x_aux = prev_x_proc[prev_y.cpu().numpy() == c]
-                        prev_y_aux = prev_y[prev_y.cpu().numpy() == c]
-                        indexes = np.random.randint(0, (prev_x_aux.size(0)), size = n_im_mb)
-                        real_image = torch.cat((real_image, maybe_cuda(prev_x_aux[indexes], use_cuda=use_cuda).to('cuda:5')))
-                        y_mb = torch.cat((y_mb, maybe_cuda(prev_y_aux[indexes], use_cuda=use_cuda).to('cuda:5')))
+                        for c in prev_label:
+                            prev_x_aux = prev_x_proc[prev_y.cpu().numpy() == c]
+                            prev_y_aux = prev_y[prev_y.cpu().numpy() == c]
+                            indexes = np.random.randint(0, (prev_x_aux.size(0)), size = n_im_mb)
+                            real_images[n] = torch.cat((real_images[n], maybe_cuda(prev_x_aux[indexes], use_cuda=use_cuda).to('cuda:5')))
+                            real_labels[n] = torch.cat((real_labels[n], maybe_cuda(prev_y_aux[indexes], use_cuda=use_cuda).to('cuda:5')))
 
-                    del prev_x_aux
-                    del prev_y_aux
-                    torch.cuda.empty_cache()
+                        del prev_x_aux
+                        del prev_y_aux
+                        torch.cuda.empty_cache()
 
-                    indexes = np.random.permutation(y_mb.size(0))
+                        indexes = np.random.permutation(real_labels[n].size(0))
 
-                    real_image = real_image[indexes]
-                    y_mb = y_mb[indexes]
+                        real_images[n] = real_images[n][indexes]
+                        real_labels[n] = real_labels[n][indexes]
 
                 else:
                     start = it * batch_size
                     end = (it + 1) * batch_size
 
-                    real_image = maybe_cuda(train_x_proc[start:end], use_cuda=use_cuda).to('cuda:5')
-                    y_mb = maybe_cuda(train_y[start:end], use_cuda=use_cuda).to('cuda:5')
+                    real_images = maybe_cuda(train_x_proc[start:end], use_cuda=use_cuda).to('cuda:5')
+                    real_labels = maybe_cuda(train_y[start:end], use_cuda=use_cuda).to('cuda:5')
 
-                    current_batch_size = real_image.size(0)
-
-                data_encountered += current_batch_size
+                    current_batch_size = real_images.size(0)
 
                 current_classes = np.array(list({x:enc_classes[x] for x in enc_classes if enc_classes[x]==1}.keys()))
-
-                noise = torch.FloatTensor(current_batch_size, nz).normal_(0, 1)
-                noise_ = np.random.normal(0, 1, (current_batch_size, nz))
-                label = np.random.choice(current_classes, current_batch_size)
-                onehot = np.zeros((current_batch_size, n_class))
-                onehot[np.arange(current_batch_size), label] = 1
-                noise_[np.arange(current_batch_size), :n_class] = onehot[np.arange(current_batch_size)]
-                noise_ = (torch.from_numpy(noise_))
-                noise.data.copy_(noise_.view(current_batch_size, nz))
-                noise = maybe_cuda(noise, use_cuda=use_cuda).to('cuda:5')
-
-                label = ((torch.from_numpy(label)).long())
-                label = maybe_cuda(label, use_cuda=use_cuda).to('cuda:5')
-
-                fake_images = netG(noise)
-
-                del noise
-                del noise_
-                torch.cuda.empty_cache()
-
-                real_image = DiffAugment(real_image, policy=policy)
-                fake_images = [DiffAugment(fake, policy=policy) for fake in fake_images]
 
                 ## 2. train Discriminator
                 netD.zero_grad()
                 for n in range(num_accumulations):
-                    err_dr_real, _, _, _, err_class_real = train_d(netD, real_image, y_mb, label="real")
+                    noise = torch.FloatTensor(current_batch_size, nz).normal_(0, 1)
+                    noise_ = np.random.normal(0, 1, (current_batch_size, nz))
+                    label = np.random.choice(current_classes, current_batch_size)
+                    onehot = np.zeros((current_batch_size, n_class))
+                    onehot[np.arange(current_batch_size), label] = 1
+                    noise_[np.arange(current_batch_size), :n_class] = onehot[np.arange(current_batch_size)]
+                    noise_ = (torch.from_numpy(noise_))
+                    noise.data.copy_(noise_.view(current_batch_size, nz))
+                    noise = maybe_cuda(noise, use_cuda=use_cuda).to('cuda:5')
+
+                    label = ((torch.from_numpy(label)).long())
+                    label = maybe_cuda(label, use_cuda=use_cuda).to('cuda:5')
+
+                    fake_images = netG(noise)
+
+                    del noise
+                    del noise_
+                    torch.cuda.empty_cache()
+
+                    x_mb = DiffAugment(real_images[n], policy=policy)
+                    y_mb = real_labels[n]
+                    fake_images = [DiffAugment(fake, policy=policy) for fake in fake_images]
+
+                    data_encountered += current_batch_size
+
+                    err_dr_real, _, _, _, err_class_real = train_d(netD, x_mb, y_mb, label="real")
                     class_acc = correct_cnt.item() / data_encountered
                     err_dr_fake, err_class_fake = train_d(netD, [fi.detach() for fi in fake_images], label, label="fake")
+
                 optimizerD.step()
 
                 ## 3. train Generator
-                # noise = torch.FloatTensor(current_batch_size, nz).normal_(0, 1)
-                # noise_ = np.random.normal(0, 1, (current_batch_size, nz))
-                # label = np.random.choice(current_classes, current_batch_size)
-                # onehot = np.zeros((current_batch_size, n_class))
-                # onehot[np.arange(current_batch_size), label] = 1
-                # noise_[np.arange(current_batch_size), :n_class] = onehot[np.arange(current_batch_size)]
-                # noise_ = (torch.from_numpy(noise_))
-                # noise.data.copy_(noise_.view(current_batch_size, nz))
-                # noise = maybe_cuda(noise, use_cuda=use_cuda).to('cuda:5')
-                #
-                # label = ((torch.from_numpy(label)).long())
-                # label = maybe_cuda(label, use_cuda=use_cuda).to('cuda:5')
-                #
-                # fake_images = netG(noise)
-                #
-                # del noise
-                # del noise_
-                # torch.cuda.empty_cache()
-
                 netG.zero_grad()
                 for n in range(num_accumulations):
+                    noise = torch.FloatTensor(current_batch_size, nz).normal_(0, 1)
+                    noise_ = np.random.normal(0, 1, (current_batch_size, nz))
+                    label = np.random.choice(current_classes, current_batch_size)
+                    onehot = np.zeros((current_batch_size, n_class))
+                    onehot[np.arange(current_batch_size), label] = 1
+                    noise_[np.arange(current_batch_size), :n_class] = onehot[np.arange(current_batch_size)]
+                    noise_ = (torch.from_numpy(noise_))
+                    noise.data.copy_(noise_.view(current_batch_size, nz))
+                    noise = maybe_cuda(noise, use_cuda=use_cuda).to('cuda:5')
+
+                    label = ((torch.from_numpy(label)).long())
+                    label = maybe_cuda(label, use_cuda=use_cuda).to('cuda:5')
+
+                    fake_images = netG(noise)
+
+                    del noise
+                    del noise_
+                    torch.cuda.empty_cache()
+
                     pred_g, classes = netD(fake_images, "fake")
                     err_class_gen = class_loss(torch.log(classes+eps),label)
                     err_g = -pred_g.mean() + 0.01*err_class_gen*(-pred_g.mean().detach())/(err_class_gen.detach()+eps)
 
                     err_g.backward()
+                    
                 optimizerG.step()
 
                 for p, avg_p in zip(netG.parameters(), avg_param_G):
@@ -437,7 +443,9 @@ def train(args):
                 if it % 20 == 0:
                     print("GAN: loss d: %.5f    loss g: %.5f"%(err_dr_real, -err_g.item()))
 
-                del real_image
+                del real_images
+                del real_labels
+                del x_mb
                 del y_mb
                 del fake_images
                 torch.cuda.empty_cache()
