@@ -230,13 +230,14 @@ def get_accuracy_custom(model, criterion, batch_size, test_x, test_y, device,
             y = maybe_cuda(test_y[start:end], use_cuda=use_cuda).to(device)
 
             pred, classes = model(x, "fake") # actually they are real images
-
+            print(pred)
+            print(classes)
             loss = F.relu( torch.rand_like(pred) * 0.2 + 0.8 + pred).mean()
             conditioned_loss = criterion(torch.log(classes+eps),y)
             loss += conditioned_loss
 
-            _, pred_label = torch.max(classes, 1)
-            correct_cnt += (pred_label == y).sum()
+            _, pred_label = torch.max(classes.data, 1)
+            correct_cnt += (pred_label == y.data).sum()
             ave_loss += loss.item()
 
             for label in y.data:
