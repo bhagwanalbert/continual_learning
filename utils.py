@@ -26,6 +26,9 @@ import numpy as np
 import torch
 from models.batch_renorm import BatchRenorm2D
 
+import torch.nn.functional as F
+import torch
+
 from scipy.stats import truncnorm
 
 # Convenience utility to switch off requires_grad
@@ -191,6 +194,70 @@ def get_accuracy(model, criterion, batch_size, test_x, test_y, use_cuda=True,
 
     return ave_loss, acc, accs
 
+def get_accuracy_custom(model, criterion, batch_size, test_x, test_y, device,
+                 use_cuda):
+    """
+    Test accuracy given a model and the test data.
+
+        Args:
+            model (nn.Module): the pytorch model to test.
+            criterion (func): loss function.
+            batch_size (int): mini-batch size.
+            test_x (tensor): test data.
+            test_y (tensor): test labels.
+            use_cuda (bool): if we want to use gpu or cpu.
+            mask (bool): if we want to maks out some classes from the results.
+        Returns:
+            ave_loss (float): average loss across the test set.
+            acc (float): average accuracy.
+            accs (list): average accuracy for class.
+    """
+    correct_cnt, ave_loss = 0, 0
+
+    num_class = int(np.max(test_y) + 1)
+    hits_per_class = [0] * num_class
+    pattern_per_class = [0] * num_class
+    test_it = test_y.shape[0] // batch_size + 1
+
+    with torch.no_grad():
+
+        for i in range(test_it):
+            # indexing
+            start = i * batch_size
+            end = (i + 1) * batch_size
+
+            x = maybe_cuda(test_x[start:end], use_cuda=use_cuda).to(device)
+            y = maybe_cuda(test_y[start:end], use_cuda=use_cuda).to(device)
+
+            pred, classes = model(x, "fake") # actually they are real images
+
+            loss = F.relu( torch.rand_like(pred) * 0.2 + 0.8 + pred).mean()
+            conditioned_loss = criterion(torch.log(classes+eps),y)
+            loss += conditioned_loss
+
+            _, pred_label = torch.max(classes, 1)
+            correct_cnt += (pred_label == y).sum()
+            ave_loss += loss.item()
+
+            for label in y.data:
+                pattern_per_class[int(label)] += 1
+
+            for i, p in enumerate(pred_label):
+                if p == y.data[i]:
+                    hits_per_class[int(p)] += 1
+
+        accs = np.asarray(hits_per_class) / \
+               np.asarray(pattern_per_class).astype(float)
+
+        acc = correct_cnt.item() * 1.0 / test_y.size(0)
+
+        ave_loss /= test_y.size(0)
+
+        del x
+        del y
+        torch.cuda.empty_cache()
+
+    return ave_loss, acc, accs
 
 def preprocess_imgs(img_batch, scale=True, norm=True, channel_first=True, symmetric=False):
     """

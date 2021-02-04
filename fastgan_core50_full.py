@@ -116,13 +116,35 @@ def train(args):
     transform_list_aux = [
             transforms.ToPILImage(mode='RGB'),
             transforms.Resize((int(im_size),int(im_size))),
+            transforms.ToTensor()
+        ]
+
+    transform_list_test = [
+            transforms.ToPILImage(mode='RGB'),
+            transforms.Resize((int(im_size),int(im_size))),
             transforms.ToTensor(),
+            transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
         ]
 
     data_transforms = transforms.Compose(transform_list)
     data_transforms_aux = transforms.Compose(transform_list_aux)
+    data_transforms_test = transforms.Compose(transform_list_test)
 
     dataset = CORE50(root='/home/abhagwan/datasets/core50', scenario="nicv2_391")
+    test_x, test_y = dataset.get_test_set()
+
+    test_x = preprocess_imgs(test_x, norm=False, symmetric = False)
+
+    test_x = torch.from_numpy(test_x).type(torch.FloatTensor)
+    test_y = torch.from_numpy(test_y).type(torch.LongTensor)
+
+    test_x_proc = torch.zeros([test_x.size(0),test_x.size(1),im_size,im_size]).type(torch.FloatTensor)
+
+    for im in range(test_x.shape[0]):
+        im_proc = data_transforms_test((test_x[im]).cpu())
+        test_x_proc[im] = im_proc.type(torch.FloatTensor)
+    del test_x
+    torch.cuda.empty_cache()
 
     netG = Generator(ngf=ngf, nz=nz, im_size=im_size)
     netG.apply(weights_init)
@@ -418,13 +440,21 @@ def train(args):
 
             tot_it_step +=1
 
+            ave_loss, acc, accs, source_acc = get_accuracy_custom(netD, class_loss, current_batch_size, test_x_proc, test_y, 'cuda:5', use_cuda)
+
+            print(accs)
+            
+            writer.add_scalar('test_loss', ave_loss, tot_it_step)
+            writer.add_scalar('test_accuracy', acc, tot_it_step)
+            writer.add_scalar('test_source', source_acc, tot_it_step)
             writer.add_scalar('class_accuracy', class_acc, tot_it_step)
-            writer.add_scalar('discriminator_real_loss', err_dr_real, tot_it_step)
-            writer.add_scalar('discriminator_fake_loss', err_dr_fake, tot_it_step)
-            writer.add_scalar('discriminator_class_real_loss', err_class_real, tot_it_step)
-            writer.add_scalar('discriminator_class_fake_loss', err_class_fake, tot_it_step)
             writer.add_scalar('generator_loss', -err_g.item(), tot_it_step)
             writer.add_scalar('generator_class_loss', err_class_gen, tot_it_step)
+            # writer.add_scalar('discriminator_real_loss', err_dr_real, tot_it_step)
+            # writer.add_scalar('discriminator_fake_loss', err_dr_fake, tot_it_step)
+            # writer.add_scalar('discriminator_class_real_loss', err_class_real, tot_it_step)
+            # writer.add_scalar('discriminator_class_fake_loss', err_class_fake, tot_it_step)
+
             writer.close()
 
             if i != 0:
