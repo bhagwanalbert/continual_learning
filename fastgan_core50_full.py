@@ -220,8 +220,8 @@ def train(args):
                     train_x = torch.from_numpy(train_x).type(torch.FloatTensor)
                     train_y = torch.from_numpy(train_y).type(torch.LongTensor)
 
-                    prev_x = np.concatenate((prev_x,train_x))
-                    prev_y = np.concatenate((prev_y,train_y))
+                    prev_x = torch.cat((prev_x,train_x))
+                    prev_y = torch.cat((prev_y,train_y))
 
             continue
 
@@ -258,6 +258,7 @@ def train(args):
             train_x_proc[im] = im_proc.type(torch.FloatTensor)
 
         if cumulative:
+            save_prev_x = prev_x
             prev_x_proc = torch.zeros([prev_x.size(0),prev_x.size(1),im_size,im_size]).type(torch.FloatTensor)
             for im in range(prev_x.shape[0]):
                 im_proc = data_transforms_aux((prev_x[im]).cpu())
@@ -342,8 +343,6 @@ def train(args):
             for im in range(prev_x.shape[0]):
                 im_proc = data_transforms((prev_x[im]).cpu())
                 prev_x_proc[im] = im_proc.type(torch.FloatTensor)
-            prev_x = np.concatenate((prev_x,add_prev_x))
-            prev_y = np.concatenate((prev_y,add_prev_y))
             del prev_x
             torch.cuda.empty_cache()
 
@@ -513,6 +512,9 @@ def train(args):
         if i != 0:
             del prev_x_proc
         torch.cuda.empty_cache()
+        if cumulative:
+            prev_x = torch.cat((save_prev_x,add_prev_x))
+            prev_y = torch.cat((prev_y,add_prev_y))
 
         backup_para = copy_G_params(netG)
         load_params(netG, avg_param_G)
