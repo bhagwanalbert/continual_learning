@@ -445,7 +445,7 @@ def train(args):
             tot_it_step +=1
 
             ave_loss, acc, accs = get_accuracy_custom(netD, class_loss, 15, test_x_proc, test_y, 'cuda:5', use_cuda)
-            print(accs)
+            # print(accs)
 
             writer.add_scalar('test_loss', ave_loss, tot_it_step)
             writer.add_scalar('test_accuracy', acc, tot_it_step)

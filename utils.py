@@ -222,9 +222,6 @@ def get_accuracy_custom(model, criterion, batch_size, test_x, test_y, device,
     pattern_per_class = [0] * num_class
     test_it = test_y.shape[0] // batch_size + 1
 
-    print(num_class)
-    print(test_it)
-
     with torch.no_grad():
 
         for i in range(test_it):
