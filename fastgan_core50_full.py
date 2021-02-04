@@ -133,10 +133,10 @@ def train(args):
     dataset = CORE50(root='/home/abhagwan/datasets/core50', scenario="nicv2_391")
     test_x, test_y = dataset.get_test_set()
 
-    test_x = preprocess_imgs(test_x, norm=False, symmetric = False)
-
     test_x = torch.from_numpy(test_x).type(torch.FloatTensor)
     test_y = torch.from_numpy(test_y).type(torch.LongTensor)
+
+    test_x = preprocess_imgs(test_x, norm=False, symmetric = False)
 
     test_x_proc = torch.zeros([test_x.size(0),test_x.size(1),im_size,im_size]).type(torch.FloatTensor)
 
