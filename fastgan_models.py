@@ -247,8 +247,6 @@ class Discriminator(nn.Module):
             device = imgs[0].device
         if type(imgs) is not list:
             imgs = [F.interpolate(imgs, size=self.im_size), F.interpolate(imgs, size=128)]
-            print(imgs[0].shape)
-            print(imgs[1].shape)
 
         feat_2 = self.down_from_big(imgs[0])
         feat_4 = self.down_4(feat_2)

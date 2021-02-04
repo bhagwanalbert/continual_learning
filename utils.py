@@ -235,9 +235,6 @@ def get_accuracy_custom(model, criterion, batch_size, test_x, test_y, device,
             x = maybe_cuda(test_x[start:end], use_cuda=use_cuda).to(device)
             y = maybe_cuda(test_y[start:end], use_cuda=use_cuda).to(device)
 
-            print(x.shape)
-            print(y.shape)
-
             pred, classes = model(x, "test", device=device)
 
             loss = F.relu( torch.rand_like(pred) * 0.2 + 0.8 + pred).mean()

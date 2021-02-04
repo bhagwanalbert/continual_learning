@@ -140,7 +140,7 @@ def train(args):
     test_x = preprocess_imgs(test_x, norm=False, symmetric = False)
     print("Starting second processing of test set")
     test_x_proc = torch.zeros([test_x.size(0),test_x.size(1),im_size,im_size]).type(torch.FloatTensor)
-    print(test_x.shape)
+
     for im in range(test_x.shape[0]):
         im_proc = data_transforms_test((test_x[im]).cpu())
         test_x_proc[im] = im_proc.type(torch.FloatTensor)
@@ -195,7 +195,6 @@ def train(args):
         del ckpt
         torch.cuda.empty_cache()
 
-    print(test_x_proc.shape)
     ave_loss, acc, accs = get_accuracy_custom(netD, class_loss, 15, test_x_proc, test_y, 'cuda:5', use_cuda)
     print(accs)
 
@@ -445,8 +444,7 @@ def train(args):
 
             tot_it_step +=1
 
-            ave_loss, acc, accs = get_accuracy_custom(netD, class_loss, current_batch_size, test_x_proc, test_y, 'cuda:5', use_cuda)
-
+            ave_loss, acc, accs = get_accuracy_custom(netD, class_loss, 15, test_x_proc, test_y, 'cuda:5', use_cuda)
             print(accs)
 
             writer.add_scalar('test_loss', ave_loss, tot_it_step)
