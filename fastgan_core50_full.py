@@ -37,7 +37,7 @@ eps = 1e-12
 #torch.backends.cudnn.benchmark = True
 
 # Create tensorboard writer object
-writer = SummaryWriter('logs/fastgan8')
+writer = SummaryWriter('logs/fastgan9')
 
 def crop_image_by_part(image, part):
     hw = image.shape[2]//2
@@ -89,7 +89,7 @@ def train(args):
     n_class = 50
     nz = 256 + n_class
     nlr = 0.0002
-    ilr = nlr/4
+    ilr = nlr
     nbeta1 = 0.5
     use_cuda = True
     multi_gpu = False
@@ -207,11 +207,21 @@ def train(args):
         if (i < start_batch):
             print("Skipping batch, already trained in checkpoint")
             if cumulative:
-                prev_x, prev_y = train_batch
-                prev_x = preprocess_imgs(prev_x, norm=False, symmetric = False)
+                if i==0:
+                    prev_x, prev_y = train_batch
+                    prev_x = preprocess_imgs(prev_x, norm=False, symmetric = False)
 
-                prev_x = torch.from_numpy(prev_x).type(torch.FloatTensor)
-                prev_y = torch.from_numpy(prev_y).type(torch.LongTensor)
+                    prev_x = torch.from_numpy(prev_x).type(torch.FloatTensor)
+                    prev_y = torch.from_numpy(prev_y).type(torch.LongTensor)
+                else:
+                    train_x, train_y = train_batch
+                    train_x = preprocess_imgs(train_x, norm=False, symmetric = False)
+
+                    train_x = torch.from_numpy(train_x).type(torch.FloatTensor)
+                    train_y = torch.from_numpy(train_y).type(torch.LongTensor)
+
+                    prev_x = np.concatenate((prev_x,train_x))
+                    prev_y = np.concatenate((prev_y,train_y))
 
             continue
 
@@ -220,6 +230,10 @@ def train(args):
 
         train_x = torch.from_numpy(train_x).type(torch.FloatTensor)
         train_y = torch.from_numpy(train_y).type(torch.LongTensor)
+
+        if cumulative:
+            add_prev_x = train_x
+            add_prev_y = train_y
 
         indexes = np.random.permutation(train_y.size(0))
 
@@ -434,7 +448,7 @@ def train(args):
                     err_g = -pred_g.mean() + 0.01*err_class_gen*(-pred_g.mean().detach())/(err_class_gen.detach()+eps)
 
                     err_g.backward()
-                    
+
                 optimizerG.step()
 
                 for p, avg_p in zip(netG.parameters(), avg_param_G):
@@ -496,6 +510,10 @@ def train(args):
         if i != 0:
             del prev_x_proc
         torch.cuda.empty_cache()
+
+        if cumulative:
+            prev_x = np.concatenate((prev_x,add_prev_x))
+            prev_y = np.concatenate((prev_y,add_prev_y))
 
         backup_para = copy_G_params(netG)
         load_params(netG, avg_param_G)
