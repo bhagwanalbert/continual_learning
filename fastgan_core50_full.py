@@ -449,7 +449,6 @@ def train(args):
 
             writer.add_scalar('test_loss', ave_loss, tot_it_step)
             writer.add_scalar('test_accuracy', acc, tot_it_step)
-            writer.add_scalar('test_source', source_acc, tot_it_step)
             writer.add_scalar('class_accuracy', class_acc, tot_it_step)
             writer.add_scalar('generator_loss', -err_g.item(), tot_it_step)
             writer.add_scalar('generator_class_loss', err_class_gen, tot_it_step)
