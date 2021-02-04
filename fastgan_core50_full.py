@@ -131,17 +131,17 @@ def train(args):
     data_transforms_test = transforms.Compose(transform_list_test)
 
     dataset = CORE50(root='/home/abhagwan/datasets/core50', scenario="nicv2_391")
+    print("Getting test set")
     test_x, test_y = dataset.get_test_set()
-
+    print("Got test set")
     test_x = torch.from_numpy(test_x).type(torch.FloatTensor)
     test_y = torch.from_numpy(test_y).type(torch.LongTensor)
-
+    print("Starting first processing of test set")
     test_x = preprocess_imgs(test_x, norm=False, symmetric = False)
-
+    print("Starting second processing of test set")
     test_x_proc = torch.zeros([test_x.size(0),test_x.size(1),im_size,im_size]).type(torch.FloatTensor)
-
+    print(test_x.shape)
     for im in range(test_x.shape[0]):
-        print("Test processing")
         im_proc = data_transforms_test((test_x[im]).cpu())
         test_x_proc[im] = im_proc.type(torch.FloatTensor)
     del test_x
