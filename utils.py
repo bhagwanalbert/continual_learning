@@ -31,6 +31,9 @@ import torch
 
 from scipy.stats import truncnorm
 
+eps = 1e-12
+
+
 # Convenience utility to switch off requires_grad
 def toggle_grad(model, on_or_off):
   for param in model.parameters():
