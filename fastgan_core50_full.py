@@ -37,7 +37,7 @@ eps = 1e-12
 #torch.backends.cudnn.benchmark = True
 
 # Create tensorboard writer object
-writer = SummaryWriter('logs/fastgan7')
+writer = SummaryWriter('logs/fastgan6')
 
 def crop_image_by_part(image, part):
     hw = image.shape[2]//2
@@ -403,24 +403,24 @@ def train(args):
                 optimizerD.step()
 
                 ## 3. train Generator
-                noise = torch.FloatTensor(current_batch_size, nz).normal_(0, 1)
-                noise_ = np.random.normal(0, 1, (current_batch_size, nz))
-                label = np.random.choice(current_classes, current_batch_size)
-                onehot = np.zeros((current_batch_size, n_class))
-                onehot[np.arange(current_batch_size), label] = 1
-                noise_[np.arange(current_batch_size), :n_class] = onehot[np.arange(current_batch_size)]
-                noise_ = (torch.from_numpy(noise_))
-                noise.data.copy_(noise_.view(current_batch_size, nz))
-                noise = maybe_cuda(noise, use_cuda=use_cuda).to('cuda:5')
-
-                label = ((torch.from_numpy(label)).long())
-                label = maybe_cuda(label, use_cuda=use_cuda).to('cuda:5')
-
-                fake_images = netG(noise)
-
-                del noise
-                del noise_
-                torch.cuda.empty_cache()
+                # noise = torch.FloatTensor(current_batch_size, nz).normal_(0, 1)
+                # noise_ = np.random.normal(0, 1, (current_batch_size, nz))
+                # label = np.random.choice(current_classes, current_batch_size)
+                # onehot = np.zeros((current_batch_size, n_class))
+                # onehot[np.arange(current_batch_size), label] = 1
+                # noise_[np.arange(current_batch_size), :n_class] = onehot[np.arange(current_batch_size)]
+                # noise_ = (torch.from_numpy(noise_))
+                # noise.data.copy_(noise_.view(current_batch_size, nz))
+                # noise = maybe_cuda(noise, use_cuda=use_cuda).to('cuda:5')
+                #
+                # label = ((torch.from_numpy(label)).long())
+                # label = maybe_cuda(label, use_cuda=use_cuda).to('cuda:5')
+                #
+                # fake_images = netG(noise)
+                #
+                # del noise
+                # del noise_
+                # torch.cuda.empty_cache()
 
                 netG.zero_grad()
                 for n in range(num_accumulations):
