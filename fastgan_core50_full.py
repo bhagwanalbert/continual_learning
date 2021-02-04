@@ -89,7 +89,7 @@ def train(args):
     n_class = 50
     nz = 256 + n_class
     nlr = 0.0002
-    ilr = nlr
+    ilr = nlr/4
     nbeta1 = 0.5
     use_cuda = True
     multi_gpu = False
@@ -262,6 +262,7 @@ def train(args):
             for im in range(prev_x.shape[0]):
                 im_proc = data_transforms_aux((prev_x[im]).cpu())
                 prev_x_proc[im] = im_proc.type(torch.FloatTensor)
+
             prev_x = prev_x_proc
             del prev_x_proc
             torch.cuda.empty_cache()
@@ -341,6 +342,8 @@ def train(args):
             for im in range(prev_x.shape[0]):
                 im_proc = data_transforms((prev_x[im]).cpu())
                 prev_x_proc[im] = im_proc.type(torch.FloatTensor)
+            prev_x = np.concatenate((prev_x,add_prev_x))
+            prev_y = np.concatenate((prev_y,add_prev_y))
             del prev_x
             torch.cuda.empty_cache()
 
@@ -510,10 +513,6 @@ def train(args):
         if i != 0:
             del prev_x_proc
         torch.cuda.empty_cache()
-
-        if cumulative:
-            prev_x = np.concatenate((prev_x,add_prev_x))
-            prev_y = np.concatenate((prev_y,add_prev_y))
 
         backup_para = copy_G_params(netG)
         load_params(netG, avg_param_G)
