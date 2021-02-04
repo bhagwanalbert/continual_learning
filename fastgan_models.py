@@ -240,8 +240,8 @@ class Discriminator(nn.Module):
         self.fc_class = nn.Linear(ndf*16*8*8, n_class)
         self.softmax = nn.Softmax(dim=1)
 
-    def forward(self, imgs, label, part=None):
-        if label='test':
+    def forward(self, imgs, label, part=None, device=None):
+        if label=='test':
             device=device
         else:
             device = imgs[0].device
