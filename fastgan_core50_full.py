@@ -196,7 +196,7 @@ def train(args):
         torch.cuda.empty_cache()
 
     print(test_x_proc.shape)
-    ave_loss, acc, accs, source_acc = get_accuracy_custom(netD, class_loss, 15, test_x_proc, test_y, 'cuda:5', use_cuda)
+    ave_loss, acc, accs = get_accuracy_custom(netD, class_loss, 15, test_x_proc, test_y, 'cuda:5', use_cuda)
     print(accs)
 
     # Training Loop
@@ -445,7 +445,7 @@ def train(args):
 
             tot_it_step +=1
 
-            ave_loss, acc, accs, source_acc = get_accuracy_custom(netD, class_loss, current_batch_size, test_x_proc, test_y, 'cuda:5', use_cuda)
+            ave_loss, acc, accs = get_accuracy_custom(netD, class_loss, current_batch_size, test_x_proc, test_y, 'cuda:5', use_cuda)
 
             print(accs)
 
