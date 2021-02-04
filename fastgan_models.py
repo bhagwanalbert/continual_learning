@@ -241,7 +241,10 @@ class Discriminator(nn.Module):
         self.softmax = nn.Softmax(dim=1)
 
     def forward(self, imgs, label, part=None):
-        device = imgs[0].device
+        if label='test':
+            device=device
+        else:
+            device = imgs[0].device
         if type(imgs) is not list:
             imgs = [F.interpolate(imgs, size=self.im_size), F.interpolate(imgs, size=128)]
 

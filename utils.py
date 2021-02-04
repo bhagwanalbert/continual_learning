@@ -232,7 +232,7 @@ def get_accuracy_custom(model, criterion, batch_size, test_x, test_y, device,
             x = maybe_cuda(test_x[start:end], use_cuda=use_cuda).to(device)
             y = maybe_cuda(test_y[start:end], use_cuda=use_cuda).to(device)
 
-            pred, classes = model([im.detach() for im in x], "fake") # actually they are real images
+            pred, classes = model(x, "test") # actually they are real images
 
             loss = F.relu( torch.rand_like(pred) * 0.2 + 0.8 + pred).mean()
             conditioned_loss = criterion(torch.log(classes+eps),y)
