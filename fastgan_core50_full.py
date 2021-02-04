@@ -141,6 +141,7 @@ def train(args):
     test_x_proc = torch.zeros([test_x.size(0),test_x.size(1),im_size,im_size]).type(torch.FloatTensor)
 
     for im in range(test_x.shape[0]):
+        print("Test processing")
         im_proc = data_transforms_test((test_x[im]).cpu())
         test_x_proc[im] = im_proc.type(torch.FloatTensor)
     del test_x
@@ -443,7 +444,7 @@ def train(args):
             ave_loss, acc, accs, source_acc = get_accuracy_custom(netD, class_loss, current_batch_size, test_x_proc, test_y, 'cuda:5', use_cuda)
 
             print(accs)
-            
+
             writer.add_scalar('test_loss', ave_loss, tot_it_step)
             writer.add_scalar('test_accuracy', acc, tot_it_step)
             writer.add_scalar('test_source', source_acc, tot_it_step)
