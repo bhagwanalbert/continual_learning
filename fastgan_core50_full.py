@@ -198,7 +198,7 @@ def train(args):
     fixed_noise_aux_ = np.random.normal(0, 1, (50, nz))
     eval_onehot = np.zeros((50, n_class))
 
-    eval_onehot[:, 20] = 1
+    eval_onehot[np.arange(0,50), 20] = 1
 
     fixed_noise_aux_[np.arange(50), :n_class] = eval_onehot[np.arange(50)]
 
