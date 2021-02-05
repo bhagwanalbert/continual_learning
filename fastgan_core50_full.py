@@ -80,7 +80,7 @@ def images_with_labels(x,y):
     figure = plt.figure(figsize=(10,10))
     for i in range(x.shape[0]):
         # Start next subplot.
-        plt.subplot(x.shape[0]//5 + 1, 5, i + 1, title=class_names10[y[i].cpu().item()//5]
+        plt.subplot(x.shape[0]//5 + 1, 5, i + 1, title=class_names10[y[i].cpu().item()//5])
         plt.xticks([])
         plt.yticks([])
         plt.grid(False)
