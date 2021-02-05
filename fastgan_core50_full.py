@@ -21,6 +21,7 @@ from PerceptualSimilarity import models
 import os
 import matplotlib.pyplot as plt
 import io
+import tensorflow as tf
 
 import random
 
