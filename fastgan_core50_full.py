@@ -436,10 +436,11 @@ def train(args):
                     del noise_
                     torch.cuda.empty_cache()
 
-                    if epoch == 0:
+                    if ep == 0:
                         with file_writer.as_default():
-                            tf.summary.image("Minibatch data", images_with_labels(real_images[n],real_labels), step=(it*num_accumulations + n))
-
+                            writer.add_image("Minibatch data", images_with_labels(real_images[n],real_labels), step=(it*num_accumulations + n))
+                            writer.close()
+                            
                     x_mb = DiffAugment(real_images[n], policy=policy)
                     y_mb = real_labels[n]
                     fake_images = [DiffAugment(fake, policy=policy) for fake in fake_images]
