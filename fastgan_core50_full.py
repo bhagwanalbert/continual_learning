@@ -21,10 +21,8 @@ from PerceptualSimilarity import models
 import os
 import matplotlib.pyplot as plt
 import io
-import tensorflow as tf
-
+import PIL.Image
 import random
-
 import numpy as np
 
 # Set cuda device (based on your hardware)
@@ -95,10 +93,8 @@ def images_with_labels(x,y):
     # the notebook.
     plt.close(figure)
     buf.seek(0)
-    # Convert PNG buffer to TF image
-    image = tf.image.decode_png(buf.getvalue(), channels=4)
-    # Add the batch dimension
-    image = tf.expand_dims(image, 0)
+    image = PIL.Image.open(buf)
+    image = transforms.ToTensor()(image).unsqueeze(0)
 
     return image
 
@@ -439,7 +435,7 @@ def train(args):
                     torch.cuda.empty_cache()
 
                     if ep == 0:
-                        writer.add_image("Minibatch data", images_with_labels(real_images[n],real_labels[n]), step=(it*num_accumulations + n))
+                        writer.add_image("Minibatch data", images_with_labels(real_images[n],real_labels[n]), (it*num_accumulations + n))
                         writer.close()
 
                     x_mb = DiffAugment(real_images[n], policy=policy)
