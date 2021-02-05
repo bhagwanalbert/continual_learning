@@ -94,7 +94,7 @@ def images_with_labels(x,y):
     plt.close(figure)
     buf.seek(0)
     image = PIL.Image.open(buf)
-    image = transforms.ToTensor()(image).unsqueeze(0)
+    image = transforms.ToTensor()(image)
 
     return image
 
