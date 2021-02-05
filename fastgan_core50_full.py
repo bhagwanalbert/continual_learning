@@ -427,24 +427,24 @@ def train(args):
                 ## 2. train Discriminator
                 netD.zero_grad()
                 for n in range(num_accumulations):
-                    # noise = torch.FloatTensor(current_batch_size, nz).normal_(0, 1)
-                    # noise_ = np.random.normal(0, 1, (current_batch_size, nz))
-                    # label = np.random.choice(current_classes, current_batch_size)
-                    # onehot = np.zeros((current_batch_size, n_class))
-                    # onehot[np.arange(current_batch_size), label] = 1
-                    # noise_[np.arange(current_batch_size), :n_class] = onehot[np.arange(current_batch_size)]
-                    # noise_ = (torch.from_numpy(noise_))
-                    # noise.data.copy_(noise_.view(current_batch_size, nz))
-                    # noise = maybe_cuda(noise, use_cuda=use_cuda).to('cuda:5')
-                    #
-                    # label = ((torch.from_numpy(label)).long())
-                    # label = maybe_cuda(label, use_cuda=use_cuda).to('cuda:5')
-                    #
-                    # fake_images = netG(noise)
-                    #
-                    # del noise
-                    # del noise_
-                    # torch.cuda.empty_cache()
+                    noise = torch.FloatTensor(current_batch_size, nz).normal_(0, 1)
+                    noise_ = np.random.normal(0, 1, (current_batch_size, nz))
+                    label = np.random.choice(current_classes, current_batch_size)
+                    onehot = np.zeros((current_batch_size, n_class))
+                    onehot[np.arange(current_batch_size), label] = 1
+                    noise_[np.arange(current_batch_size), :n_class] = onehot[np.arange(current_batch_size)]
+                    noise_ = (torch.from_numpy(noise_))
+                    noise.data.copy_(noise_.view(current_batch_size, nz))
+                    noise = maybe_cuda(noise, use_cuda=use_cuda).to('cuda:5')
+
+                    label = ((torch.from_numpy(label)).long())
+                    label = maybe_cuda(label, use_cuda=use_cuda).to('cuda:5')
+
+                    fake_images = netG(noise)
+
+                    del noise
+                    del noise_
+                    torch.cuda.empty_cache()
 
                     # if ep == 0:
                     #     writer.add_image("Minibatch data: batch "+str(i), images_with_labels(real_images[n],real_labels[n]), (it*num_accumulations + n))
@@ -479,6 +479,7 @@ def train(args):
                     label = maybe_cuda(label, use_cuda=use_cuda).to('cuda:5')
 
                     fake_images = netG(noise)
+                    fake_images = [DiffAugment(fake, policy=policy) for fake in fake_images]
 
                     del noise
                     del noise_
