@@ -125,7 +125,7 @@ def train(args):
     n_im_mb = 1
     factor = 3
     cumulative = True
-    num_accumulations = 4
+    num_accumulations = 1
 
     saved_model_folder, saved_image_folder = get_dir(args)
 
