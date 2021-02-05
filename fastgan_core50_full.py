@@ -76,7 +76,7 @@ def train_d(net, data, y, label="real"):
         err.backward()
         return pred.mean().item(), conditioned_loss
 
-def image_with_labels(x,y):
+def images_with_labels(x,y):
     figure = plt.figure(figsize=(10,10))
     for i in range(x.shape[0]):
         # Start next subplot.
