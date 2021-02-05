@@ -446,9 +446,9 @@ def train(args):
                     del noise_
                     torch.cuda.empty_cache()
 
-                    if ep == 0:
-                        writer.add_image("Minibatch data: batch "+str(i), images_with_labels(real_images[n],real_labels[n]), (it*num_accumulations + n))
-                        writer.close()
+                    # if ep == 0:
+                    #     writer.add_image("Minibatch data: batch "+str(i), images_with_labels(real_images[n],real_labels[n]), (it*num_accumulations + n))
+                    #     writer.close()
 
                     x_mb = DiffAugment(real_images[n], policy=policy)
                     y_mb = real_labels[n]
