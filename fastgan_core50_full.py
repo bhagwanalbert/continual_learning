@@ -34,7 +34,7 @@ percept = models.PerceptualLoss(model='net-lin', net='vgg', use_gpu=True, gpu_id
 class_loss = nn.NLLLoss()
 correct_cnt = 0
 eps = 1e-12
-
+class_names10 = ["plug", "mobile", "scissors", "bulb", "can", "glasses", "ball", "highlighter", "cup", "remote"]
 #torch.backends.cudnn.benchmark = True
 
 # Create tensorboard writer object
@@ -80,7 +80,7 @@ def images_with_labels(x,y):
     figure = plt.figure(figsize=(10,10))
     for i in range(x.shape[0]):
         # Start next subplot.
-        plt.subplot(5, x.shape[0]//5 + 1, i + 1, title=y[i])
+        plt.subplot(x.shape[0]//5 + 1, 5, i + 1, title=class_names10[y[i].cpu().item()//5)]
         plt.xticks([])
         plt.yticks([])
         plt.grid(False)
@@ -435,7 +435,7 @@ def train(args):
                     torch.cuda.empty_cache()
 
                     if ep == 0:
-                        writer.add_image("Minibatch data", images_with_labels(real_images[n],real_labels[n]), (it*num_accumulations + n))
+                        writer.add_image("Minibatch data: batch "+str(i), images_with_labels(real_images[n],real_labels[n]), (it*num_accumulations + n))
                         writer.close()
 
                     x_mb = DiffAugment(real_images[n], policy=policy)
@@ -498,8 +498,8 @@ def train(args):
             # ave_loss, acc, accs = get_accuracy_custom(netD, class_loss, 15, test_x_proc, test_y, 'cuda:5', use_cuda)
             # print(accs)
 
-            writer.add_scalar('test_loss', ave_loss, tot_it_step)
-            writer.add_scalar('test_accuracy', acc, tot_it_step)
+            # writer.add_scalar('test_loss', ave_loss, tot_it_step)
+            # writer.add_scalar('test_accuracy', acc, tot_it_step)
             writer.add_scalar('class_accuracy', class_acc, tot_it_step)
             writer.add_scalar('generator_loss', -err_g.item(), tot_it_step)
             writer.add_scalar('generator_class_loss', err_class_gen, tot_it_step)
