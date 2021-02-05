@@ -38,7 +38,7 @@ class_names10 = ["plug", "mobile", "scissors", "bulb", "can", "glasses", "ball",
 #torch.backends.cudnn.benchmark = True
 
 # Create tensorboard writer object
-writer = SummaryWriter('logs/fastgan8')
+writer = SummaryWriter('logs/fastgan9')
 
 def crop_image_by_part(image, part):
     hw = image.shape[2]//2
