@@ -194,6 +194,18 @@ def train(args):
     fixed_noise.data.copy_(fixed_noise_.view(n_imag*n_class, nz))
     fixed_noise = maybe_cuda(fixed_noise, use_cuda=use_cuda).to('cuda:5')
 
+    fixed_noise_aux = torch.FloatTensor(50, nz).normal_(0, 1)
+    fixed_noise_aux_ = np.random.normal(0, 1, (50, nz))
+    eval_onehot = np.zeros((50, n_class))
+
+    eval_onehot[:, 20] = 1
+
+    fixed_noise_[np.arange(50), :n_class] = eval_onehot[np.arange(50)]
+
+    fixed_noise_aux_ = (torch.from_numpy(fixed_noise_aux_))
+    fixed_noise_aux.data.copy_(fixed_noise_aux.view(50, nz))
+    fixed_noise_aux = maybe_cuda(fixed_noise_aux, use_cuda=use_cuda).to('cuda:5')
+
     if multi_gpu:
         netG = nn.DataParallel(netG,device_ids=[5, 0, 1, 2, 3, 4])
         netD = nn.DataParallel(netD,device_ids=[5, 0, 1, 2, 3, 4])
@@ -511,14 +523,16 @@ def train(args):
             writer.close()
 
             if i != 0:
-                backup_para = copy_G_params(netG)
-                load_params(netG, avg_param_G)
                 with torch.no_grad():
-                    writer.add_image("Generated images C0-9", vutils.make_grid(netG(fixed_noise[0:n_imag*10])[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
-                    writer.add_image("Generated images C10-19", vutils.make_grid(netG(fixed_noise[n_imag*10:n_imag*20])[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
-                    writer.add_image("Generated images C20-29", vutils.make_grid(netG(fixed_noise[n_imag*20:n_imag*30])[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
-                    writer.add_image("Generated images C30-39", vutils.make_grid(netG(fixed_noise[n_imag*30:n_imag*40])[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
-                    writer.add_image("Generated images C40-49", vutils.make_grid(netG(fixed_noise[n_imag*40:n_imag*50])[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
+                    writer.add_image("Generated class 20", vutils.make_grid(netG(fixed_noise_aux)[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
+                    backup_para = copy_G_params(netG)
+                    load_params(netG, avg_param_G)
+                    writer.add_image("Generated class 20 avg", vutils.make_grid(netG(fixed_noise_aux)[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
+                    # writer.add_image("Generated images C0-9", vutils.make_grid(netG(fixed_noise[0:n_imag*10])[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
+                    # writer.add_image("Generated images C10-19", vutils.make_grid(netG(fixed_noise[n_imag*10:n_imag*20])[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
+                    # writer.add_image("Generated images C20-29", vutils.make_grid(netG(fixed_noise[n_imag*20:n_imag*30])[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
+                    # writer.add_image("Generated images C30-39", vutils.make_grid(netG(fixed_noise[n_imag*30:n_imag*40])[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
+                    # writer.add_image("Generated images C40-49", vutils.make_grid(netG(fixed_noise[n_imag*40:n_imag*50])[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
 
                 load_params(netG, backup_para)
 
@@ -543,14 +557,16 @@ def train(args):
             prev_x = torch.cat((save_prev_x,add_prev_x))
             prev_y = torch.cat((prev_y,add_prev_y))
 
-        backup_para = copy_G_params(netG)
-        load_params(netG, avg_param_G)
         with torch.no_grad():
-            writer.add_image("Generated images C0-9", vutils.make_grid(netG(fixed_noise[0:n_imag*10])[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
-            writer.add_image("Generated images C10-19", vutils.make_grid(netG(fixed_noise[n_imag*10:n_imag*20])[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
-            writer.add_image("Generated images C20-29", vutils.make_grid(netG(fixed_noise[n_imag*20:n_imag*30])[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
-            writer.add_image("Generated images C30-39", vutils.make_grid(netG(fixed_noise[n_imag*30:n_imag*40])[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
-            writer.add_image("Generated images C40-49", vutils.make_grid(netG(fixed_noise[n_imag*40:n_imag*50])[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
+            writer.add_image("Generated class 20", vutils.make_grid(netG(fixed_noise_aux)[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
+            backup_para = copy_G_params(netG)
+            load_params(netG, avg_param_G)
+            writer.add_image("Generated class 20 avg", vutils.make_grid(netG(fixed_noise_aux)[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
+            # writer.add_image("Generated images C0-9", vutils.make_grid(netG(fixed_noise[0:n_imag*10])[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
+            # writer.add_image("Generated images C10-19", vutils.make_grid(netG(fixed_noise[n_imag*10:n_imag*20])[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
+            # writer.add_image("Generated images C20-29", vutils.make_grid(netG(fixed_noise[n_imag*20:n_imag*30])[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
+            # writer.add_image("Generated images C30-39", vutils.make_grid(netG(fixed_noise[n_imag*30:n_imag*40])[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
+            # writer.add_image("Generated images C40-49", vutils.make_grid(netG(fixed_noise[n_imag*40:n_imag*50])[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
 
         load_params(netG, backup_para)
 
