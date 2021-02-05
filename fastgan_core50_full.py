@@ -84,7 +84,7 @@ def images_with_labels(x,y):
         plt.xticks([])
         plt.yticks([])
         plt.grid(False)
-        plt.imshow(x[i].cpu().permute(1,2,0), cmap=plt.cm.binary)
+        plt.imshow((x[i].cpu().permute(1,2,0))/2.0+0.5)
 
     # Save the plot to a PNG in memory.
     buf = io.BytesIO()
