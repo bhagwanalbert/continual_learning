@@ -437,7 +437,7 @@ def train(args):
                     torch.cuda.empty_cache()
 
                     if ep == 0:
-                        writer.add_image("Minibatch data", images_with_labels(real_images[n],real_labels), step=(it*num_accumulations + n))
+                        writer.add_image("Minibatch data", images_with_labels(real_images[n],real_labels[n]), step=(it*num_accumulations + n))
                         writer.close()
 
                     x_mb = DiffAugment(real_images[n], policy=policy)
