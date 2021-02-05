@@ -533,7 +533,7 @@ def train(args):
                     # writer.add_image("Generated images C20-29", vutils.make_grid(netG(fixed_noise[n_imag*20:n_imag*30])[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
                     # writer.add_image("Generated images C30-39", vutils.make_grid(netG(fixed_noise[n_imag*30:n_imag*40])[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
                     # writer.add_image("Generated images C40-49", vutils.make_grid(netG(fixed_noise[n_imag*40:n_imag*50])[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
-
+                    writer.close()
                 load_params(netG, backup_para)
 
             # backup_para = copy_G_params(netG)
@@ -567,7 +567,7 @@ def train(args):
             # writer.add_image("Generated images C20-29", vutils.make_grid(netG(fixed_noise[n_imag*20:n_imag*30])[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
             # writer.add_image("Generated images C30-39", vutils.make_grid(netG(fixed_noise[n_imag*30:n_imag*40])[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
             # writer.add_image("Generated images C40-49", vutils.make_grid(netG(fixed_noise[n_imag*40:n_imag*50])[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
-
+        writer.close()
         load_params(netG, backup_para)
 
 if __name__ == "__main__":
