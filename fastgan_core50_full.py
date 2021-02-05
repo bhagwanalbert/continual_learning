@@ -203,7 +203,7 @@ def train(args):
     fixed_noise_aux_[np.arange(50), :n_class] = eval_onehot[np.arange(50)]
 
     fixed_noise_aux_ = (torch.from_numpy(fixed_noise_aux_))
-    fixed_noise_aux.data.copy_(fixed_noise_aux.view(50, nz))
+    fixed_noise_aux.data.copy_(fixed_noise_aux_.view(50, nz))
     fixed_noise_aux = maybe_cuda(fixed_noise_aux, use_cuda=use_cuda).to('cuda:5')
 
     if multi_gpu:
