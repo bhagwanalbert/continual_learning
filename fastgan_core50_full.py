@@ -19,6 +19,7 @@ from utils import *
 policy = 'color,translation'
 from PerceptualSimilarity import models
 import os
+import matplotlib.pyplot as plt
 
 import random
 
@@ -74,6 +75,30 @@ def train_d(net, data, y, label="real"):
         err += conditioned_loss
         err.backward()
         return pred.mean().item(), conditioned_loss
+
+def image_with_labels(x,y):
+    figure = plt.figure(figsize=(10,10))
+    for i in range(x.shape[0]):
+        # Start next subplot.
+        plt.subplot(5, x.shape[0]//5 + 1, i + 1, title=y[i])
+        plt.xticks([])
+        plt.yticks([])
+        plt.grid(False)
+        plt.imshow(x[i], cmap=plt.cm.binary)
+
+    # Save the plot to a PNG in memory.
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png')
+    # Closing the figure prevents it from being displayed directly inside
+    # the notebook.
+    plt.close(figure)
+    buf.seek(0)
+    # Convert PNG buffer to TF image
+    image = tf.image.decode_png(buf.getvalue(), channels=4)
+    # Add the batch dimension
+    image = tf.expand_dims(image, 0)
+
+    return image
 
 
 def train(args):
@@ -195,8 +220,8 @@ def train(args):
         del ckpt
         torch.cuda.empty_cache()
 
-    ave_loss, acc, accs = get_accuracy_custom(netD, class_loss, 15, test_x_proc, test_y, 'cuda:5', use_cuda)
-    print(accs)
+    # ave_loss, acc, accs = get_accuracy_custom(netD, class_loss, 15, test_x_proc, test_y, 'cuda:5', use_cuda)
+    # print(accs)
 
     # Training Loop
     print("Starting Training Loop...")
@@ -411,6 +436,10 @@ def train(args):
                     del noise_
                     torch.cuda.empty_cache()
 
+                    if epoch == 0:
+                        with file_writer.as_default():
+                            tf.summary.image("Minibatch data", images_with_labels(real_images[n],real_labels), step=(it*num_accumulations + n))
+
                     x_mb = DiffAugment(real_images[n], policy=policy)
                     y_mb = real_labels[n]
                     fake_images = [DiffAugment(fake, policy=policy) for fake in fake_images]
@@ -468,7 +497,7 @@ def train(args):
 
             tot_it_step +=1
 
-            ave_loss, acc, accs = get_accuracy_custom(netD, class_loss, 15, test_x_proc, test_y, 'cuda:5', use_cuda)
+            # ave_loss, acc, accs = get_accuracy_custom(netD, class_loss, 15, test_x_proc, test_y, 'cuda:5', use_cuda)
             # print(accs)
 
             writer.add_scalar('test_loss', ave_loss, tot_it_step)
