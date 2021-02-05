@@ -200,7 +200,7 @@ def train(args):
 
     eval_onehot[:, 20] = 1
 
-    fixed_noise_[np.arange(50), :n_class] = eval_onehot[np.arange(50)]
+    fixed_noise_aux_[np.arange(50), :n_class] = eval_onehot[np.arange(50)]
 
     fixed_noise_aux_ = (torch.from_numpy(fixed_noise_aux_))
     fixed_noise_aux.data.copy_(fixed_noise_aux.view(50, nz))
