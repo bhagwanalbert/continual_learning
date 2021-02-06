@@ -210,8 +210,8 @@ def train(args):
             netG.load_state_dict(ckpt['g'])
             netD.load_state_dict(ckpt['d'])
         avg_param_G = ckpt['g_ema']
-        for x in avg_param_G:
-            avg_param_G = avg_param_G.to(device)
+        for x in range(len(avg_param_G)):
+            avg_param_G[x] = avg_param_G[x].to(device)
         optimizerG = optim.Adam(netG.parameters(), lr=ilr, betas=(nbeta1, 0.999))
         optimizerD = optim.Adam(netD.parameters(), lr=ilr, betas=(nbeta1, 0.999))
         start_batch = int(checkpoint.split('_')[-2].split('.')[0])+1
