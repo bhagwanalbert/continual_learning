@@ -29,16 +29,11 @@ import numpy as np
 # os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 # os.environ["CUDA_VISIBLE_DEVICES"] = "3"
 
-percept = models.PerceptualLoss(model='net-lin', net='vgg', use_gpu=True, gpu_ids=[5])
-
 class_loss = nn.NLLLoss()
 correct_cnt = 0
 eps = 1e-12
 class_names10 = ["plug", "mobile", "scissors", "bulb", "can", "glasses", "ball", "highlighter", "cup", "remote"]
 #torch.backends.cudnn.benchmark = True
-
-# Create tensorboard writer object
-writer = SummaryWriter('logs/fastgan9')
 
 def crop_image_by_part(image, part):
     hw = image.shape[2]//2
@@ -51,7 +46,7 @@ def crop_image_by_part(image, part):
     if part==3:
         return image[:,:,hw:,hw:]
 
-def train_d(net, data, y, label="real"):
+def train_d(net, data, y, percept, label="real"):
     """Train function of discriminator"""
     global correct_cnt
     global eps
@@ -107,6 +102,7 @@ def train(args):
     checkpoint = args.ckpt
     batch_size = args.batch_size
     im_size = args.im_size
+    device = 'cuda:' + str(args.cuda)
     ndf = 64
     ngf = 64
     n_class = 50
@@ -125,7 +121,12 @@ def train(args):
     n_im_mb = 1
     factor = 3
     cumulative = True
-    num_accumulations = 1
+    num_accumulations = args.num_acc
+
+    percept = models.PerceptualLoss(model='net-lin', net='vgg', use_gpu=True, gpu_ids=[args.cuda])
+
+    # Create tensorboard writer object
+    writer = SummaryWriter('logs/'+args.name)
 
     saved_model_folder, saved_image_folder = get_dir(args)
 
@@ -159,9 +160,7 @@ def train(args):
     print("Got test set")
     test_x = torch.from_numpy(test_x).type(torch.FloatTensor)
     test_y = torch.from_numpy(test_y).type(torch.LongTensor)
-    print("Starting first processing of test set")
     test_x = preprocess_imgs(test_x, norm=False, symmetric = False)
-    print("Starting second processing of test set")
     test_x_proc = torch.zeros([test_x.size(0),test_x.size(1),im_size,im_size]).type(torch.FloatTensor)
 
     for im in range(test_x.shape[0]):
@@ -176,8 +175,8 @@ def train(args):
     netD = Discriminator(ndf=ndf, im_size=im_size, n_class=n_class)
     netD.apply(weights_init)
 
-    netG = maybe_cuda(netG, use_cuda=use_cuda).to('cuda:5')
-    netD = maybe_cuda(netD, use_cuda=use_cuda).to('cuda:5')
+    netG = maybe_cuda(netG, use_cuda=use_cuda).to(device)
+    netD = maybe_cuda(netD, use_cuda=use_cuda).to(device)
 
     avg_param_G = copy_G_params(netG)
 
@@ -192,19 +191,7 @@ def train(args):
 
     fixed_noise_ = (torch.from_numpy(fixed_noise_))
     fixed_noise.data.copy_(fixed_noise_.view(n_imag*n_class, nz))
-    fixed_noise = maybe_cuda(fixed_noise, use_cuda=use_cuda).to('cuda:5')
-
-    fixed_noise_aux = torch.FloatTensor(50, nz).normal_(0, 1)
-    fixed_noise_aux_ = np.random.normal(0, 1, (50, nz))
-    eval_onehot = np.zeros((50, n_class))
-
-    eval_onehot[np.arange(0,50), 20] = 1
-
-    fixed_noise_aux_[np.arange(50), :n_class] = eval_onehot[np.arange(50)]
-
-    fixed_noise_aux_ = (torch.from_numpy(fixed_noise_aux_))
-    fixed_noise_aux.data.copy_(fixed_noise_aux_.view(50, nz))
-    fixed_noise_aux = maybe_cuda(fixed_noise_aux, use_cuda=use_cuda).to('cuda:5')
+    fixed_noise = maybe_cuda(fixed_noise, use_cuda=use_cuda).to(device)
 
     if multi_gpu:
         netG = nn.DataParallel(netG,device_ids=[5, 0, 1, 2, 3, 4])
@@ -230,8 +217,8 @@ def train(args):
         del ckpt
         torch.cuda.empty_cache()
 
-    ave_loss, acc, accs = get_accuracy_custom(netD, class_loss, 15, test_x_proc, test_y, 'cuda:5', use_cuda)
-    print(accs)
+    ave_loss, acc, accs = get_accuracy_custom(netD, class_loss, 15, test_x_proc, test_y, device, use_cuda)
+    #print(accs)
 
     # Training Loop
     print("Starting Training Loop...")
@@ -315,10 +302,10 @@ def train(args):
                 prev_noise_[np.arange(prev_imag*len(prev_label)), :n_class] = prev_onehot[np.arange(prev_imag*len(prev_label))]
                 prev_noise_ = (torch.from_numpy(prev_noise_))
                 prev_noise.data.copy_(prev_noise_.view(prev_imag*len(prev_label), nz))
-                prev_noise = maybe_cuda(prev_noise, use_cuda=use_cuda).to('cuda:5')
+                prev_noise = maybe_cuda(prev_noise, use_cuda=use_cuda).to(device)
 
                 prev_y = ((torch.from_numpy(np.repeat(prev_label,prev_imag))).long())
-                prev_y = maybe_cuda(prev_y, use_cuda=use_cuda).to('cuda:5')
+                prev_y = maybe_cuda(prev_y, use_cuda=use_cuda).to(device)
 
                 backup_para = copy_G_params(netG)
                 load_params(netG, avg_param_G)
@@ -332,9 +319,9 @@ def train(args):
                     print(correct_prev.item()/prev_y.size(0))
                     # writer.add_image("Previous images", vutils.make_grid(prev_x, nrow=prev_imag, padding=2, normalize=True))
                     prev_x_filt = torch.zeros([correct_prev.item(),prev_x.size(1),im_size,im_size]).type(torch.FloatTensor)
-                    prev_x_filt = maybe_cuda(prev_x_filt, use_cuda=use_cuda).to('cuda:5')
+                    prev_x_filt = maybe_cuda(prev_x_filt, use_cuda=use_cuda).to(device)
                     prev_y_filt = torch.zeros([correct_prev.item()]).type(torch.LongTensor)
-                    prev_y_filt = maybe_cuda(prev_y_filt, use_cuda=use_cuda).to('cuda:5')
+                    prev_y_filt = maybe_cuda(prev_y_filt, use_cuda=use_cuda).to(device)
                     idx = 0
                     for f in range(filter.size(0)):
                         prev_x[f] = filter[f]*prev_x[f]
@@ -394,15 +381,15 @@ def train(args):
                     for n in range(num_accumulations):
                         start = (it*num_accumulations + n) * n_im_mb*factor
                         end = (it*num_accumulations + n + 1) * n_im_mb*factor
-                        real_images[n] = maybe_cuda(train_x_proc[start:end], use_cuda=use_cuda).to('cuda:5')
-                        real_labels[n] = maybe_cuda(train_y[start:end], use_cuda=use_cuda).to('cuda:5')
+                        real_images[n] = maybe_cuda(train_x_proc[start:end], use_cuda=use_cuda).to(device)
+                        real_labels[n] = maybe_cuda(train_y[start:end], use_cuda=use_cuda).to(device)
 
                         for c in prev_label:
                             prev_x_aux = prev_x_proc[prev_y.cpu().numpy() == c]
                             prev_y_aux = prev_y[prev_y.cpu().numpy() == c]
                             indexes = np.random.randint(0, (prev_x_aux.size(0)), size = n_im_mb)
-                            real_images[n] = torch.cat((real_images[n], maybe_cuda(prev_x_aux[indexes], use_cuda=use_cuda).to('cuda:5')))
-                            real_labels[n] = torch.cat((real_labels[n], maybe_cuda(prev_y_aux[indexes], use_cuda=use_cuda).to('cuda:5')))
+                            real_images[n] = torch.cat((real_images[n], maybe_cuda(prev_x_aux[indexes], use_cuda=use_cuda).to(device)))
+                            real_labels[n] = torch.cat((real_labels[n], maybe_cuda(prev_y_aux[indexes], use_cuda=use_cuda).to(device)))
 
                         del prev_x_aux
                         del prev_y_aux
@@ -417,8 +404,8 @@ def train(args):
                     start = it * batch_size
                     end = (it + 1) * batch_size
 
-                    real_images = maybe_cuda(train_x_proc[start:end], use_cuda=use_cuda).to('cuda:5')
-                    real_labels = maybe_cuda(train_y[start:end], use_cuda=use_cuda).to('cuda:5')
+                    real_images = maybe_cuda(train_x_proc[start:end], use_cuda=use_cuda).to(device)
+                    real_labels = maybe_cuda(train_y[start:end], use_cuda=use_cuda).to(device)
 
                     current_batch_size = real_images.size(0)
 
@@ -435,10 +422,10 @@ def train(args):
                     noise_[np.arange(current_batch_size), :n_class] = onehot[np.arange(current_batch_size)]
                     noise_ = (torch.from_numpy(noise_))
                     noise.data.copy_(noise_.view(current_batch_size, nz))
-                    noise = maybe_cuda(noise, use_cuda=use_cuda).to('cuda:5')
+                    noise = maybe_cuda(noise, use_cuda=use_cuda).to(device)
 
                     label = ((torch.from_numpy(label)).long())
-                    label = maybe_cuda(label, use_cuda=use_cuda).to('cuda:5')
+                    label = maybe_cuda(label, use_cuda=use_cuda).to(device)
 
                     fake_images = netG(noise)
 
@@ -456,9 +443,9 @@ def train(args):
 
                     data_encountered += current_batch_size
 
-                    err_dr_real, _, _, _, err_class_real = train_d(netD, x_mb, y_mb, label="real")
+                    err_dr_real, _, _, _, err_class_real = train_d(netD, x_mb, y_mb, percept, label="real")
                     class_acc = correct_cnt.item() / data_encountered
-                    err_dr_fake, err_class_fake = train_d(netD, [fi.detach() for fi in fake_images], label, label="fake")
+                    err_dr_fake, err_class_fake = train_d(netD, [fi.detach() for fi in fake_images], label, percept, label="fake")
 
                 optimizerD.step()
 
@@ -473,10 +460,10 @@ def train(args):
                     noise_[np.arange(current_batch_size), :n_class] = onehot[np.arange(current_batch_size)]
                     noise_ = (torch.from_numpy(noise_))
                     noise.data.copy_(noise_.view(current_batch_size, nz))
-                    noise = maybe_cuda(noise, use_cuda=use_cuda).to('cuda:5')
+                    noise = maybe_cuda(noise, use_cuda=use_cuda).to(device)
 
                     label = ((torch.from_numpy(label)).long())
-                    label = maybe_cuda(label, use_cuda=use_cuda).to('cuda:5')
+                    label = maybe_cuda(label, use_cuda=use_cuda).to(device)
 
                     fake_images = netG(noise)
                     fake_images = [DiffAugment(fake, policy=policy) for fake in fake_images]
@@ -508,7 +495,7 @@ def train(args):
 
             tot_it_step +=1
 
-            ave_loss, acc, accs = get_accuracy_custom(netD, class_loss, 15, test_x_proc, test_y, 'cuda:5', use_cuda)
+            ave_loss, acc, accs = get_accuracy_custom(netD, class_loss, 15, test_x_proc, test_y, device, use_cuda)
             print(accs)
 
             writer.add_scalar('test_loss', ave_loss, tot_it_step)
@@ -523,18 +510,17 @@ def train(args):
 
             writer.close()
 
-            if i != 0:
-                backup_para = copy_G_params(netG)
-                load_params(netG, avg_param_G)
-                with torch.no_grad():
-                    writer.add_image("Generated class 20", vutils.make_grid(netG(fixed_noise_aux)[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
-                    writer.add_image("Generated images C0-9", vutils.make_grid(netG(fixed_noise[0:n_imag*10])[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
-                    writer.add_image("Generated images C10-19", vutils.make_grid(netG(fixed_noise[n_imag*10:n_imag*20])[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
-                    writer.add_image("Generated images C20-29", vutils.make_grid(netG(fixed_noise[n_imag*20:n_imag*30])[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
-                    writer.add_image("Generated images C30-39", vutils.make_grid(netG(fixed_noise[n_imag*30:n_imag*40])[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
-                    writer.add_image("Generated images C40-49", vutils.make_grid(netG(fixed_noise[n_imag*40:n_imag*50])[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
-                    writer.close()
-                load_params(netG, backup_para)
+            # if i != 0:
+            #     backup_para = copy_G_params(netG)
+            #     load_params(netG, avg_param_G)
+            #     with torch.no_grad():
+            #         writer.add_image("Generated images C0-9", vutils.make_grid(netG(fixed_noise[0:n_imag*10])[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
+            #         writer.add_image("Generated images C10-19", vutils.make_grid(netG(fixed_noise[n_imag*10:n_imag*20])[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
+            #         writer.add_image("Generated images C20-29", vutils.make_grid(netG(fixed_noise[n_imag*20:n_imag*30])[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
+            #         writer.add_image("Generated images C30-39", vutils.make_grid(netG(fixed_noise[n_imag*30:n_imag*40])[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
+            #         writer.add_image("Generated images C40-49", vutils.make_grid(netG(fixed_noise[n_imag*40:n_imag*50])[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
+            #         writer.close()
+            #     load_params(netG, backup_para)
 
             # backup_para = copy_G_params(netG)
             # load_params(netG, avg_param_G)
@@ -560,7 +546,6 @@ def train(args):
         backup_para = copy_G_params(netG)
         load_params(netG, avg_param_G)
         with torch.no_grad():
-            writer.add_image("Generated class 20", vutils.make_grid(netG(fixed_noise_aux)[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
             writer.add_image("Generated images C0-9", vutils.make_grid(netG(fixed_noise[0:n_imag*10])[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
             writer.add_image("Generated images C10-19", vutils.make_grid(netG(fixed_noise[n_imag*10:n_imag*20])[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
             writer.add_image("Generated images C20-29", vutils.make_grid(netG(fixed_noise[n_imag*20:n_imag*30])[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
@@ -572,13 +557,13 @@ def train(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='region gan')
 
-    parser.add_argument('--cuda', type=int, default=1, help='index of gpu to use')
+    parser.add_argument('--cuda', type=int, default=5, help='index of gpu to use')
     parser.add_argument('--name', type=str, default='test1', help='experiment name')
     parser.add_argument('--start_iter', type=int, default=0, help='the iteration to start training')
     parser.add_argument('--batch_size', type=int, default=20, help='mini batch number of images')
     parser.add_argument('--im_size', type=int, default=256, help='image resolution')
     parser.add_argument('--ckpt', type=str, default='None', help='checkpoint weight path')
-
+    parser.add_argument('--num_acc', type=int, default=1, help='number of gradient accumulations')
 
     args = parser.parse_args()
     print(args)
