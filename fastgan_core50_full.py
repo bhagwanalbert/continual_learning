@@ -273,8 +273,9 @@ def train(args):
             else:
                 training_examples = torch.cat((training_examples, train_x[train_y.numpy() == c][:n_imag]))
 
-        writer.add_image("Training images", vutils.make_grid(training_examples, nrow=n_imag, padding=2, normalize=True).cpu())
-        writer.close()
+        vutils.save_image(training_examples, saved_image_folder+'/training'+'/%d_0.jpg'%i, nrow=n_imag)
+        # writer.add_image("Training images", vutils.make_grid(training_examples, nrow=n_imag, padding=2, normalize=True).cpu())
+        # writer.close()
 
         train_x_proc = torch.zeros([train_x.size(0),train_x.size(1),im_size,im_size]).type(torch.FloatTensor)
         for im in range(train_x.shape[0]):
@@ -498,7 +499,7 @@ def train(args):
             tot_it_step +=1
 
             ave_loss, acc, accs = get_accuracy_custom(netD, class_loss, 15, test_x_proc, test_y, device, use_cuda)
-            print(accs)
+            # print(accs)
 
             writer.add_scalar('test_loss', ave_loss, tot_it_step)
             writer.add_scalar('test_accuracy', acc, tot_it_step)
@@ -528,14 +529,14 @@ def train(args):
             # load_params(netG, avg_param_G)
             # torch.save({'g':netG.state_dict(),'d':netD.state_dict()}, saved_model_folder+'/%d_%d.pth'%(i,ep))
             # load_params(netG, backup_para)
-            if (ep == num_epochs - 1):
-                print("saving in: /all_%d_%d.pth"%(i,ep))
-                torch.save({'g':netG.state_dict(),
-                            'd':netD.state_dict(),
-                            'g_ema': avg_param_G,
-                            'opt_g': optimizerG.state_dict(),
-                            'opt_d': optimizerD.state_dict(),
-                            'trained_classes': enc_classes}, saved_model_folder+'/all_%d_%d.pth'%(i,ep))
+            # if (ep == num_epochs - 1):
+            #     print("saving in: /all_%d_%d.pth"%(i,ep))
+            #     torch.save({'g':netG.state_dict(),
+            #                 'd':netD.state_dict(),
+            #                 'g_ema': avg_param_G,
+            #                 'opt_g': optimizerG.state_dict(),
+            #                 'opt_d': optimizerD.state_dict(),
+            #                 'trained_classes': enc_classes}, saved_model_folder+'/all_%d_%d.pth'%(i,ep))
 
         del train_x_proc
         if i != 0:
@@ -548,12 +549,17 @@ def train(args):
         backup_para = copy_G_params(netG)
         load_params(netG, avg_param_G)
         with torch.no_grad():
-            writer.add_image("Generated images C0-9", vutils.make_grid(netG(fixed_noise[0:n_imag*10])[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
-            writer.add_image("Generated images C10-19", vutils.make_grid(netG(fixed_noise[n_imag*10:n_imag*20])[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
-            writer.add_image("Generated images C20-29", vutils.make_grid(netG(fixed_noise[n_imag*20:n_imag*30])[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
-            writer.add_image("Generated images C30-39", vutils.make_grid(netG(fixed_noise[n_imag*30:n_imag*40])[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
-            writer.add_image("Generated images C40-49", vutils.make_grid(netG(fixed_noise[n_imag*40:n_imag*50])[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
-            writer.close()
+            # writer.add_image("Generated images C0-9", vutils.make_grid(netG(fixed_noise[0:n_imag*10])[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
+            # writer.add_image("Generated images C10-19", vutils.make_grid(netG(fixed_noise[n_imag*10:n_imag*20])[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
+            # writer.add_image("Generated images C20-29", vutils.make_grid(netG(fixed_noise[n_imag*20:n_imag*30])[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
+            # writer.add_image("Generated images C30-39", vutils.make_grid(netG(fixed_noise[n_imag*30:n_imag*40])[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
+            # writer.add_image("Generated images C40-49", vutils.make_grid(netG(fixed_noise[n_imag*40:n_imag*50])[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
+            vutils.save_image(netG(fixed_noise[0:n_imag*10])[0].add(1).mul(0.5), saved_image_folder+'/generated'+'/%d_0.jpg'%i, nrow=n_imag)
+            vutils.save_image(netG(fixed_noise[n_imag*10:n_imag*20])[0].add(1).mul(0.5), saved_image_folder+'/generated'+'/%d_1.jpg'%i, nrow=n_imag)
+            vutils.save_image(netG(fixed_noise[n_imag*20:n_imag*30])[0].add(1).mul(0.5), saved_image_folder+'/generated'+'/%d_2.jpg'%i, nrow=n_imag)
+            vutils.save_image(netG(fixed_noise[n_imag*30:n_imag*40])[0].add(1).mul(0.5), saved_image_folder+'/generated'+'/%d_3.jpg'%i, nrow=n_imag)
+            vutils.save_image(netG(fixed_noise[n_imag*40:n_imag*50])[0].add(1).mul(0.5), saved_image_folder+'/generated'+'/%d_4.jpg'%i, nrow=n_imag)
+            # writer.close()
         load_params(netG, backup_para)
 
 if __name__ == "__main__":
@@ -565,7 +571,7 @@ if __name__ == "__main__":
     parser.add_argument('--batch_size', type=int, default=20, help='mini batch number of images')
     parser.add_argument('--im_size', type=int, default=256, help='image resolution')
     parser.add_argument('--ckpt', type=str, default='None', help='checkpoint weight path')
-    parser.add_argument('--num_acc', type=int, default=1, help='number of gradient accumulations')
+    parser.add_argument('--num_acc', type=int, default=4, help='number of gradient accumulations')
 
     args = parser.parse_args()
     print(args)
