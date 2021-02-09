@@ -355,9 +355,9 @@ def train(args):
             current_batch_size = (prev_label.size + factor)*n_im_mb
             num_epochs = inum_epochs
             it_x_ep = train_x.size(0) // (n_im_mb*factor*num_accumulations)
-            print(it_x_ep)
         else:
-            it_x_ep = train_x.size(0) // batch_size
+            it_x_ep = train_x.size(0) // (batch_size*num_accumulations)
+        print(it_x_ep)
 
         for im in range(train_x.shape[0]):
             im_proc = data_transforms((train_x[im]).cpu())
