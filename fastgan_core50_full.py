@@ -282,7 +282,7 @@ def train(args):
             im_proc = data_transforms_aux((train_x[im]).cpu())
             train_x_proc[im] = im_proc.type(torch.FloatTensor)
 
-        if cumulative:
+        if cumulative and i != 0:
             save_prev_x = prev_x
             prev_x_proc = torch.zeros([prev_x.size(0),prev_x.size(1),im_size,im_size]).type(torch.FloatTensor)
             for im in range(prev_x.shape[0]):
