@@ -529,14 +529,14 @@ def train(args):
             # load_params(netG, avg_param_G)
             # torch.save({'g':netG.state_dict(),'d':netD.state_dict()}, saved_model_folder+'/%d_%d.pth'%(i,ep))
             # load_params(netG, backup_para)
-            # if (ep == num_epochs - 1):
-            #     print("saving in: /all_%d_%d.pth"%(i,ep))
-            #     torch.save({'g':netG.state_dict(),
-            #                 'd':netD.state_dict(),
-            #                 'g_ema': avg_param_G,
-            #                 'opt_g': optimizerG.state_dict(),
-            #                 'opt_d': optimizerD.state_dict(),
-            #                 'trained_classes': enc_classes}, saved_model_folder+'/all_%d_%d.pth'%(i,ep))
+            if (ep == num_epochs - 1) and i == 0:
+                print("saving in: /all_%d_%d.pth"%(i,ep))
+                torch.save({'g':netG.state_dict(),
+                            'd':netD.state_dict(),
+                            'g_ema': avg_param_G,
+                            'opt_g': optimizerG.state_dict(),
+                            'opt_d': optimizerD.state_dict(),
+                            'trained_classes': enc_classes}, saved_model_folder+'/all_%d_%d.pth'%(i,ep))
 
         del train_x_proc
         if i != 0:
