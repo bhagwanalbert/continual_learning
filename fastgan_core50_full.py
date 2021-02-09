@@ -443,11 +443,11 @@ def train(args):
                     del noise_
                     torch.cuda.empty_cache()
 
-                    if ep == 0:
-                        print(real_images[n].shape)
-                        print(real_labels[n].shape)
-                        writer.add_image("Minibatch data: batch "+str(i), images_with_labels(real_images[n],real_labels[n]), (it*num_accumulations + n))
-                        writer.close()
+                    # if ep == 0:
+                    #     print(real_images[n].shape)
+                    #     print(real_labels[n].shape)
+                    #     writer.add_image("Minibatch data: batch "+str(i), images_with_labels(real_images[n],real_labels[n]), (it*num_accumulations + n))
+                    #     writer.close()
 
                     x_mb = DiffAugment(real_images[n], policy=policy)
                     y_mb = real_labels[n]
@@ -577,7 +577,7 @@ if __name__ == "__main__":
     parser.add_argument('--cuda', type=int, default=5, help='index of gpu to use')
     parser.add_argument('--name', type=str, default='test1', help='experiment name')
     parser.add_argument('--start_iter', type=int, default=0, help='the iteration to start training')
-    parser.add_argument('--batch_size', type=int, default=20, help='mini batch number of images')
+    parser.add_argument('--batch_size', type=int, default=15, help='mini batch number of images')
     parser.add_argument('--im_size', type=int, default=256, help='image resolution')
     parser.add_argument('--ckpt', type=str, default='None', help='checkpoint weight path')
     parser.add_argument('--num_acc', type=int, default=4, help='number of gradient accumulations')
