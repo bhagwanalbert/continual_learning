@@ -437,6 +437,9 @@ def train(args):
                     label = ((torch.from_numpy(label)).long())
                     label = maybe_cuda(label, use_cuda=use_cuda).to(device)
 
+                    print(noise.shape)
+                    print(label.shape)
+
                     fake_images = netG(noise)
 
                     del noise
@@ -477,8 +480,6 @@ def train(args):
                     label = ((torch.from_numpy(label)).long())
                     label = maybe_cuda(label, use_cuda=use_cuda).to(device)
 
-                    print(noise.shape)
-                    print(label.shape)
 
                     fake_images = netG(noise)
                     fake_images = [DiffAugment(fake, policy=policy) for fake in fake_images]
