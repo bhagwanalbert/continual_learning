@@ -417,7 +417,7 @@ def train(args):
                         real_images[n] = real_images[n][indexes]
                         real_labels[n] = real_labels[n][indexes]
 
-                    current_batch_size = real_images[0].size(0)
+                    current_batch_size = batch_size # To avoid problems
 
                 current_classes = np.array(list({x:enc_classes[x] for x in enc_classes if enc_classes[x]==1}.keys()))
 
@@ -436,9 +436,6 @@ def train(args):
 
                     label = ((torch.from_numpy(label)).long())
                     label = maybe_cuda(label, use_cuda=use_cuda).to(device)
-
-                    print(noise.shape)
-                    print(label.shape)
 
                     fake_images = netG(noise)
 
