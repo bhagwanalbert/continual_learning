@@ -553,8 +553,12 @@ def train(args):
             del prev_x_proc
         torch.cuda.empty_cache()
         if cumulative:
-            prev_x = torch.cat((save_prev_x,add_prev_x))
-            prev_y = torch.cat((prev_y,add_prev_y))
+            if i!= 0:
+                prev_x = torch.cat((save_prev_x,add_prev_x))
+                prev_y = torch.cat((prev_y,add_prev_y))
+            else:
+                prev_x = add_prev_x
+                prev_y = add_prev_y
 
         backup_para = copy_G_params(netG)
         load_params(netG, avg_param_G)
