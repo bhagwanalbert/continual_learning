@@ -155,19 +155,19 @@ def train(args):
     data_transforms_test = transforms.Compose(transform_list_test)
 
     dataset = CORE50(root='/home/abhagwan/datasets/core50', scenario="nicv2_391")
-    # print("Getting test set")
-    # test_x, test_y = dataset.get_test_set()
-    # print("Got test set")
-    # test_x = torch.from_numpy(test_x).type(torch.FloatTensor)
-    # test_y = torch.from_numpy(test_y).type(torch.LongTensor)
-    # test_x = preprocess_imgs(test_x, norm=False, symmetric = False)
-    # test_x_proc = torch.zeros([test_x.size(0),test_x.size(1),im_size,im_size]).type(torch.FloatTensor)
-    #
-    # for im in range(test_x.shape[0]):
-    #     im_proc = data_transforms_test((test_x[im]).cpu())
-    #     test_x_proc[im] = im_proc.type(torch.FloatTensor)
-    # del test_x
-    # torch.cuda.empty_cache()
+    print("Getting test set")
+    test_x, test_y = dataset.get_test_set()
+    print("Got test set")
+    test_x = torch.from_numpy(test_x).type(torch.FloatTensor)
+    test_y = torch.from_numpy(test_y).type(torch.LongTensor)
+    test_x = preprocess_imgs(test_x, norm=False, symmetric = False)
+    test_x_proc = torch.zeros([test_x.size(0),test_x.size(1),im_size,im_size]).type(torch.FloatTensor)
+
+    for im in range(test_x.shape[0]):
+        im_proc = data_transforms_test((test_x[im]).cpu())
+        test_x_proc[im] = im_proc.type(torch.FloatTensor)
+    del test_x
+    torch.cuda.empty_cache()
 
     netG = Generator(ngf=ngf, nz=nz, im_size=im_size)
     netG.apply(weights_init)
@@ -219,21 +219,8 @@ def train(args):
         del ckpt
         torch.cuda.empty_cache()
 
-    # ave_loss, acc, accs = get_accuracy_custom(netD, class_loss, 15, test_x_proc, test_y, device, use_cuda)
+    ave_loss, acc, accs = get_accuracy_custom(netD, class_loss, 15, test_x_proc, test_y, device, use_cuda)
     #print(accs)
-
-    # Generate images for debugging
-    backup_para = copy_G_params(netG)
-    load_params(netG, avg_param_G)
-    with torch.no_grad():
-        writer.add_image("Generated images C0-9", vutils.make_grid(netG(fixed_noise[0:n_imag*10])[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
-        writer.add_image("Generated images C10-19", vutils.make_grid(netG(fixed_noise[n_imag*10:n_imag*20])[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
-        writer.add_image("Generated images C20-29", vutils.make_grid(netG(fixed_noise[n_imag*20:n_imag*30])[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
-        writer.add_image("Generated images C30-39", vutils.make_grid(netG(fixed_noise[n_imag*30:n_imag*40])[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
-        writer.add_image("Generated images C40-49", vutils.make_grid(netG(fixed_noise[n_imag*40:n_imag*50])[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
-        writer.close()
-    load_params(netG, backup_para)
-
 
     # Training Loop
     print("Starting Training Loop...")
