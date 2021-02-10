@@ -114,7 +114,7 @@ def train(args):
     multi_gpu = False
     dataloader_workers = 8
     start_batch = 0
-    num_epochs = 100
+    num_epochs = 1
     inum_epochs = 1
     n_imag = 5
     prev_imag = 10
