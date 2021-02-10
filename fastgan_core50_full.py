@@ -449,13 +449,13 @@ def train(args):
                     #     writer.add_image("Minibatch data: batch "+str(i), images_with_labels(real_images[n],real_labels[n]), (it*num_accumulations + n))
                     #     writer.close()
 
+                    return True
+
                     x_mb = DiffAugment(real_images[n], policy=policy)
                     y_mb = real_labels[n]
                     fake_images = [DiffAugment(fake, policy=policy) for fake in fake_images]
 
                     data_encountered += current_batch_size
-
-                    return True
 
                     err_dr_real, _, _, _, err_class_real = train_d(netD, x_mb, y_mb, percept, label="real")
                     class_acc = correct_cnt.item() / data_encountered
