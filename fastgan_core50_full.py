@@ -69,7 +69,7 @@ def train_d(net, data, y, percept, label="real"):
         # conditioned_loss = class_loss(torch.log(classes+eps),y)
         # err += conditioned_loss
         err.backward()
-        return pred.mean().item(), conditioned_loss
+        return pred.mean().item()
 
 def images_with_labels(x,y):
     figure = plt.figure(figsize=(10,10))
@@ -457,7 +457,7 @@ def train(args):
 
                     err_dr_real, _, _, _, err_class_real = train_d(netD, x_mb, y_mb, percept, label="real")
                     class_acc = correct_cnt.item() / data_encountered
-                    err_dr_fake, err_class_fake = train_d(netD, [fi.detach() for fi in fake_images], label, percept, label="fake")
+                    err_dr_fake = train_d(netD, [fi.detach() for fi in fake_images], label, percept, label="fake")
 
                 optimizerD.step()
 
