@@ -175,6 +175,8 @@ def train(args):
     netD = Discriminator(ndf=ndf, im_size=im_size, n_class=n_class)
     netD.apply(weights_init)
 
+    return True
+
     netG = maybe_cuda(netG, use_cuda=use_cuda).to(device)
     netD = maybe_cuda(netD, use_cuda=use_cuda).to(device)
 
@@ -183,8 +185,6 @@ def train(args):
     fixed_noise = torch.FloatTensor(n_imag*n_class, nz).normal_(0, 1)
     fixed_noise_ = np.random.normal(0, 1, (n_imag*n_class, nz))
     eval_onehot = np.zeros((n_imag*n_class, n_class))
-
-    return True
 
     for c in range(n_class):
         eval_onehot[np.arange(n_imag*c,n_imag*(c+1)), c] = 1
