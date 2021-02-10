@@ -421,8 +421,6 @@ def train(args):
 
                 current_classes = np.array(list({x:enc_classes[x] for x in enc_classes if enc_classes[x]==1}.keys()))
 
-                return True
-                
                 ## 2. train Discriminator
                 netD.zero_grad()
                 for n in range(num_accumulations):
@@ -462,6 +460,8 @@ def train(args):
                     err_dr_fake = train_d(netD, [fi.detach() for fi in fake_images], label, percept, label="fake")
 
                 optimizerD.step()
+
+                return True
 
                 ## 3. train Generator
                 netG.zero_grad()
