@@ -216,8 +216,8 @@ def train(args):
         optimizerD = optim.Adam(netD.parameters(), lr=ilr, betas=(nbeta1, 0.999))
         start_batch = int(checkpoint.split('_')[-2].split('.')[0])+1
         enc_classes = ckpt['trained_classes']
-        del ckpt
-        torch.cuda.empty_cache()
+        # del ckpt
+        # torch.cuda.empty_cache()
 
     # ave_loss, acc, accs = get_accuracy_custom(netD, class_loss, 15, test_x_proc, test_y, device, use_cuda)
     #print(accs)
