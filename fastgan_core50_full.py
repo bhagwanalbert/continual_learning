@@ -371,8 +371,6 @@ def train(args):
             del prev_x
             torch.cuda.empty_cache()
 
-        return True
-
         for ep in range(num_epochs):
             print("training ep: ", ep)
             data_encountered = 0
@@ -423,6 +421,8 @@ def train(args):
 
                 current_classes = np.array(list({x:enc_classes[x] for x in enc_classes if enc_classes[x]==1}.keys()))
 
+                return True
+                
                 ## 2. train Discriminator
                 netD.zero_grad()
                 for n in range(num_accumulations):
