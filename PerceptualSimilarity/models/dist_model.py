@@ -58,16 +58,16 @@ class DistModel(BaseModel):
         if(self.model == 'net-lin'): # pretrained net + linear layer
             self.net = networks.PNetLin(pnet_rand=pnet_rand, pnet_tune=pnet_tune, pnet_type=net,
                 use_dropout=True, spatial=spatial, version=version, lpips=True)
-            kw = {}
-            if not use_gpu:
-                kw['map_location'] = 'cpu'
-            if(model_path is None):
-                import inspect
-                model_path = os.path.abspath(os.path.join(inspect.getfile(self.initialize), '..', 'weights/v%s/%s.pth'%(version,net)))
-
-            if(not is_train):
-                print('Loading model from: %s'%model_path)
-                self.net.load_state_dict(torch.load(model_path, **kw), strict=False)
+            # kw = {}
+            # if not use_gpu:
+            #     kw['map_location'] = 'cpu'
+            # if(model_path is None):
+            #     import inspect
+            #     model_path = os.path.abspath(os.path.join(inspect.getfile(self.initialize), '..', 'weights/v%s/%s.pth'%(version,net)))
+            #
+            # if(not is_train):
+            #     print('Loading model from: %s'%model_path)
+            #     self.net.load_state_dict(torch.load(model_path, **kw), strict=False)
 
         # elif(self.model=='net'): # pretrained network
         #     self.net = networks.PNetLin(pnet_rand=pnet_rand, pnet_type=net, lpips=False)
@@ -92,17 +92,16 @@ class DistModel(BaseModel):
         # else: # test mode
         #     self.net.eval()
 
-        if(use_gpu):
-            self.net.to(gpu_ids[0])
-            self.net = torch.nn.DataParallel(self.net, device_ids=gpu_ids)
-            print(self.net.device)
-            if(self.is_train):
-                self.rankLoss = self.rankLoss.to(device=gpu_ids[0]) # just put this on GPU0
-
-        if(printNet):
-            print('---------- Networks initialized -------------')
-            networks.print_network(self.net)
-            print('-----------------------------------------------')
+        # if(use_gpu):
+        #     self.net.to(gpu_ids[0])
+        #     self.net = torch.nn.DataParallel(self.net, device_ids=gpu_ids)
+        #     if(self.is_train):
+        #         self.rankLoss = self.rankLoss.to(device=gpu_ids[0]) # just put this on GPU0
+        #
+        # if(printNet):
+        #     print('---------- Networks initialized -------------')
+        #     networks.print_network(self.net)
+        #     print('-----------------------------------------------')
 
     def forward(self, in0, in1, retPerLayer=False):
         ''' Function computes the distance between image patches in0 and in1
