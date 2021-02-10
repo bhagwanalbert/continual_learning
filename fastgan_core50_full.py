@@ -184,6 +184,8 @@ def train(args):
     fixed_noise_ = np.random.normal(0, 1, (n_imag*n_class, nz))
     eval_onehot = np.zeros((n_imag*n_class, n_class))
 
+    return True
+
     for c in range(n_class):
         eval_onehot[np.arange(n_imag*c,n_imag*(c+1)), c] = 1
 
@@ -221,8 +223,6 @@ def train(args):
 
     # ave_loss, acc, accs = get_accuracy_custom(netD, class_loss, 15, test_x_proc, test_y, device, use_cuda)
     #print(accs)
-
-    return True
 
     # Training Loop
     print("Starting Training Loop...")
