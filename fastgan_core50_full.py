@@ -66,8 +66,8 @@ def train_d(net, data, y, percept, label="real"):
     else:
         pred, classes = net(data, label)
         err = F.relu( torch.rand_like(pred) * 0.2 + 0.8 + pred).mean()
-        conditioned_loss = class_loss(torch.log(classes+eps),y)
-        err += conditioned_loss
+        # conditioned_loss = class_loss(torch.log(classes+eps),y)
+        # err += conditioned_loss
         err.backward()
         return pred.mean().item(), conditioned_loss
 
