@@ -169,6 +169,8 @@ def train(args):
     # del test_x
     # torch.cuda.empty_cache()
 
+    return True
+
     netG = Generator(ngf=ngf, nz=nz, im_size=im_size)
     netG.apply(weights_init)
 
