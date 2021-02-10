@@ -378,6 +378,8 @@ def train(args):
 
             for it in range(it_x_ep):
 
+                continue
+
                 if i != 0:
                     real_images = [0]*num_accumulations
                     real_labels = [0]*num_accumulations
@@ -553,9 +555,9 @@ def train(args):
                             'opt_d': optimizerD.state_dict(),
                             'trained_classes': enc_classes}, saved_model_folder+'/all_%d_%d.pth'%(i,ep))
 
-        del train_x_proc
-        if i != 0:
-            del prev_x_proc
+        # del train_x_proc
+        # if i != 0:
+        #     del prev_x_proc
         torch.cuda.empty_cache()
         if cumulative:
             if i!= 0:
