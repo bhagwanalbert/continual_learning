@@ -114,8 +114,8 @@ def train(args):
     multi_gpu = False
     dataloader_workers = 8
     start_batch = 0
-    num_epochs = 1
-    inum_epochs = 1
+    num_epochs = 100
+    inum_epochs = 20
     n_imag = 5
     prev_imag = 10
     n_im_mb = 1
@@ -155,17 +155,17 @@ def train(args):
     data_transforms_test = transforms.Compose(transform_list_test)
 
     dataset = CORE50(root='/home/abhagwan/datasets/core50', scenario="nicv2_391")
-    # print("Getting test set")
-    # test_x, test_y = dataset.get_test_set()
-    # print("Got test set")
-    # test_x = torch.from_numpy(test_x).type(torch.FloatTensor)
-    # test_y = torch.from_numpy(test_y).type(torch.LongTensor)
-    # test_x = preprocess_imgs(test_x, norm=False, symmetric = False)
-    # test_x_proc = torch.zeros([test_x.size(0),test_x.size(1),im_size,im_size]).type(torch.FloatTensor)
+    print("Getting test set")
+    test_x, test_y = dataset.get_test_set()
+    print("Got test set")
+    test_x = torch.from_numpy(test_x).type(torch.FloatTensor)
+    test_y = torch.from_numpy(test_y).type(torch.LongTensor)
+    test_x = preprocess_imgs(test_x, norm=False, symmetric = False)
+    test_x_proc = torch.zeros([test_x.size(0),test_x.size(1),im_size,im_size]).type(torch.FloatTensor)
 
-    # for im in range(test_x.shape[0]):
-    #     im_proc = data_transforms_test((test_x[im]).cpu())
-    #     test_x_proc[im] = im_proc.type(torch.FloatTensor)
+    for im in range(test_x.shape[0]):
+        im_proc = data_transforms_test((test_x[im]).cpu())
+        test_x_proc[im] = im_proc.type(torch.FloatTensor)
     # del test_x
     # torch.cuda.empty_cache()
 
@@ -219,7 +219,7 @@ def train(args):
         # del ckpt
         # torch.cuda.empty_cache()
 
-    # ave_loss, acc, accs = get_accuracy_custom(netD, class_loss, 15, test_x_proc, test_y, device, use_cuda)
+    ave_loss, acc, accs = get_accuracy_custom(netD, class_loss, 15, test_x_proc, test_y, device, use_cuda)
     #print(accs)
 
     # Training Loop
@@ -513,14 +513,14 @@ def train(args):
 
             tot_it_step +=1
 
-            # ave_loss, acc, accs = get_accuracy_custom(netD, class_loss, 15, test_x_proc, test_y, device, use_cuda)
-            # # print(accs)
-            #
-            # writer.add_scalar('test_loss', ave_loss, tot_it_step)
-            # writer.add_scalar('test_accuracy', acc, tot_it_step)
-            # writer.add_scalar('class_accuracy', class_acc, tot_it_step)
-            # writer.add_scalar('generator_loss', -err_g.item(), tot_it_step)
-            # writer.add_scalar('generator_class_loss', err_class_gen, tot_it_step)
+            ave_loss, acc, accs = get_accuracy_custom(netD, class_loss, 15, test_x_proc, test_y, device, use_cuda)
+            # print(accs)
+
+            writer.add_scalar('test_loss', ave_loss, tot_it_step)
+            writer.add_scalar('test_accuracy', acc, tot_it_step)
+            writer.add_scalar('class_accuracy', class_acc, tot_it_step)
+            writer.add_scalar('generator_loss', -err_g.item(), tot_it_step)
+            writer.add_scalar('generator_class_loss', err_class_gen, tot_it_step)
             # writer.add_scalar('discriminator_real_loss', err_dr_real, tot_it_step)
             # writer.add_scalar('discriminator_fake_loss', err_dr_fake, tot_it_step)
             # writer.add_scalar('discriminator_class_real_loss', err_class_real, tot_it_step)
