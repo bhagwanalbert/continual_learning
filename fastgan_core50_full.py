@@ -443,8 +443,6 @@ def train(args):
                     # del noise_
                     # torch.cuda.empty_cache()
 
-                    return True
-
                     # if ep == 0:
                     #     print(real_images[n].shape)
                     #     print(real_labels[n].shape)
@@ -462,6 +460,7 @@ def train(args):
                     err_dr_fake = train_d(netD, [fi.detach() for fi in fake_images], label, percept, label="fake")
 
                 optimizerD.step()
+                return True
 
                 ## 3. train Generator
                 netG.zero_grad()
