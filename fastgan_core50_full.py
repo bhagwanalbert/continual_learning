@@ -481,9 +481,9 @@ def train(args):
                     fake_images = netG(noise)
                     fake_images = [DiffAugment(fake, policy=policy) for fake in fake_images]
 
-                    del noise
-                    del noise_
-                    torch.cuda.empty_cache()
+                    # del noise
+                    # del noise_
+                    # torch.cuda.empty_cache()
 
                     pred_g, classes = netD(fake_images, "fake")
                     err_class_gen = class_loss(torch.log(classes+eps),label)
