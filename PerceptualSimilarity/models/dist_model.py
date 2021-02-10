@@ -64,10 +64,10 @@ class DistModel(BaseModel):
             if(model_path is None):
                 import inspect
                 model_path = os.path.abspath(os.path.join(inspect.getfile(self.initialize), '..', 'weights/v%s/%s.pth'%(version,net)))
-            
-            # if(not is_train):
-            #     print('Loading model from: %s'%model_path)
-            #     self.net.load_state_dict(torch.load(model_path, **kw), strict=False)
+
+            if(not is_train):
+                print('Loading model from: %s'%model_path)
+                self.net.load_state_dict(torch.load(model_path, **kw), strict=False)
 
         # elif(self.model=='net'): # pretrained network
         #     self.net = networks.PNetLin(pnet_rand=pnet_rand, pnet_type=net, lpips=False)
