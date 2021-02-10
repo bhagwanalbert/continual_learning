@@ -460,7 +460,6 @@ def train(args):
                     err_dr_fake = train_d(netD, [fi.detach() for fi in fake_images], label, percept, label="fake")
 
                 optimizerD.step()
-                return True
 
                 ## 3. train Generator
                 netG.zero_grad()
