@@ -222,6 +222,8 @@ def train(args):
     # ave_loss, acc, accs = get_accuracy_custom(netD, class_loss, 15, test_x_proc, test_y, device, use_cuda)
     #print(accs)
 
+    return True
+
     # Training Loop
     print("Starting Training Loop...")
     tot_it_step = 0
