@@ -69,39 +69,39 @@ class DistModel(BaseModel):
                 print('Loading model from: %s'%model_path)
                 self.net.load_state_dict(torch.load(model_path, map_location={'cuda:0':'cuda:'+str(gpu_ids[0])}, **kw), strict=False)
 
-        # elif(self.model=='net'): # pretrained network
-        #     self.net = networks.PNetLin(pnet_rand=pnet_rand, pnet_type=net, lpips=False)
-        # elif(self.model in ['L2','l2']):
-        #     self.net = networks.L2(use_gpu=use_gpu,colorspace=colorspace) # not really a network, only for testing
-        #     self.model_name = 'L2'
-        # elif(self.model in ['DSSIM','dssim','SSIM','ssim']):
-        #     self.net = networks.DSSIM(use_gpu=use_gpu,colorspace=colorspace)
-        #     self.model_name = 'SSIM'
-        # else:
-        #     raise ValueError("Model [%s] not recognized." % self.model)
-        #
-        # self.parameters = list(self.net.parameters())
-        #
-        # if self.is_train: # training mode
-        #     # extra network on top to go from distances (d0,d1) => predicted human judgment (h*)
-        #     self.rankLoss = networks.BCERankingLoss()
-        #     self.parameters += list(self.rankLoss.net.parameters())
-        #     self.lr = lr
-        #     self.old_lr = lr
-        #     self.optimizer_net = torch.optim.Adam(self.parameters, lr=lr, betas=(beta1, 0.999))
-        # else: # test mode
-        #     self.net.eval()
+        elif(self.model=='net'): # pretrained network
+            self.net = networks.PNetLin(pnet_rand=pnet_rand, pnet_type=net, lpips=False)
+        elif(self.model in ['L2','l2']):
+            self.net = networks.L2(use_gpu=use_gpu,colorspace=colorspace) # not really a network, only for testing
+            self.model_name = 'L2'
+        elif(self.model in ['DSSIM','dssim','SSIM','ssim']):
+            self.net = networks.DSSIM(use_gpu=use_gpu,colorspace=colorspace)
+            self.model_name = 'SSIM'
+        else:
+            raise ValueError("Model [%s] not recognized." % self.model)
 
-        # if(use_gpu):
-        #     self.net.to(gpu_ids[0])
-        #     self.net = torch.nn.DataParallel(self.net, device_ids=gpu_ids)
-        #     if(self.is_train):
-        #         self.rankLoss = self.rankLoss.to(device=gpu_ids[0]) # just put this on GPU0
-        #
-        # if(printNet):
-        #     print('---------- Networks initialized -------------')
-        #     networks.print_network(self.net)
-        #     print('-----------------------------------------------')
+        self.parameters = list(self.net.parameters())
+
+        if self.is_train: # training mode
+            # extra network on top to go from distances (d0,d1) => predicted human judgment (h*)
+            self.rankLoss = networks.BCERankingLoss()
+            self.parameters += list(self.rankLoss.net.parameters())
+            self.lr = lr
+            self.old_lr = lr
+            self.optimizer_net = torch.optim.Adam(self.parameters, lr=lr, betas=(beta1, 0.999))
+        else: # test mode
+            self.net.eval()
+
+        if(use_gpu):
+            self.net.to(gpu_ids[0])
+            self.net = torch.nn.DataParallel(self.net, device_ids=gpu_ids)
+            if(self.is_train):
+                self.rankLoss = self.rankLoss.to(device=gpu_ids[0]) # just put this on GPU0
+
+        if(printNet):
+            print('---------- Networks initialized -------------')
+            networks.print_network(self.net)
+            print('-----------------------------------------------')
 
     def forward(self, in0, in1, retPerLayer=False):
         ''' Function computes the distance between image patches in0 and in1
