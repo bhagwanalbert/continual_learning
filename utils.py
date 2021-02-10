@@ -256,9 +256,9 @@ def get_accuracy_custom(model, criterion, batch_size, test_x, test_y, device,
 
         ave_loss /= test_y.size(0)
 
-        del x
-        del y
-        torch.cuda.empty_cache()
+        # del x
+        # del y
+        # torch.cuda.empty_cache()
 
     return ave_loss, acc, accs
 
