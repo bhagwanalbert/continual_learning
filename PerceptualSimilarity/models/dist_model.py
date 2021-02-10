@@ -47,7 +47,6 @@ class DistModel(BaseModel):
             gpu_ids - int array - [0] by default, gpus to use
         '''
         BaseModel.initialize(self, use_gpu=use_gpu, gpu_ids=gpu_ids)
-        print(gpu_ids)
 
         self.model = model
         self.net = net
@@ -94,7 +93,6 @@ class DistModel(BaseModel):
             self.net.eval()
 
         if(use_gpu):
-            print(gpu_ids[0])
             self.net.to(gpu_ids[0])
             self.net = torch.nn.DataParallel(self.net, device_ids=gpu_ids)
             if(self.is_train):

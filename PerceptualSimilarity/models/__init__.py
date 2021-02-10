@@ -20,7 +20,6 @@ class PerceptualLoss(torch.nn.Module):
         self.use_gpu = use_gpu
         self.spatial = spatial
         self.gpu_ids = gpu_ids
-        print(gpu_ids)
         self.model = dist_model.DistModel()
         self.model.initialize(model=model, net=net, use_gpu=use_gpu, colorspace=colorspace, spatial=self.spatial, gpu_ids=gpu_ids, version=version)
         print('...[%s] initialized'%self.model.name())
