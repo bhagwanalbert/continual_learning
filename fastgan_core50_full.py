@@ -439,11 +439,11 @@ def train(args):
 
                     fake_images = netG(noise)
 
-                    return True
-
                     del noise
                     del noise_
                     torch.cuda.empty_cache()
+
+                    return True
 
                     # if ep == 0:
                     #     print(real_images[n].shape)
