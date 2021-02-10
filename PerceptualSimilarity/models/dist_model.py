@@ -58,7 +58,7 @@ class DistModel(BaseModel):
         if(self.model == 'net-lin'): # pretrained net + linear layer
             self.net = networks.PNetLin(pnet_rand=pnet_rand, pnet_tune=pnet_tune, pnet_type=net,
                 use_dropout=True, spatial=spatial, version=version, lpips=True)
-            print(self.net.device)
+            print(self.net)
             kw = {}
             if not use_gpu:
                 kw['map_location'] = 'cpu'
