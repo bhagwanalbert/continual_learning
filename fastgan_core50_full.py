@@ -436,9 +436,10 @@ def train(args):
 
                     label = ((torch.from_numpy(label)).long())
                     label = label.to(device)
-                    print(noise.device)
 
                     fake_images = netG(noise)
+
+                    return True
 
                     del noise
                     del noise_
@@ -449,11 +450,6 @@ def train(args):
                     #     print(real_labels[n].shape)
                     #     writer.add_image("Minibatch data: batch "+str(i), images_with_labels(real_images[n],real_labels[n]), (it*num_accumulations + n))
                     #     writer.close()
-
-                    print(netG.weight.device)
-                    print(fake_images.device)
-
-                    return True
 
                     x_mb = DiffAugment(real_images[n], policy=policy)
                     y_mb = real_labels[n]
