@@ -229,8 +229,8 @@ def get_accuracy_custom(model, criterion, batch_size, test_x, test_y, device,
             start = i * batch_size
             end = (i + 1) * batch_size
 
-            x = maybe_cuda(test_x[start:end], use_cuda=use_cuda).to(device)
-            y = maybe_cuda(test_y[start:end], use_cuda=use_cuda).to(device)
+            x = test_x[start:end].to(device)
+            y = test_y[start:end].to(device)
 
             pred, classes = model(x, "test", device=device)
 
