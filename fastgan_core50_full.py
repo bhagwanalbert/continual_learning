@@ -502,6 +502,8 @@ def train(args):
                 if it % 20 == 0:
                     print("GAN: loss d: %.5f    loss g: %.5f"%(err_dr_real, -err_g.item()))
 
+                return True
+                
                 del real_images
                 del real_labels
                 del x_mb
