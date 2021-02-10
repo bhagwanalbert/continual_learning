@@ -163,11 +163,11 @@ def train(args):
     # test_x = preprocess_imgs(test_x, norm=False, symmetric = False)
     # test_x_proc = torch.zeros([test_x.size(0),test_x.size(1),im_size,im_size]).type(torch.FloatTensor)
 
-    for im in range(test_x.shape[0]):
-        im_proc = data_transforms_test((test_x[im]).cpu())
-        test_x_proc[im] = im_proc.type(torch.FloatTensor)
-    del test_x
-    torch.cuda.empty_cache()
+    # for im in range(test_x.shape[0]):
+    #     im_proc = data_transforms_test((test_x[im]).cpu())
+    #     test_x_proc[im] = im_proc.type(torch.FloatTensor)
+    # del test_x
+    # torch.cuda.empty_cache()
 
     netG = Generator(ngf=ngf, nz=nz, im_size=im_size)
     netG.apply(weights_init)
