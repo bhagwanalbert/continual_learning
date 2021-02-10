@@ -378,8 +378,6 @@ def train(args):
 
             for it in range(it_x_ep):
 
-                continue
-
                 if i != 0:
                     real_images = [0]*num_accumulations
                     real_labels = [0]*num_accumulations
