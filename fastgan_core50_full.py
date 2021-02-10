@@ -178,8 +178,6 @@ def train(args):
     netG = netG.to(device)
     netD = netD.to(device)
 
-    return True
-
     avg_param_G = copy_G_params(netG)
 
     fixed_noise = torch.FloatTensor(n_imag*n_class, nz).normal_(0, 1)
