@@ -290,8 +290,8 @@ def train(args):
                 prev_x_proc[im] = im_proc.type(torch.FloatTensor)
 
             prev_x = prev_x_proc
-            del prev_x_proc
-            torch.cuda.empty_cache()
+            # del prev_x_proc
+            # torch.cuda.empty_cache()
 
         # Add images from previous generator
         if i != 0:
@@ -334,9 +334,9 @@ def train(args):
                             idx += 1
                     prev_x = prev_x_filt
                     prev_y = prev_y_filt
-                    del prev_x_filt
-                    del prev_y_filt
-                    torch.cuda.empty_cache()
+                    # del prev_x_filt
+                    # del prev_y_filt
+                    # torch.cuda.empty_cache()
                     # writer.add_image("Previous images", vutils.make_grid(prev_x, nrow=prev_imag, padding=2, normalize=True))
                     writer.add_image("Previous images", vutils.make_grid(prev_x, nrow=prev_imag, padding=2, normalize=True))
                     writer.close()
@@ -362,14 +362,14 @@ def train(args):
         for im in range(train_x.shape[0]):
             im_proc = data_transforms((train_x[im]).cpu())
             train_x_proc[im] = im_proc.type(torch.FloatTensor)
-        del train_x
-        torch.cuda.empty_cache()
+        # del train_x
+        # torch.cuda.empty_cache()
         if i != 0:
             for im in range(prev_x.shape[0]):
                 im_proc = data_transforms((prev_x[im]).cpu())
                 prev_x_proc[im] = im_proc.type(torch.FloatTensor)
-            del prev_x
-            torch.cuda.empty_cache()
+            # del prev_x
+            # torch.cuda.empty_cache()
 
         for ep in range(num_epochs):
             print("training ep: ", ep)
@@ -396,9 +396,9 @@ def train(args):
                             real_images[n] = torch.cat((real_images[n], prev_x_aux[indexes].to(device)))
                             real_labels[n] = torch.cat((real_labels[n], prev_y_aux[indexes].to(device)))
 
-                        del prev_x_aux
-                        del prev_y_aux
-                        torch.cuda.empty_cache()
+                        # del prev_x_aux
+                        # del prev_y_aux
+                        # torch.cuda.empty_cache()
 
                         indexes = np.random.permutation(real_labels[n].size(0))
 
@@ -558,7 +558,7 @@ def train(args):
         # del train_x_proc
         # if i != 0:
         #     del prev_x_proc
-        torch.cuda.empty_cache()
+        # torch.cuda.empty_cache()
         if cumulative:
             if i!= 0:
                 prev_x = torch.cat((save_prev_x,add_prev_x))
