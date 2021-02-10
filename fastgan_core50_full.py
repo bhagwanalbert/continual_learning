@@ -115,7 +115,7 @@ def train(args):
     dataloader_workers = 8
     start_batch = 0
     num_epochs = 100
-    inum_epochs = 20
+    inum_epochs = 1
     n_imag = 5
     prev_imag = 10
     n_im_mb = 1
@@ -502,14 +502,14 @@ def train(args):
                 if it % 20 == 0:
                     print("GAN: loss d: %.5f    loss g: %.5f"%(err_dr_real, -err_g.item()))
 
-                return True
-                
-                del real_images
-                del real_labels
-                del x_mb
-                del y_mb
-                del fake_images
-                torch.cuda.empty_cache()
+                # return True
+                #
+                # del real_images
+                # del real_labels
+                # del x_mb
+                # del y_mb
+                # del fake_images
+                # torch.cuda.empty_cache()
 
             tot_it_step +=1
 
