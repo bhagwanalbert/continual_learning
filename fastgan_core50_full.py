@@ -193,7 +193,7 @@ def train(args):
 
     fixed_noise_ = (torch.from_numpy(fixed_noise_))
     fixed_noise.data.copy_(fixed_noise_.view(n_imag*n_class, nz))
-    fixed_noise = maybe_cuda(fixed_noise, use_cuda=use_cuda).to(device)
+    fixed_noise = fixed_noise.to(device)
 
     if multi_gpu:
         netG = nn.DataParallel(netG,device_ids=[5, 0, 1, 2, 3, 4])
@@ -307,10 +307,10 @@ def train(args):
                 prev_noise_[np.arange(prev_imag*len(prev_label)), :n_class] = prev_onehot[np.arange(prev_imag*len(prev_label))]
                 prev_noise_ = (torch.from_numpy(prev_noise_))
                 prev_noise.data.copy_(prev_noise_.view(prev_imag*len(prev_label), nz))
-                prev_noise = maybe_cuda(prev_noise, use_cuda=use_cuda).to(device)
+                prev_noise = prev_noise.to(device)
 
                 prev_y = ((torch.from_numpy(np.repeat(prev_label,prev_imag))).long())
-                prev_y = maybe_cuda(prev_y, use_cuda=use_cuda).to(device)
+                prev_y = prev_y.to(device)
 
                 backup_para = copy_G_params(netG)
                 load_params(netG, avg_param_G)
@@ -324,9 +324,9 @@ def train(args):
                     print(correct_prev.item()/prev_y.size(0))
                     # writer.add_image("Previous images", vutils.make_grid(prev_x, nrow=prev_imag, padding=2, normalize=True))
                     prev_x_filt = torch.zeros([correct_prev.item(),prev_x.size(1),im_size,im_size]).type(torch.FloatTensor)
-                    prev_x_filt = maybe_cuda(prev_x_filt, use_cuda=use_cuda).to(device)
+                    prev_x_filt = prev_x_filt.to(device)
                     prev_y_filt = torch.zeros([correct_prev.item()]).type(torch.LongTensor)
-                    prev_y_filt = maybe_cuda(prev_y_filt, use_cuda=use_cuda).to(device)
+                    prev_y_filt = prev_y_filt.to(device)
                     idx = 0
                     for f in range(filter.size(0)):
                         prev_x[f] = filter[f]*prev_x[f]
@@ -386,15 +386,15 @@ def train(args):
                     for n in range(num_accumulations):
                         start = (it*num_accumulations + n) * n_im_mb*factor
                         end = (it*num_accumulations + n + 1) * n_im_mb*factor
-                        real_images[n] = maybe_cuda(train_x_proc[start:end], use_cuda=use_cuda).to(device)
-                        real_labels[n] = maybe_cuda(train_y[start:end], use_cuda=use_cuda).to(device)
+                        real_images[n] = train_x_proc[start:end].to(device)
+                        real_labels[n] = train_y[start:end].to(device)
 
                         for c in prev_label:
                             prev_x_aux = prev_x_proc[prev_y.cpu().numpy() == c]
                             prev_y_aux = prev_y[prev_y.cpu().numpy() == c]
                             indexes = np.random.randint(0, (prev_x_aux.size(0)), size = n_im_mb)
-                            real_images[n] = torch.cat((real_images[n], maybe_cuda(prev_x_aux[indexes], use_cuda=use_cuda).to(device)))
-                            real_labels[n] = torch.cat((real_labels[n], maybe_cuda(prev_y_aux[indexes], use_cuda=use_cuda).to(device)))
+                            real_images[n] = torch.cat((real_images[n], prev_x_aux[indexes].to(device)))
+                            real_labels[n] = torch.cat((real_labels[n], prev_y_aux[indexes].to(device)))
 
                         del prev_x_aux
                         del prev_y_aux
@@ -411,8 +411,8 @@ def train(args):
                     for n in range(num_accumulations):
                         start = (it*num_accumulations + n) * batch_size
                         end = (it*num_accumulations + n + 1) * batch_size
-                        real_images[n] = maybe_cuda(train_x_proc[start:end], use_cuda=use_cuda).to(device)
-                        real_labels[n] = maybe_cuda(train_y[start:end], use_cuda=use_cuda).to(device)
+                        real_images[n] = train_x_proc[start:end].to(device)
+                        real_labels[n] = train_y[start:end].to(device)
 
                         indexes = np.random.permutation(real_labels[n].size(0))
 
@@ -434,10 +434,10 @@ def train(args):
                     noise_[np.arange(current_batch_size), :n_class] = onehot[np.arange(current_batch_size)]
                     noise_ = (torch.from_numpy(noise_))
                     noise.data.copy_(noise_.view(current_batch_size, nz))
-                    noise = maybe_cuda(noise, use_cuda=use_cuda).to(device)
+                    noise = noise.to(device)
 
                     label = ((torch.from_numpy(label)).long())
-                    label = maybe_cuda(label, use_cuda=use_cuda).to(device)
+                    label = label.to(device)
 
                     fake_images = netG(noise)
 
@@ -474,10 +474,10 @@ def train(args):
                     noise_[np.arange(current_batch_size), :n_class] = onehot[np.arange(current_batch_size)]
                     noise_ = (torch.from_numpy(noise_))
                     noise.data.copy_(noise_.view(current_batch_size, nz))
-                    noise = maybe_cuda(noise, use_cuda=use_cuda).to(device)
+                    noise = noise.to(device)
 
                     label = ((torch.from_numpy(label)).long())
-                    label = maybe_cuda(label, use_cuda=use_cuda).to(device)
+                    label = label.to(device)
 
 
                     fake_images = netG(noise)
@@ -513,11 +513,11 @@ def train(args):
 
             tot_it_step +=1
 
-            ave_loss, acc, accs = get_accuracy_custom(netD, class_loss, 15, test_x_proc, test_y, device, use_cuda)
-            # print(accs)
-
-            writer.add_scalar('test_loss', ave_loss, tot_it_step)
-            writer.add_scalar('test_accuracy', acc, tot_it_step)
+            # ave_loss, acc, accs = get_accuracy_custom(netD, class_loss, 15, test_x_proc, test_y, device, use_cuda)
+            # # print(accs)
+            #
+            # writer.add_scalar('test_loss', ave_loss, tot_it_step)
+            # writer.add_scalar('test_accuracy', acc, tot_it_step)
             writer.add_scalar('class_accuracy', class_acc, tot_it_step)
             writer.add_scalar('generator_loss', -err_g.item(), tot_it_step)
             writer.add_scalar('generator_class_loss', err_class_gen, tot_it_step)
