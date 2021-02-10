@@ -277,8 +277,6 @@ def train(args):
         # writer.add_image("Training images", vutils.make_grid(training_examples, nrow=n_imag, padding=2, normalize=True).cpu())
         # writer.close()
 
-        return True
-
         train_x_proc = torch.zeros([train_x.size(0),train_x.size(1),im_size,im_size]).type(torch.FloatTensor)
         for im in range(train_x.shape[0]):
             im_proc = data_transforms_aux((train_x[im]).cpu())
@@ -372,6 +370,8 @@ def train(args):
                 prev_x_proc[im] = im_proc.type(torch.FloatTensor)
             del prev_x
             torch.cuda.empty_cache()
+
+        return True
 
         for ep in range(num_epochs):
             print("training ep: ", ep)
