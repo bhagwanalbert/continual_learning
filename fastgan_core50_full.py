@@ -455,13 +455,13 @@ def train(args):
 
                     data_encountered += current_batch_size
 
+                    return True
+
                     err_dr_real, _, _, _, err_class_real = train_d(netD, x_mb, y_mb, percept, label="real")
                     class_acc = correct_cnt.item() / data_encountered
                     err_dr_fake = train_d(netD, [fi.detach() for fi in fake_images], label, percept, label="fake")
 
                 optimizerD.step()
-
-                return True
 
                 ## 3. train Generator
                 netG.zero_grad()
