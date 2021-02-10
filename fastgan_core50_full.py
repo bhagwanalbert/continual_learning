@@ -449,6 +449,10 @@ def train(args):
                     #     writer.add_image("Minibatch data: batch "+str(i), images_with_labels(real_images[n],real_labels[n]), (it*num_accumulations + n))
                     #     writer.close()
 
+                    print(noise.device)
+                    print(netG.weights.device)
+                    print(fake_images.device)
+
                     return True
 
                     x_mb = DiffAugment(real_images[n], policy=policy)
