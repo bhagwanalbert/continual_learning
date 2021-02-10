@@ -175,8 +175,8 @@ def train(args):
     netD = Discriminator(ndf=ndf, im_size=im_size, n_class=n_class)
     netD.apply(weights_init)
 
-    netG = maybe_cuda(netG, use_cuda=use_cuda).to(device)
-    netD = maybe_cuda(netD, use_cuda=use_cuda).to(device)
+    netG = netG.to(device)
+    netD = netD.to(device)
 
     return True
 
