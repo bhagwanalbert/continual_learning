@@ -58,6 +58,7 @@ class DistModel(BaseModel):
         if(self.model == 'net-lin'): # pretrained net + linear layer
             self.net = networks.PNetLin(pnet_rand=pnet_rand, pnet_tune=pnet_tune, pnet_type=net,
                 use_dropout=True, spatial=spatial, version=version, lpips=True)
+            print(self.net.device)
             kw = {}
             if not use_gpu:
                 kw['map_location'] = 'cpu'
@@ -81,6 +82,7 @@ class DistModel(BaseModel):
             raise ValueError("Model [%s] not recognized." % self.model)
 
         self.parameters = list(self.net.parameters())
+        print(self.parameters.device)
 
         if self.is_train: # training mode
             # extra network on top to go from distances (d0,d1) => predicted human judgment (h*)
@@ -95,6 +97,7 @@ class DistModel(BaseModel):
         if(use_gpu):
             self.net.to(gpu_ids[0])
             self.net = torch.nn.DataParallel(self.net, device_ids=gpu_ids)
+            print(self.net.device)
             if(self.is_train):
                 self.rankLoss = self.rankLoss.to(device=gpu_ids[0]) # just put this on GPU0
 
