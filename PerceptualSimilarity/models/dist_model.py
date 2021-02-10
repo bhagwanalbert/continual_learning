@@ -58,13 +58,13 @@ class DistModel(BaseModel):
         if(self.model == 'net-lin'): # pretrained net + linear layer
             self.net = networks.PNetLin(pnet_rand=pnet_rand, pnet_tune=pnet_tune, pnet_type=net,
                 use_dropout=True, spatial=spatial, version=version, lpips=True)
-            # kw = {}
-            # if not use_gpu:
-            #     kw['map_location'] = 'cpu'
-            # if(model_path is None):
-            #     import inspect
-            #     model_path = os.path.abspath(os.path.join(inspect.getfile(self.initialize), '..', 'weights/v%s/%s.pth'%(version,net)))
-            #
+            kw = {}
+            if not use_gpu:
+                kw['map_location'] = 'cpu'
+            if(model_path is None):
+                import inspect
+                model_path = os.path.abspath(os.path.join(inspect.getfile(self.initialize), '..', 'weights/v%s/%s.pth'%(version,net)))
+            
             # if(not is_train):
             #     print('Loading model from: %s'%model_path)
             #     self.net.load_state_dict(torch.load(model_path, **kw), strict=False)
