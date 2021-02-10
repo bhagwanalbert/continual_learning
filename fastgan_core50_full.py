@@ -222,8 +222,6 @@ def train(args):
     # ave_loss, acc, accs = get_accuracy_custom(netD, class_loss, 15, test_x_proc, test_y, device, use_cuda)
     #print(accs)
 
-    return True
-
     # Training Loop
     print("Starting Training Loop...")
     tot_it_step = 0
@@ -278,6 +276,8 @@ def train(args):
         vutils.save_image(training_examples, saved_image_folder+'/training'+'/%d_0.jpg'%i, nrow=n_imag)
         # writer.add_image("Training images", vutils.make_grid(training_examples, nrow=n_imag, padding=2, normalize=True).cpu())
         # writer.close()
+
+        return True
 
         train_x_proc = torch.zeros([train_x.size(0),train_x.size(1),im_size,im_size]).type(torch.FloatTensor)
         for im in range(train_x.shape[0]):
