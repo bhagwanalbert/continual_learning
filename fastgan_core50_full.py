@@ -169,8 +169,6 @@ def train(args):
     # del test_x
     # torch.cuda.empty_cache()
 
-    return True
-
     netG = Generator(ngf=ngf, nz=nz, im_size=im_size)
     netG.apply(weights_init)
 
@@ -223,6 +221,8 @@ def train(args):
 
     # ave_loss, acc, accs = get_accuracy_custom(netD, class_loss, 15, test_x_proc, test_y, device, use_cuda)
     #print(accs)
+
+    return True
 
     # Training Loop
     print("Starting Training Loop...")
