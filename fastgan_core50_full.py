@@ -520,9 +520,9 @@ def train(args):
             #
             # writer.add_scalar('test_loss', ave_loss, tot_it_step)
             # writer.add_scalar('test_accuracy', acc, tot_it_step)
-            writer.add_scalar('class_accuracy', class_acc, tot_it_step)
-            writer.add_scalar('generator_loss', -err_g.item(), tot_it_step)
-            writer.add_scalar('generator_class_loss', err_class_gen, tot_it_step)
+            # writer.add_scalar('class_accuracy', class_acc, tot_it_step)
+            # writer.add_scalar('generator_loss', -err_g.item(), tot_it_step)
+            # writer.add_scalar('generator_class_loss', err_class_gen, tot_it_step)
             # writer.add_scalar('discriminator_real_loss', err_dr_real, tot_it_step)
             # writer.add_scalar('discriminator_fake_loss', err_dr_fake, tot_it_step)
             # writer.add_scalar('discriminator_class_real_loss', err_class_real, tot_it_step)
