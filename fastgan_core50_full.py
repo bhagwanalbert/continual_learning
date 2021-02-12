@@ -122,6 +122,7 @@ def train(args):
     factor = 3
     cumulative = True
     num_accumulations = args.num_acc
+    loss_norm = args.loss_norm
 
     percept = models.PerceptualLoss(model='net-lin', net='vgg', use_gpu=True, gpu_ids=[args.cuda])
 
@@ -490,8 +491,10 @@ def train(args):
                     if i == 0:
                         err_g = -pred_g.mean() + err_class_gen
                     else:
-                        # err_g = -pred_g.mean() + err_class_gen
-                        err_g = -pred_g.mean() + 0.05*err_class_gen*(-pred_g.mean().detach())/(err_class_gen.detach()+eps)
+                        if loss_norm:
+                            err_g = -pred_g.mean() + 0.05*err_class_gen*(-pred_g.mean().detach())/(err_class_gen.detach()+eps)
+                        else:
+                            err_g = -pred_g.mean() + err_class_gen
 
                     err_g.backward()
 
@@ -592,6 +595,7 @@ if __name__ == "__main__":
     parser.add_argument('--im_size', type=int, default=256, help='image resolution')
     parser.add_argument('--ckpt', type=str, default='None', help='checkpoint weight path')
     parser.add_argument('--num_acc', type=int, default=4, help='number of gradient accumulations')
+    parser.add_argument('--loss_norm', type=bool, default=True, help='normalize loss of generator')
 
     args = parser.parse_args()
     print(args)
