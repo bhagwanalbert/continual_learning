@@ -102,6 +102,7 @@ def train(args):
     checkpoint = args.ckpt
     batch_size = args.batch_size
     im_size = args.im_size
+    lr_factor = args.lr_factor
     device = 'cuda:' + str(args.cuda)
     ckpt_device = 'cuda:' + str(args.ckpt_cuda)
     ndf = 64
@@ -109,7 +110,7 @@ def train(args):
     n_class = 50
     nz = 256 + n_class
     nlr = 0.0002
-    ilr = nlr/4
+    ilr = nlr/lr_factor
     nbeta1 = 0.5
     use_cuda = True
     multi_gpu = False
@@ -598,6 +599,7 @@ if __name__ == "__main__":
     parser.add_argument('--ckpt', type=str, default='None', help='checkpoint weight path')
     parser.add_argument('--num_acc', type=int, default=4, help='number of gradient accumulations')
     parser.add_argument('--loss_norm', type=bool, default=True, help='normalize loss of generator')
+    parser.add_argument('--lr_factor', type=int, default=4, help='factor of incremental lr wrt first one')
 
     args = parser.parse_args()
     print(args)
