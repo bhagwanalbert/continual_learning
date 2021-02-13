@@ -103,6 +103,7 @@ def train(args):
     batch_size = args.batch_size
     im_size = args.im_size
     device = 'cuda:' + str(args.cuda)
+    ckpt_device = 'cuda:' + str(args.ckpt_cuda)
     ndf = 64
     ngf = 64
     n_class = 50
@@ -203,7 +204,7 @@ def train(args):
 
     enc_classes = {i:0 for i in range(n_class)}
     if checkpoint != 'None':
-        ckpt = torch.load(saved_model_folder+"/"+checkpoint)
+        ckpt = torch.load(saved_model_folder+"/"+checkpoint, map_location={ckpt_device:device})
         if not multi_gpu:
             netG.load_state_dict(dict(zip(netG.state_dict().keys(), ckpt['g'].values())))
             netD.load_state_dict(dict(zip(netD.state_dict().keys(), ckpt['d'].values())))
@@ -589,6 +590,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='region gan')
 
     parser.add_argument('--cuda', type=int, default=5, help='index of gpu to use')
+    parser.add_argument('--ckpt_cuda', type=int, default=5, help='index of gpu of checkpoint')
     parser.add_argument('--name', type=str, default='test1', help='experiment name')
     parser.add_argument('--start_iter', type=int, default=0, help='the iteration to start training')
     parser.add_argument('--batch_size', type=int, default=15, help='mini batch number of images')
