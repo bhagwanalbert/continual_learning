@@ -122,7 +122,7 @@ def train(args):
     prev_imag = 10
     n_im_mb = 1
     factor = 3
-    cumulative = True
+    cumulative = args.cumulative
     num_accumulations = args.num_acc
     loss_norm = args.loss_norm
 
@@ -299,6 +299,10 @@ def train(args):
         # Add images from previous generator
         if i != 0:
             prev_label = np.array(list({x:enc_classes[x] for x in enc_classes if enc_classes[x]==1}.keys()))
+            if train_y[0].item() in prev_label:
+                curr_num_epochs = inum_epochs
+            else:
+                curr_num_epochs = num_epochs
             if not cumulative:
                 # Compute noise to generate previous learnt images
                 prev_noise = torch.FloatTensor(prev_imag*len(prev_label), nz).normal_(0, 1)
@@ -356,9 +360,9 @@ def train(args):
         if i != 0:
             prev_x_proc = torch.zeros([prev_x.size(0),prev_x.size(1),im_size,im_size]).type(torch.FloatTensor)
             current_batch_size = (prev_label.size + factor)*n_im_mb
-            num_epochs = inum_epochs
             it_x_ep = train_x.size(0) // (n_im_mb*factor*num_accumulations)
         else:
+            curr_num_epochs = num_epochs
             it_x_ep = train_x.size(0) // (batch_size*num_accumulations)
         print(it_x_ep)
 
@@ -374,7 +378,7 @@ def train(args):
             # del prev_x
             # torch.cuda.empty_cache()
 
-        for ep in range(num_epochs):
+        for ep in range(curr_num_epochs):
             print("training ep: ", ep)
             data_encountered = 0
             correct_cnt = 0
@@ -550,7 +554,7 @@ def train(args):
             # load_params(netG, avg_param_G)
             # torch.save({'g':netG.state_dict(),'d':netD.state_dict()}, saved_model_folder+'/%d_%d.pth'%(i,ep))
             # load_params(netG, backup_para)
-            if (ep == num_epochs - 1) and i == 0:
+            if (ep == curr_num_epochs - 1) and i == 0:
                 print("saving in: /all_%d_%d.pth"%(i,ep))
                 torch.save({'g':netG.state_dict(),
                             'd':netD.state_dict(),
@@ -600,6 +604,7 @@ if __name__ == "__main__":
     parser.add_argument('--num_acc', type=int, default=4, help='number of gradient accumulations')
     parser.add_argument('--loss_norm', type=bool, default=True, help='normalize loss of generator')
     parser.add_argument('--lr_factor', type=int, default=4, help='factor of incremental lr wrt first one')
+    parser.add_argument('--cumulative', type=bool, default=True, help='use previous real images')
 
     args = parser.parse_args()
     print(args)
