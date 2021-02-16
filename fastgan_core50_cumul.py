@@ -393,21 +393,18 @@ def train(args):
                 # del fake_images
                 # torch.cuda.empty_cache()
 
-            tot_it_step +=1
+                tot_it_step +=1
+
+                writer.add_scalar('class_accuracy', class_acc, tot_it_step)
+                writer.add_scalar('generator_loss', -err_g.item(), tot_it_step)
+                writer.add_scalar('generator_class_loss', err_class_gen, tot_it_step)
+                writer.close()
 
             ave_loss, acc, accs = get_accuracy_custom(netD, class_loss, 15, test_x_proc, test_y, device, use_cuda)
             # print(accs)
 
-            writer.add_scalar('test_loss', ave_loss, tot_it_step)
-            writer.add_scalar('test_accuracy', acc, tot_it_step)
-            writer.add_scalar('class_accuracy', class_acc, tot_it_step)
-            writer.add_scalar('generator_loss', -err_g.item(), tot_it_step)
-            writer.add_scalar('generator_class_loss', err_class_gen, tot_it_step)
-            # writer.add_scalar('discriminator_real_loss', err_dr_real, tot_it_step)
-            # writer.add_scalar('discriminator_fake_loss', err_dr_fake, tot_it_step)
-            # writer.add_scalar('discriminator_class_real_loss', err_class_real, tot_it_step)
-            # writer.add_scalar('discriminator_class_fake_loss', err_class_fake, tot_it_step)
-
+            writer.add_scalar('test_loss', ave_loss, ep)
+            writer.add_scalar('test_accuracy', acc, ep)
             writer.close()
 
             backup_para = copy_G_params(netG)
@@ -418,11 +415,11 @@ def train(args):
                 # writer.add_image("Generated images C20-29", vutils.make_grid(netG(fixed_noise[n_imag*20:n_imag*30])[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
                 # writer.add_image("Generated images C30-39", vutils.make_grid(netG(fixed_noise[n_imag*30:n_imag*40])[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
                 # writer.add_image("Generated images C40-49", vutils.make_grid(netG(fixed_noise[n_imag*40:n_imag*50])[0].add(1).mul(0.5), nrow=n_imag, padding=2, normalize=True))
-                vutils.save_image(netG(fixed_noise[0:n_imag*10])[0].add(1).mul(0.5), saved_image_folder+'/generated'+'/%d_0.jpg'%i, nrow=n_imag)
-                vutils.save_image(netG(fixed_noise[n_imag*10:n_imag*20])[0].add(1).mul(0.5), saved_image_folder+'/generated'+'/%d_1.jpg'%i, nrow=n_imag)
-                vutils.save_image(netG(fixed_noise[n_imag*20:n_imag*30])[0].add(1).mul(0.5), saved_image_folder+'/generated'+'/%d_2.jpg'%i, nrow=n_imag)
-                vutils.save_image(netG(fixed_noise[n_imag*30:n_imag*40])[0].add(1).mul(0.5), saved_image_folder+'/generated'+'/%d_3.jpg'%i, nrow=n_imag)
-                vutils.save_image(netG(fixed_noise[n_imag*40:n_imag*50])[0].add(1).mul(0.5), saved_image_folder+'/generated'+'/%d_4.jpg'%i, nrow=n_imag)
+                vutils.save_image(netG(fixed_noise[0:n_imag*10])[0].add(1).mul(0.5), saved_image_folder+'/generated'+'/%d_0.jpg'%ep, nrow=n_imag)
+                vutils.save_image(netG(fixed_noise[n_imag*10:n_imag*20])[0].add(1).mul(0.5), saved_image_folder+'/generated'+'/%d_1.jpg'%ep, nrow=n_imag)
+                vutils.save_image(netG(fixed_noise[n_imag*20:n_imag*30])[0].add(1).mul(0.5), saved_image_folder+'/generated'+'/%d_2.jpg'%ep, nrow=n_imag)
+                vutils.save_image(netG(fixed_noise[n_imag*30:n_imag*40])[0].add(1).mul(0.5), saved_image_folder+'/generated'+'/%d_3.jpg'%ep, nrow=n_imag)
+                vutils.save_image(netG(fixed_noise[n_imag*40:n_imag*50])[0].add(1).mul(0.5), saved_image_folder+'/generated'+'/%d_4.jpg'%ep, nrow=n_imag)
                 # writer.close()
             load_params(netG, backup_para)
 
