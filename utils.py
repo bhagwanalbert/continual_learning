@@ -234,9 +234,7 @@ def get_accuracy_custom(model, criterion, batch_size, test_x, test_y, device,
 
             pred, classes = model(x, "test", device=device)
 
-            loss = F.relu( torch.rand_like(pred) * 0.2 + 0.8 + pred).mean()
-            conditioned_loss = criterion(torch.log(classes+eps),y)
-            loss += conditioned_loss
+            loss = criterion(torch.log(classes+eps),y)
 
             _, pred_label = torch.max(classes, 1)
             correct_cnt += (pred_label == y).sum()
