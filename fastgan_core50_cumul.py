@@ -393,12 +393,12 @@ def train(args):
                 # del fake_images
                 # torch.cuda.empty_cache()
 
-                tot_it_step +=1
+            tot_it_step +=1
 
-                writer.add_scalar('class_accuracy', class_acc, tot_it_step)
-                writer.add_scalar('generator_loss', -err_g.item(), tot_it_step)
-                writer.add_scalar('generator_class_loss', err_class_gen, tot_it_step)
-                writer.close()
+            writer.add_scalar('class_accuracy', class_acc, tot_it_step)
+            writer.add_scalar('generator_loss', -err_g.item(), tot_it_step)
+            writer.add_scalar('generator_class_loss', err_class_gen, tot_it_step)
+            writer.close()
 
             ave_loss, acc, accs = get_accuracy_custom(netD, class_loss, 15, test_x_proc, test_y, device, use_cuda)
             # print(accs)
