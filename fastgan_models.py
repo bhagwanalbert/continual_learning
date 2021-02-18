@@ -277,13 +277,13 @@ class Discriminator(nn.Module):
             rec_img_part = None
             hw = 8
             if part==0:
-                rec_img_part = self.decoder_part(feat_32[:,:,(hw-hw/2-1):(hw+hw/2-1),(hw-hw/2-1):(hw+hw/2-1)])
+                rec_img_part = self.decoder_part(feat_32[:,:,(hw-hw//2-1):(hw+hw//2-1),(hw-hw//2-1):(hw+hw//2-1)])
             if part==1:
-                rec_img_part = self.decoder_part(feat_32[:,:,(hw-hw/2-1):(hw+hw/2-1),(hw-hw/2+1):(hw+hw/2+1)])
+                rec_img_part = self.decoder_part(feat_32[:,:,(hw-hw//2-1):(hw+hw//2-1),(hw-hw//2+1):(hw+hw//2+1)])
             if part==2:
-                rec_img_part = self.decoder_part(feat_32[:,:,(hw-hw/2+1):(hw+hw/2+1),(hw-hw/2-1):(hw+hw/2-1)])
+                rec_img_part = self.decoder_part(feat_32[:,:,(hw-hw//2+1):(hw+hw//2+1),(hw-hw//2-1):(hw+hw//2-1)])
             if part==3:
-                rec_img_part = self.decoder_part(feat_32[:,:,(hw-hw/2+1):(hw+hw/2+1),(hw-hw/2+1):(hw+hw/2+1)])
+                rec_img_part = self.decoder_part(feat_32[:,:,(hw-hw//2+1):(hw+hw//2+1),(hw-hw//2+1):(hw+hw//2+1)])
 
             return torch.cat([rf_0, rf_1], dim=1).to(device) , [rec_img_big.to(device), rec_img_small.to(device), rec_img_part.to(device)], classes.to(device)
 
