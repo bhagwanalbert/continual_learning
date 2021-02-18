@@ -37,7 +37,7 @@ class_names10 = ["plug", "mobile", "scissors", "bulb", "can", "glasses", "ball",
 
 def crop_image_by_part(image, part):
     hw = image.shape[2]//2
-    factor = 256/16
+    factor = 256//16
     if part==0:
         return image[:,:,(hw-hw//2-factor):(hw+hw//2-factor),(hw-hw//2-factor):(hw+hw//2-factor)]
     if part==1:
