@@ -12,6 +12,27 @@ class Interpolate(nn.Module):
         x = self.interp(x, size=self.size, mode=self.mode, align_corners=True)
         return x
 
+class generator_feat(nn.Module):
+
+    #generator model
+    def __init__(self,nz,ngf=64):
+        super(generator_feat,self).__init__()
+
+        self.main = nn.Sequential(
+            # input is Z, going into a convolution
+            nn.ConvTranspose2d( nz, ngf * 16, 4, 1, 0, bias=False),
+            nn.BatchNorm2d(ngf * 16),
+            nn.LeakyReLU(0.2, inplace=True),
+            # state size. (ngf*16) x 4 x 4
+            nn.ConvTranspose2d(ngf * 16, ngf * 8, 4, 2, 1, bias=False),
+            nn.BatchNorm2d(ngf * 8),
+            nn.LeakyReLU(0.2, inplace=True),
+            # state size. (ngf*8) x 8 x 8
+        )
+
+    def forward(self,input):
+    	return self.main(input)
+
 class generator(nn.Module):
 
     #generator model

@@ -30,6 +30,8 @@ import configparser
 import argparse
 from pprint import pprint
 from torch.utils.tensorboard import SummaryWriter
+from models.generator import generator_feat
+from models.discriminator import conditioned_discriminator_feat
 
 # --------------------------------- Setup --------------------------------------
 
@@ -85,6 +87,7 @@ rm = None
 
 # Create the dataset object
 dataset = CORE50(root='/home/abhagwan/datasets/core50', scenario="nicv2_391")
+n_class = 50
 preproc = preprocess_imgs
 
 # Get the fixed test set
@@ -98,8 +101,8 @@ replace_bn_with_brn(
     max_r_max=max_r_max, max_d_max=max_d_max
 )
 model.saved_weights = {}
-model.past_j = {i:0 for i in range(50)}
-model.cur_j = {i:0 for i in range(50)}
+model.past_j = {i:0 for i in range(n_class)}
+model.cur_j = {i:0 for i in range(n_class)}
 if reg_lambda != 0:
     # the regularization is based on Synaptic Intelligence as described in the
     # paper. ewcData is a list of two elements (best parametes, importance)
@@ -112,10 +115,34 @@ optimizer = torch.optim.SGD(
 )
 criterion = torch.nn.CrossEntropyLoss()
 
+# GAN stuff
+gan_lr = 0.0001
+nz = 100 + n_class
+gan_train_ep = 100
+
+disc = conditioned_discriminator_feat(num_classes=n_class)
+gen = generator(nz)
+
+disc = maybe_cuda(disc, use_cuda=use_cuda)
+gen = maybe_cuda(gen, use_cuda=use_cuda)
+
+disc.apply(weights_init)
+gen.apply(weights_init)
+
+optimD = torch.optim.Adam(disc.parameters(), lr=gan_lr, betas=(0.5, 0.999))
+optimG = torch.optim.Adam(gen.parameters(), lr=gan_lr, betas=(0.5, 0.999))
+
+criterion_class = torch.nn.NLLLoss()
+criterion_source = torch.nn.BCELoss()
+
 # --------------------------------- Training -----------------------------------
 
 # loop over the training incremental batches
 for i, train_batch in enumerate(dataset):
+
+    # ABB: for the moment only train one batch
+    if i > 0:
+        break
 
     if reg_lambda != 0:
         init_batch(model, ewcData, synData)
@@ -286,6 +313,74 @@ for i, train_batch in enumerate(dataset):
     ave_loss, acc, accs = get_accuracy(
         model, criterion, mb_size, test_x, test_y, preproc=preproc
     )
+
+    for ep in range(gan_train_ep):
+        print("GAN training ep: ", ep)
+
+        for it in range(it_x_ep):
+
+            start = it * (mb_size - n2inject)
+            end = (it + 1) * (mb_size - n2inject)
+
+            x_mb = maybe_cuda(train_x[start:end], use_cuda=use_cuda)
+
+            # if i == 0:
+            lat_mb_x = None
+            y_mb = maybe_cuda(train_y[start:end], use_cuda=use_cuda)
+
+            # if lat_mb_x is not None, this tensor will be concatenated in
+            # the forward pass on-the-fly in the latent replay layer
+            with torch.no_grad():
+                _, real_feat = model(
+                    x_mb, latent_input=lat_mb_x, return_lat_acts=True)
+
+            optimD.zero_grad()
+            real_feat = maybe_cuda(real_feat, use_cuda=use_cuda)
+
+            classes, source = disc(real_feat)
+
+            # Labels indicating source of the image
+            real_label = maybe_cuda(torch.FloatTensor(y_mb.size(0)), use_cuda=use_cuda)
+            real_label.fill_(0.9)
+
+            fake_label = maybe_cuda(torch.FloatTensor(y_mb.size(0)), use_cuda=use_cuda)
+            fake_label.fill_(0.1)
+
+            lossDreal = criterion(classes, y_mb) + criterion_source(source, real_label)
+
+            lossDreal.backward()
+            optimD.step()
+
+            noise = torch.FloatTensor(y_mb.size(0), nz, 1, 1).normal_(0, 1)
+            noise_ = np.random.normal(0, 1, (y_mb.size(0), nz))
+            label = np.random.randint(0, n_class, y_mb.size(0))
+            onehot = np.zeros((y_mb.size(0), n_class))
+            onehot[np.arange(y_mb.size(0)), label] = 1
+            noise_[np.arange(y_mb.size(0)), :n_class] = onehot[np.arange(y_mb.size(0))]
+            noise_ = (torch.from_numpy(noise_))
+            noise.data.copy_(noise_.view(y_mb.size(0), nz, 1, 1))
+            noise = maybe_cuda(noise, use_cuda=use_cuda)
+
+            label = ((torch.from_numpy(label)).long())
+            label = maybe_cuda(label, use_cuda=use_cuda)
+
+            fake_feat = gen(noise)
+
+            classes, source = disc(fake_feat)
+
+            lossDfake = criterion_source(source, fake_label) + criterion(classes, label)
+
+            lossDfake.backward()
+            optimD.step()
+
+            optimG.zero_grad()
+
+            classes, source = disc(fake_feat)
+
+            lossG = criterion_source(source, real_label) + criterion(classes, label)
+
+            lossG.backward()
+            optimG.step()
 
     # Log scalar values (scalar summary) to TB
     writer.add_scalar('test_loss', ave_loss, i)
