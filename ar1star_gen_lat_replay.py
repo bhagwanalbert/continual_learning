@@ -132,7 +132,7 @@ disc.apply(weights_init)
 gen.apply(weights_init)
 
 optimD = torch.optim.Adam(disc.parameters(), lr=gan_lr, betas=(0.5, 0.999))
-optimG = torch.optim.Adam(gen.parameters(), lr=gan_lr, betas=(0.5, 0.999))
+optimG = torch.optim.Adam(gen.parameters(), lr=2*gan_lr, betas=(0.5, 0.999))
 
 criterion_class = torch.nn.NLLLoss()
 criterion_source = torch.nn.BCELoss()
