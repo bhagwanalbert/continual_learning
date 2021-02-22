@@ -406,9 +406,14 @@ for i, train_batch in enumerate(dataset):
             lossG.backward()
             optimG.step()
 
-            writer.add_scalar('D real training loss', lossDreal, ep)
-            writer.add_scalar('D fake training loss', lossDfake, ep)
-            writer.add_scalar('G training loss', lossG, ep)
+            writer.add_scalar('D real training loss', lossDreal, gan_tot_it)
+            writer.add_scalar('D fake training loss', lossDfake, gan_tot_it)
+            writer.add_scalar('G training loss', lossG, gan_tot_it)
+
+            acc_real = correct_real_cnt.item() / \
+                        ((it + 1) * y_mb.size(0))
+            acc_fake = correct_fake_cnt.item() / \
+                        ((it + 1) * y_mb.size(0))
 
             gan_tot_it += 1
 
@@ -418,10 +423,14 @@ for i, train_batch in enumerate(dataset):
                 logits = model(None, latent_input=test_feat)
                 _, pred_label = torch.max(classes, 1)
                 correct_test_cnt += (pred_label == c).sum()
+                print(pred_label)
+                print(c)
 
-        writer.add_scalar('GAN real training acc', correct_real_cnt, ep)
-        writer.add_scalar('GAN fake training acc', correct_fake_cnt, ep)
-        writer.add_scalar('GAN test acc', correct_test_cnt, ep)
+            acc_test = correct_test_cnt.item() / (n_imag*len(cur_class))
+
+        writer.add_scalar('GAN real training acc', acc_real, ep)
+        writer.add_scalar('GAN fake training acc', acc_fake, ep)
+        writer.add_scalar('GAN test acc', acc_test, ep)
 
     # Log scalar values (scalar summary) to TB
     writer.add_scalar('test_loss', ave_loss, i)
