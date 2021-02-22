@@ -151,6 +151,8 @@ for c in range(n_class):
     eval_noise.data.copy_(eval_noise_.view(n_imag, nz, 1, 1))
     fixed_noise[str(c)] = maybe_cuda(eval_noise, use_cuda=use_cuda)
 
+    print(fixed_noise[str(c)][:,c].sum())
+
 # --------------------------------- Training -----------------------------------
 
 # loop over the training incremental batches
@@ -420,6 +422,8 @@ for i, train_batch in enumerate(dataset):
         with torch.no_grad():
             for c in cur_class:
                 test_feat = gen(fixed_noise[str(c)])
+                print(fixed_noise[str(c)])
+
                 logits = model(None, latent_input=test_feat)
                 _, pred_label = torch.max(classes, 1)
                 correct_test_cnt += (pred_label == c).sum()
