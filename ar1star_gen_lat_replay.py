@@ -336,6 +336,8 @@ for i, train_batch in enumerate(dataset):
         correct_real_cnt = 0
         correct_fake_cnt = 0
         correct_test_cnt = 0
+        correct_src_real_cnt = 0
+        correct_src_fake_cnt = 0
 
         for it in range(it_x_ep):
 
@@ -360,6 +362,8 @@ for i, train_batch in enumerate(dataset):
             classes, source = disc(real_feat)
             _, pred_label = torch.max(classes, 1)
             correct_real_cnt += (pred_label == y_mb).sum()
+            pred_source = torch.round(source)
+            correct_src_real_cnt += (pred_source == 1).sum()
 
             # Labels indicating source of the image
             real_label = maybe_cuda(torch.FloatTensor(y_mb.size(0)), use_cuda=use_cuda)
@@ -391,6 +395,8 @@ for i, train_batch in enumerate(dataset):
             classes, source = disc(fake_feat.detach())
             _, pred_label = torch.max(classes, 1)
             correct_fake_cnt += (pred_label == label).sum()
+            pred_source = torch.round(source)
+            correct_src_fake_cnt += (pred_source == 1).sum()
 
             lossDfake = criterion_source(source, fake_label)# + criterion(classes, label)
 
@@ -414,6 +420,10 @@ for i, train_batch in enumerate(dataset):
                         ((it + 1) * y_mb.size(0))
             acc_fake = correct_fake_cnt.item() / \
                         ((it + 1) * y_mb.size(0))
+            acc_src_real = correct_src_real_cnt.item() / \
+                        ((it + 1) * y_mb.size(0))
+            acc_src_fake = correct_src_fake_cnt.item() / \
+                        ((it + 1) * y_mb.size(0))
 
             gan_tot_it += 1
 
@@ -431,6 +441,9 @@ for i, train_batch in enumerate(dataset):
         writer.add_scalar('GAN real training acc', acc_real, ep)
         writer.add_scalar('GAN fake training acc', acc_fake, ep)
         writer.add_scalar('GAN test acc', acc_test, ep)
+        writer.add_scalar('GAN real src acc', acc_src_real, ep)
+        writer.add_scalar('GAN fake src acc', acc_src_fake, ep)
+
 
     # Log scalar values (scalar summary) to TB
     writer.add_scalar('test_loss', ave_loss, i)
