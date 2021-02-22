@@ -44,7 +44,7 @@ args = parser.parse_args()
 
 # set cuda device (based on your hardware)
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+os.environ["CUDA_VISIBLE_DEVICES"] = "9"
 
 # recover config file for the experiment
 config = configparser.ConfigParser()
