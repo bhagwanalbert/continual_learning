@@ -25,15 +25,11 @@ import copy
 import os
 import json
 from models.mobilenet import MyMobilenetV1
-from models.discriminator import conditioned_discriminator
-from models.generator import generator
 from utils import *
 import configparser
 import argparse
 from pprint import pprint
 from torch.utils.tensorboard import SummaryWriter
-import torchvision.utils as vutils
-
 
 # --------------------------------- Setup --------------------------------------
 
@@ -45,7 +41,7 @@ args = parser.parse_args()
 
 # set cuda device (based on your hardware)
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+os.environ["CUDA_VISIBLE_DEVICES"] = "9"
 
 # recover config file for the experiment
 config = configparser.ConfigParser()
@@ -74,11 +70,6 @@ l2 = eval(exp_config['l2'])
 freeze_below_layer = eval(exp_config['freeze_below_layer'])
 latent_layer_num = eval(exp_config['latent_layer_num'])
 reg_lambda = eval(exp_config['reg_lambda'])
-nz = eval(exp_config['nz'])
-gan_epochs = eval(exp_config['gan_ep'])
-gan_mb_size = eval(exp_config['gan_mb_size'])
-gan_lr = eval(exp_config['gan_lr'])
-beta1 = eval(exp_config['gan_beta1'])
 
 # setting up log dir for tensorboard
 log_dir = 'logs/' + exp_name
@@ -91,8 +82,6 @@ writer.add_text("parameters", hyper, 0)
 # Other variables init
 tot_it_step = 0
 rm = None
-n_class = 50
-n_imag = 5
 
 # Create the dataset object
 dataset = CORE50(root='/home/abhagwan/datasets/core50', scenario="nicv2_391")
@@ -103,21 +92,14 @@ test_x, test_y = dataset.get_test_set()
 
 # Model setup
 model = MyMobilenetV1(pretrained=True, latent_layer_num=latent_layer_num)
-disc = conditioned_discriminator(num_classes=n_class)
-gen = generator(nz)
-
-disc.apply(weights_init)
-gen.apply(weights_init)
-trunc_normal = get_truncated_normal(mean=0, sd=1, low=-2, upp=2)
-
 # we replace BN layers with Batch Renormalization layers
 replace_bn_with_brn(
     model, momentum=init_update_rate, r_d_max_inc_step=inc_step,
     max_r_max=max_r_max, max_d_max=max_d_max
 )
 model.saved_weights = {}
-model.past_j = {i:0 for i in range(n_class)}
-model.cur_j = {i:0 for i in range(n_class)}
+model.past_j = {i:0 for i in range(50)}
+model.cur_j = {i:0 for i in range(50)}
 if reg_lambda != 0:
     # the regularization is based on Synaptic Intelligence as described in the
     # paper. ewcData is a list of two elements (best parametes, importance)
@@ -128,28 +110,7 @@ if reg_lambda != 0:
 optimizer = torch.optim.SGD(
     model.parameters(), lr=init_lr, momentum=momentum, weight_decay=l2
 )
-optimD = torch.optim.Adam(disc.parameters(), lr=gan_lr, betas=(beta1, 0.999))
-optimG = torch.optim.Adam(gen.parameters(), lr=gan_lr, betas=(beta1, 0.999))
-
 criterion = torch.nn.CrossEntropyLoss()
-criterion_class = torch.nn.NLLLoss()
-criterion_source = torch.nn.BCELoss()
-
-# Fix noise to view generated images
-eval_noise = torch.FloatTensor(n_imag*n_class, nz, 1, 1).normal_(0, 1)
-eval_noise_ = trunc_normal.rvs(n_imag*n_class*nz, 0)
-eval_noise_ = eval_noise_.reshape(n_imag*n_class,nz)
-eval_onehot = np.zeros((n_imag*n_class, n_class))
-
-for c in range(n_class):
-    eval_onehot[np.arange(n_imag*c,n_imag*(c+1)), c] = 1
-
-print(np.argmax(eval_onehot, axis=1))
-eval_noise_[np.arange(n_imag*n_class), :n_class] = eval_onehot[np.arange(n_imag*n_class)]
-
-eval_noise_ = (torch.from_numpy(eval_noise_))
-eval_noise.data.copy_(eval_noise_.view(n_imag*n_class, nz, 1, 1))
-eval_noise = maybe_cuda(eval_noise, use_cuda=use_cuda)
 
 # --------------------------------- Training -----------------------------------
 
@@ -163,7 +124,6 @@ for i, train_batch in enumerate(dataset):
     freeze_up_to(model, freeze_below_layer, only_conv=False)
 
     if i == 1:
-        # ABB: do somehing similar for optimG and optimD??
         change_brn_pars(
             model, momentum=inc_update_rate, r_d_max_inc_step=0,
             r_max=max_r_max, d_max=max_d_max)
@@ -172,7 +132,7 @@ for i, train_batch in enumerate(dataset):
         )
 
     train_x, train_y = train_batch
-    train_x = preproc(train_x, norm=True)
+    train_x = preproc(train_x)
 
     if i == 0:
         cur_class = [int(o) for o in set(train_y)]
@@ -196,8 +156,6 @@ for i, train_batch in enumerate(dataset):
     shuffle_in_unison([train_x, train_y], in_place=True)
 
     model = maybe_cuda(model, use_cuda=use_cuda)
-    gen = maybe_cuda(gen, use_cuda=use_cuda)
-    disc = maybe_cuda(disc, use_cuda=use_cuda)
     acc = None
     ave_loss = 0
 
@@ -221,9 +179,9 @@ for i, train_batch in enumerate(dataset):
             n2inject = max(0, mb_size - cur_sz)
         else:
             n2inject = 0
-        # print("total sz:", train_x.size(0) + rm_sz)
-        # print("n2inject", n2inject)
-        # print("it x ep: ", it_x_ep)
+        print("total sz:", train_x.size(0) + rm_sz)
+        print("n2inject", n2inject)
+        print("it x ep: ", it_x_ep)
         if rm != None:
             print("rm sz: ", rm[0].size())
 
@@ -270,7 +228,6 @@ for i, train_batch in enumerate(dataset):
             correct_cnt += (pred_label == y_mb).sum()
 
             loss = criterion(logits, y_mb)
-
             if reg_lambda !=0:
                 loss += compute_ewc_loss(model, ewcData, lambd=reg_lambda)
             ave_loss += loss.item()
@@ -288,16 +245,9 @@ for i, train_batch in enumerate(dataset):
             if it % 10 == 0:
                 print(
                     '==>>> it: {}, avg. loss: {:.6f}, '
-                    'running train acc: {:.3f}, '
+                    'running train acc: {:.3f}'
                         .format(it, ave_loss, acc)
                 )
-
-            # writer.add_image("Training images", vutils.make_grid(x_mb, padding=2, normalize=True))
-            # vutils.save_image(
-			# 	vutils.make_grid(x_mb, padding=2, normalize=True),
-			# 	'%s/training_minibatch_%03d_%03d.png' % ('images/', i, it)
-			# 	)
-
 
             # Log scalar values (scalar summary) to TB
             tot_it_step +=1
@@ -309,9 +259,6 @@ for i, train_batch in enumerate(dataset):
     consolidate_weights(model, cur_class)
     if reg_lambda != 0:
         update_ewc_data(model, ewcData, synData, 0.001, 1)
-
-    ###
-    # ABB: adapt this part with output of generator
 
     # how many patterns to save for next iter
     h = min(rm_sz // (i + 1), cur_acts.size(0))
@@ -334,7 +281,6 @@ for i, train_batch in enumerate(dataset):
         for j, idx in enumerate(idxs_2_replace):
             rm[0][idx] = copy.deepcopy(rm_add[0][j])
             rm[1][idx] = copy.deepcopy(rm_add[1][j])
-    ###
 
     set_consolidate_weights(model)
     ave_loss, acc, accs = get_accuracy(
@@ -352,13 +298,5 @@ for i, train_batch in enumerate(dataset):
     print("---------------------------------")
     print("Accuracy: ", acc)
     print("---------------------------------")
-
-    # with torch.no_grad():
-    #     fake = gen(eval_noise).detach().cpu()
-    # vutils.save_image(
-    #     vutils.make_grid(fake, padding=2, normalize=True),
-    #     '%s/generated_batch_%03d.png' % ('images/', i)
-    #     )
-    # writer.add_image("Generated images", vutils.make_grid(fake, padding=2, normalize=True))
 
 writer.close()
