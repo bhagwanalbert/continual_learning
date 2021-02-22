@@ -76,12 +76,15 @@ class MyMobilenetV1(nn.Module):
 
     def forward(self, x, latent_input=None, return_lat_acts=False):
 
-        orig_acts = self.lat_features(x)
-        if latent_input is not None:
-            lat_acts = torch.cat((orig_acts, latent_input), 0)
+        if x is not None:
+            orig_acts = self.lat_features(x)
+            if latent_input is not None:
+                lat_acts = torch.cat((orig_acts, latent_input), 0)
+            else:
+                lat_acts = orig_acts
         else:
-            lat_acts = orig_acts
-
+            lat_acts = latent_input
+            
         x = self.end_features(lat_acts)
         x = x.view(x.size(0), -1)
         logits = self.output(x)

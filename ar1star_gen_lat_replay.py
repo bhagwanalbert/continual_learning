@@ -119,6 +119,8 @@ criterion = torch.nn.CrossEntropyLoss()
 gan_lr = 0.0001
 nz = 100 + n_class
 gan_train_ep = 100
+gan_tot_it = 0
+n_imag = 10
 
 disc = conditioned_discriminator_feat(num_classes=n_class)
 gen = generator_feat(nz)
@@ -134,6 +136,20 @@ optimG = torch.optim.Adam(gen.parameters(), lr=gan_lr, betas=(0.5, 0.999))
 
 criterion_class = torch.nn.NLLLoss()
 criterion_source = torch.nn.BCELoss()
+
+fixed_noise = {}
+
+for c in range(n_class):
+    eval_noise = torch.FloatTensor(n_imag, nz, 1, 1).normal_(0, 1)
+    eval_noise_ = np.random.normal(0, 1, (n_imag, nz))
+    eval_onehot = np.zeros((n_imag, n_class))
+    eval_onehot[:, c] = 1
+
+    eval_noise_[np.arange(n_imag), :n_class] = eval_onehot[np.arange(n_imag)]
+
+    eval_noise_ = (torch.from_numpy(eval_noise_))
+    eval_noise.data.copy_(eval_noise_.view(n_imag, nz, 1, 1))
+    fixed_noise[str(c)] = maybe_cuda(eval_noise, use_cuda=use_cuda)
 
 # --------------------------------- Training -----------------------------------
 
@@ -317,6 +333,10 @@ for i, train_batch in enumerate(dataset):
     for ep in range(gan_train_ep):
         print("GAN training ep: ", ep)
 
+        correct_real_cnt = 0
+        correct_fake_cnt = 0
+        correct_test_cnt = 0
+
         for it in range(it_x_ep):
 
             start = it * (mb_size - n2inject)
@@ -338,6 +358,8 @@ for i, train_batch in enumerate(dataset):
             real_feat = maybe_cuda(real_feat, use_cuda=use_cuda)
 
             classes, source = disc(real_feat)
+            _, pred_label = torch.max(classes, 1)
+            correct_real_cnt += (pred_label == y_mb).sum()
 
             # Labels indicating source of the image
             real_label = maybe_cuda(torch.FloatTensor(y_mb.size(0)), use_cuda=use_cuda)
@@ -353,7 +375,7 @@ for i, train_batch in enumerate(dataset):
 
             noise = torch.FloatTensor(y_mb.size(0), nz, 1, 1).normal_(0, 1)
             noise_ = np.random.normal(0, 1, (y_mb.size(0), nz))
-            label = np.random.randint(0, n_class, y_mb.size(0))
+            label = np.random.choice(cur_class, y_mb.size(0))
             onehot = np.zeros((y_mb.size(0), n_class))
             onehot[np.arange(y_mb.size(0)), label] = 1
             noise_[np.arange(y_mb.size(0)), :n_class] = onehot[np.arange(y_mb.size(0))]
@@ -367,6 +389,8 @@ for i, train_batch in enumerate(dataset):
             fake_feat = gen(noise)
 
             classes, source = disc(fake_feat.detach())
+            _, pred_label = torch.max(classes, 1)
+            correct_fake_cnt += (pred_label == label).sum()
 
             lossDfake = criterion_source(source, fake_label) + criterion(classes, label)
 
@@ -381,6 +405,23 @@ for i, train_batch in enumerate(dataset):
 
             lossG.backward()
             optimG.step()
+
+            writer.add_scalar('D real training loss', lossDreal, ep)
+            writer.add_scalar('D fake training loss', lossDfake, ep)
+            writer.add_scalar('G training loss', lossG, ep)
+
+            gan_tot_it += 1
+
+        with torch.no_grad():
+            for c in cur_class:
+                test_feat = gen(fixed_noise[str(c)])
+                logits = model(None, latent_input=test_feat)
+                _, pred_label = torch.max(classes, 1)
+                correct_test_cnt += (pred_label == c).sum()
+
+        writer.add_scalar('GAN real training acc', correct_real_cnt, ep)
+        writer.add_scalar('GAN fake training acc', correct_fake_cnt, ep)
+        writer.add_scalar('GAN test acc', correct_test_cnt, ep)
 
     # Log scalar values (scalar summary) to TB
     writer.add_scalar('test_loss', ave_loss, i)
