@@ -422,7 +422,7 @@ for i, train_batch in enumerate(dataset):
         with torch.no_grad():
             for c in cur_class:
                 test_feat = gen(fixed_noise[str(c)])
-                print(fixed_noise[str(c)])
+                print(fixed_noise[str(c)].shape)
 
                 logits = model(None, latent_input=test_feat)
                 _, pred_label = torch.max(classes, 1)
