@@ -396,7 +396,7 @@ for i, train_batch in enumerate(dataset):
             _, pred_label = torch.max(classes, 1)
             correct_fake_cnt += (pred_label == label).sum()
             pred_source = torch.round(source)
-            correct_src_fake_cnt += (pred_source == 1).sum()
+            correct_src_fake_cnt += (pred_source == 0).sum()
 
             lossDfake = criterion_source(source, fake_label)# + criterion(classes, label)
 
