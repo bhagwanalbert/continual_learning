@@ -121,7 +121,7 @@ nz = 100 + n_class
 gan_train_ep = 100
 
 disc = conditioned_discriminator_feat(num_classes=n_class)
-gen = generator(nz)
+gen = generator_feat(nz)
 
 disc = maybe_cuda(disc, use_cuda=use_cuda)
 gen = maybe_cuda(gen, use_cuda=use_cuda)
