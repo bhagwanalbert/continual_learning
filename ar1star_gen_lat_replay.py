@@ -366,7 +366,7 @@ for i, train_batch in enumerate(dataset):
 
             fake_feat = gen(noise)
 
-            classes, source = disc(fake_feat)
+            classes, source = disc(fake_feat.detach())
 
             lossDfake = criterion_source(source, fake_label) + criterion(classes, label)
 
@@ -375,7 +375,7 @@ for i, train_batch in enumerate(dataset):
 
             optimG.zero_grad()
 
-            classes, source = disc(fake_feat)
+            classes, source = disc(fake_feat.detach())
 
             lossG = criterion_source(source, real_label) + criterion(classes, label)
 
