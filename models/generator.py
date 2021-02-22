@@ -25,7 +25,7 @@ class generator_feat(nn.Module):
             nn.LeakyReLU(0.2, inplace=True),
             # state size. (ngf*16) x 2 x 2
             nn.ConvTranspose2d( ngf * 16, ngf * 12, 2, 1, 0, bias=False),
-            nn.BatchNorm2d(ngf * 16),
+            nn.BatchNorm2d(ngf * 12),
             nn.LeakyReLU(0.2, inplace=True),
             # state size. (ngf*16) x 4 x 4
             nn.ConvTranspose2d(ngf * 12, ngf * 8, 4, 2, 1, bias=False),
