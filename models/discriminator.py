@@ -77,7 +77,7 @@ class conditioned_discriminator_feat(nn.Module):
 
     def forward(self, input):
         features = self.main(input)
-        flat_features = features.contiguous().view(-1,self.ndf*16*4*4)
+        flat_features = features.contiguous().view(-1,self.ndf*4)
 
         classes = self.softmax(self.fc_aux(flat_features))
         source = self.sig(self.fc_dis(flat_features))
