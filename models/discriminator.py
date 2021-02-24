@@ -57,18 +57,18 @@ class conditioned_discriminator_feat(nn.Module):
             nn.BatchNorm2d(ndf * 16),
             nn.LeakyReLU(0.2, inplace=True),
             # state size. (ndf*16) x 4 x 4
-            nn.Conv2d(ndf * 16, ndf * 16, 3, 1, 1, bias=False),
-            nn.BatchNorm2d(ndf * 16),
+            nn.Conv2d(ndf * 16, ndf * 8, 4, 2, 1, bias=False),
+            nn.BatchNorm2d(ndf * 8),
             nn.LeakyReLU(0.2, inplace=True),
-            # state size. (ndf*16) x 4 x 4
-            nn.Conv2d(ndf * 16, ndf * 16, 3, 1, 1, bias=False),
-            nn.BatchNorm2d(ndf * 16),
+            # state size. (ndf*8) x 2 x 2
+            nn.Conv2d(ndf * 8, ndf * 4, 4, 2, 1, bias=False),
+            nn.BatchNorm2d(ndf * 4),
             nn.LeakyReLU(0.2, inplace=True),
-            # state size. (ndf*16) x 4 x 4
+            # state size. (ndf*4) x 1 x 1
             # nn.Conv2d(ndf * 16, 1, 4, 1, 0, bias=False),
         )
-        self.fc_dis = nn.Linear(ndf*16*4*4, 1)
-        self.fc_aux = nn.Linear(ndf*16*4*4, num_classes)
+        self.fc_dis = nn.Linear(ndf*4, 1)
+        self.fc_aux = nn.Linear(ndf*4, num_classes)
 
         self.softmax = nn.Softmax(dim=1)
         self.sig = nn.Sigmoid()
