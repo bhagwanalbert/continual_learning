@@ -49,7 +49,19 @@ class conditioned_discriminator_feat(nn.Module):
 
         self.main = nn.Sequential(
             # input is (ndf*8) x 8 x 8
-            nn.Conv2d(ndf * 8, ndf * 16, 4, 2, 1, bias=False),
+            nn.Conv2d(ndf * 8, ndf * 12, 3, 1, 1, bias=False),
+            nn.BatchNorm2d(ndf * 12),
+            nn.LeakyReLU(0.2, inplace=True),
+            # state size. (ndf*12) x 8 x 8
+            nn.Conv2d(ndf * 12, ndf * 16, 4, 2, 1, bias=False),
+            nn.BatchNorm2d(ndf * 16),
+            nn.LeakyReLU(0.2, inplace=True),
+            # state size. (ndf*16) x 4 x 4
+            nn.Conv2d(ndf * 16, ndf * 16, 3, 1, 1, bias=False),
+            nn.BatchNorm2d(ndf * 16),
+            nn.LeakyReLU(0.2, inplace=True),
+            # state size. (ndf*16) x 4 x 4
+            nn.Conv2d(ndf * 16, ndf * 16, 3, 1, 1, bias=False),
             nn.BatchNorm2d(ndf * 16),
             nn.LeakyReLU(0.2, inplace=True),
             # state size. (ndf*16) x 4 x 4
