@@ -357,6 +357,9 @@ for i, train_batch in enumerate(dataset):
                     x_mb, latent_input=lat_mb_x, return_lat_acts=True)
 
             optimD.zero_grad()
+            disc.train()
+            gen.eval()
+
             real_feat = maybe_cuda(real_feat, use_cuda=use_cuda)
 
             classes, source = disc(real_feat)
@@ -402,6 +405,9 @@ for i, train_batch in enumerate(dataset):
 
             lossDfake.backward()
             optimD.step()
+
+            disc.eval()
+            gen.train()
 
             optimG.zero_grad()
 
