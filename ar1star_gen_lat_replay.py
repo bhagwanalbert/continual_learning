@@ -42,11 +42,11 @@ from torchvision import transforms
 def histogram(x):
     figure = plt.figure(figsize=(10,10))
     x_flat = x.view(x.shape[0]*x.shape[1]*x.shape[2]*x.shape[3])
-    print("max feat: %d", torch.max(x_flat))
-    print("min feat: %d", torch.min(x_flat))
-    print("sparse measurement: %d", torch.sum(x_flat==0)/float(x_flat.shape[0]))
+    print("max feat: ", torch.max(x_flat))
+    print("min feat: ", torch.min(x_flat))
+    print("sparse measurement: ", torch.sum(x_flat==0)/float(x_flat.shape[0]))
 
-    plt.hist(np.array(x_flat.cpu()), bins=1000)
+    plt.hist(np.array(x_flat.cpu().detach().numpy()), bins=1000)
 
     plt.show()
     # Save the plot to a PNG in memory.
