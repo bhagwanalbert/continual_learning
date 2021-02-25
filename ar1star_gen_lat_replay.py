@@ -32,6 +32,30 @@ from pprint import pprint
 from torch.utils.tensorboard import SummaryWriter
 from models.generator import generator_feat
 from models.discriminator import conditioned_discriminator_feat
+import matplotlib.pyplot as plt
+import io
+import PIL.Image
+import random
+import numpy as np
+from torchvision import transforms
+
+def histogram(x):
+    figure = plt.figure(figsize=(10,10))
+    x_flat = x.view(x.shape[0]*x.shape[1]*x.shape[2]*x.shape[3])
+    plt.hist(np.array(x_flat), bins=100)
+
+    plt.show()
+    # Save the plot to a PNG in memory.
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png')
+    # Closing the figure prevents it from being displayed directly inside
+    # the notebook.
+    plt.close(figure)
+    buf.seek(0)
+    image = PIL.Image.open(buf)
+    image = transforms.ToTensor()(image)
+
+    return image
 
 # --------------------------------- Setup --------------------------------------
 
@@ -308,6 +332,10 @@ for i, train_batch in enumerate(dataset):
     print("h", h)
 
     print("cur_acts sz:", cur_acts.size(0))
+    print("cur_acts sz:", cur_acts.shape)
+    writer.add_image("Histogram",histogram(cur_acts),0)
+    writer.close()
+    
     idxs_cur = np.random.choice(
         cur_acts.size(0), h, replace=False
     )
