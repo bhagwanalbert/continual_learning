@@ -185,8 +185,8 @@ for c in range(n_class):
 for i, train_batch in enumerate(dataset):
 
     # ABB: for the moment only train one batch
-    # if i > 0:
-    #     break
+    if i > 0:
+        break
 
     if reg_lambda != 0:
         init_batch(model, ewcData, synData)
@@ -362,128 +362,128 @@ for i, train_batch in enumerate(dataset):
         model, criterion, mb_size, test_x, test_y, preproc=preproc
     )
 
-    # for ep in range(gan_train_ep):
-    #     print("GAN training ep: ", ep)
-    #
-    #     correct_real_cnt = 0
-    #     correct_fake_cnt = 0
-    #     correct_test_cnt = 0
-    #     correct_src_real_cnt = 0
-    #     correct_src_fake_cnt = 0
-    #
-    #     for it in range(it_x_ep):
-    #
-    #         start = it * (mb_size - n2inject)
-    #         end = (it + 1) * (mb_size - n2inject)
-    #
-    #         x_mb = maybe_cuda(train_x[start:end], use_cuda=use_cuda)
-    #
-    #         # if i == 0:
-    #         lat_mb_x = None
-    #         y_mb = maybe_cuda(train_y[start:end], use_cuda=use_cuda)
-    #
-    #         # if lat_mb_x is not None, this tensor will be concatenated in
-    #         # the forward pass on-the-fly in the latent replay layer
-    #         with torch.no_grad():
-    #             _, real_feat = model(
-    #                 x_mb, latent_input=lat_mb_x, return_lat_acts=True)
-    #
-    #         optimD.zero_grad()
-    #         disc.train()
-    #         gen.eval()
-    #
-    #         real_feat = maybe_cuda(real_feat, use_cuda=use_cuda)
-    #
-    #         classes, source = disc(real_feat)
-    #         _, pred_label = torch.max(classes, 1)
-    #         correct_real_cnt += (pred_label == y_mb).sum()
-    #         pred_source = torch.round(source)
-    #         correct_src_real_cnt += (pred_source == 1).sum()
-    #
-    #         # Labels indicating source of the image
-    #         real_label = maybe_cuda(torch.FloatTensor(y_mb.size(0)), use_cuda=use_cuda)
-    #         real_label.fill_(0.9)
-    #
-    #         fake_label = maybe_cuda(torch.FloatTensor(y_mb.size(0)), use_cuda=use_cuda)
-    #         fake_label.fill_(0.1)
-    #
-    #         lossDreal = criterion(classes, y_mb) + criterion_source(source, real_label)
-    #
-    #         lossDreal.backward()
-    #         optimD.step()
-    #
-    #         noise = torch.FloatTensor(y_mb.size(0), nz, 1, 1).normal_(0, 1)
-    #         noise_ = np.random.normal(0, 1, (y_mb.size(0), nz))
-    #         label = np.random.choice(cur_class, y_mb.size(0))
-    #         onehot = np.zeros((y_mb.size(0), n_class))
-    #         onehot[np.arange(y_mb.size(0)), label] = 1
-    #         noise_[np.arange(y_mb.size(0)), :n_class] = onehot[np.arange(y_mb.size(0))]
-    #         noise_ = (torch.from_numpy(noise_))
-    #         noise.data.copy_(noise_.view(y_mb.size(0), nz, 1, 1))
-    #         noise = maybe_cuda(noise, use_cuda=use_cuda)
-    #
-    #         label = ((torch.from_numpy(label)).long())
-    #         label = maybe_cuda(label, use_cuda=use_cuda)
-    #
-    #         fake_feat = gen(noise)
-    #
-    #         writer.add_image("Histogram features",histogram(fake_feat), gan_tot_it)
-    #         writer.close()
-    #
-    #         classes, source = disc(fake_feat.detach())
-    #         _, pred_label = torch.max(classes, 1)
-    #         correct_fake_cnt += (pred_label == label).sum()
-    #         pred_source = torch.round(source)
-    #         correct_src_fake_cnt += (pred_source == 0).sum()
-    #
-    #         lossDfake = criterion_source(source, fake_label) + criterion(classes, label)
-    #
-    #         lossDfake.backward()
-    #         optimD.step()
-    #
-    #         disc.eval()
-    #         gen.train()
-    #
-    #         optimG.zero_grad()
-    #
-    #         classes, source = disc(fake_feat.detach())
-    #
-    #         lossG = criterion_source(source, real_label) + criterion(classes, label)
-    #
-    #         lossG.backward()
-    #         optimG.step()
-    #
-    #         writer.add_scalar('D real training loss', lossDreal, gan_tot_it)
-    #         writer.add_scalar('D fake training loss', lossDfake, gan_tot_it)
-    #         writer.add_scalar('G training loss', lossG, gan_tot_it)
-    #
-    #         acc_real = correct_real_cnt.item() / \
-    #                     ((it + 1) * y_mb.size(0))
-    #         acc_fake = correct_fake_cnt.item() / \
-    #                     ((it + 1) * y_mb.size(0))
-    #         acc_src_real = correct_src_real_cnt.item() / \
-    #                     ((it + 1) * y_mb.size(0))
-    #         acc_src_fake = correct_src_fake_cnt.item() / \
-    #                     ((it + 1) * y_mb.size(0))
-    #
-    #         gan_tot_it += 1
-    #
-    #     with torch.no_grad():
-    #         for c in cur_class:
-    #             test_feat = gen(fixed_noise[str(c)])
-    #             classes = model(None, latent_input=test_feat)
-    #             _, pred_label = torch.max(classes, 1)
-    #             correct_test_cnt += (pred_label == c).sum()
-    #             print(pred_label)
-    #             print(c)
-    #
-    #         acc_test = correct_test_cnt.item() / (n_imag*len(cur_class))
-    #
-    #     writer.add_scalar('GAN real training acc', acc_real, ep)
-    #     writer.add_scalar('GAN fake training acc', acc_fake, ep)
-    #     writer.add_scalar('GAN test acc', acc_test, ep)
-    #     writer.add_scalar('GAN real src acc', acc_src_real, ep)
-    #     writer.add_scalar('GAN fake src acc', acc_src_fake, ep)
+    for ep in range(gan_train_ep):
+        print("GAN training ep: ", ep)
+
+        correct_real_cnt = 0
+        correct_fake_cnt = 0
+        correct_test_cnt = 0
+        correct_src_real_cnt = 0
+        correct_src_fake_cnt = 0
+
+        for it in range(it_x_ep):
+
+            start = it * (mb_size - n2inject)
+            end = (it + 1) * (mb_size - n2inject)
+
+            x_mb = maybe_cuda(train_x[start:end], use_cuda=use_cuda)
+
+            # if i == 0:
+            lat_mb_x = None
+            y_mb = maybe_cuda(train_y[start:end], use_cuda=use_cuda)
+
+            # if lat_mb_x is not None, this tensor will be concatenated in
+            # the forward pass on-the-fly in the latent replay layer
+            with torch.no_grad():
+                _, real_feat = model(
+                    x_mb, latent_input=lat_mb_x, return_lat_acts=True)
+
+            optimD.zero_grad()
+            disc.train()
+            gen.eval()
+
+            real_feat = maybe_cuda(real_feat, use_cuda=use_cuda)
+
+            classes, source = disc(real_feat)
+            _, pred_label = torch.max(classes, 1)
+            correct_real_cnt += (pred_label == y_mb).sum()
+            pred_source = torch.round(source)
+            correct_src_real_cnt += (pred_source == 1).sum()
+
+            # Labels indicating source of the image
+            real_label = maybe_cuda(torch.FloatTensor(y_mb.size(0)), use_cuda=use_cuda)
+            real_label.fill_(0.9)
+
+            fake_label = maybe_cuda(torch.FloatTensor(y_mb.size(0)), use_cuda=use_cuda)
+            fake_label.fill_(0.1)
+
+            lossDreal = criterion(classes, y_mb) + criterion_source(source, real_label)
+
+            lossDreal.backward()
+            optimD.step()
+
+            noise = torch.FloatTensor(y_mb.size(0), nz, 1, 1).normal_(0, 1)
+            noise_ = np.random.normal(0, 1, (y_mb.size(0), nz))
+            label = np.random.choice(cur_class, y_mb.size(0))
+            onehot = np.zeros((y_mb.size(0), n_class))
+            onehot[np.arange(y_mb.size(0)), label] = 1
+            noise_[np.arange(y_mb.size(0)), :n_class] = onehot[np.arange(y_mb.size(0))]
+            noise_ = (torch.from_numpy(noise_))
+            noise.data.copy_(noise_.view(y_mb.size(0), nz, 1, 1))
+            noise = maybe_cuda(noise, use_cuda=use_cuda)
+
+            label = ((torch.from_numpy(label)).long())
+            label = maybe_cuda(label, use_cuda=use_cuda)
+
+            fake_feat = gen(noise)
+
+            writer.add_image("Histogram features",histogram(fake_feat), gan_tot_it)
+            writer.close()
+
+            classes, source = disc(fake_feat.detach())
+            _, pred_label = torch.max(classes, 1)
+            correct_fake_cnt += (pred_label == label).sum()
+            pred_source = torch.round(source)
+            correct_src_fake_cnt += (pred_source == 0).sum()
+
+            lossDfake = criterion_source(source, fake_label) + criterion(classes, label)
+
+            lossDfake.backward()
+            optimD.step()
+
+            disc.eval()
+            gen.train()
+
+            optimG.zero_grad()
+
+            classes, source = disc(fake_feat.detach())
+
+            lossG = criterion_source(source, real_label) + criterion(classes, label)
+
+            lossG.backward()
+            optimG.step()
+
+            writer.add_scalar('D real training loss', lossDreal, gan_tot_it)
+            writer.add_scalar('D fake training loss', lossDfake, gan_tot_it)
+            writer.add_scalar('G training loss', lossG, gan_tot_it)
+
+            acc_real = correct_real_cnt.item() / \
+                        ((it + 1) * y_mb.size(0))
+            acc_fake = correct_fake_cnt.item() / \
+                        ((it + 1) * y_mb.size(0))
+            acc_src_real = correct_src_real_cnt.item() / \
+                        ((it + 1) * y_mb.size(0))
+            acc_src_fake = correct_src_fake_cnt.item() / \
+                        ((it + 1) * y_mb.size(0))
+
+            gan_tot_it += 1
+
+        with torch.no_grad():
+            for c in cur_class:
+                test_feat = gen(fixed_noise[str(c)])
+                classes = model(None, latent_input=test_feat)
+                _, pred_label = torch.max(classes, 1)
+                correct_test_cnt += (pred_label == c).sum()
+                print(pred_label)
+                print(c)
+
+            acc_test = correct_test_cnt.item() / (n_imag*len(cur_class))
+
+        writer.add_scalar('GAN real training acc', acc_real, ep)
+        writer.add_scalar('GAN fake training acc', acc_fake, ep)
+        writer.add_scalar('GAN test acc', acc_test, ep)
+        writer.add_scalar('GAN real src acc', acc_src_real, ep)
+        writer.add_scalar('GAN fake src acc', acc_src_fake, ep)
 
 
     # Log scalar values (scalar summary) to TB
