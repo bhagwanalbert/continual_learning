@@ -395,7 +395,11 @@ for i, train_batch in enumerate(dataset):
             disc.train()
             gen.eval()
 
-            real_feat = maybe_cuda(normalize(real_feat), use_cuda=use_cuda)
+            real_feat_proc = torch.zeros([real_feat.size(0),real_feat.size(1),real_feat.size(2),real_feat.size(3)]).type(torch.FloatTensor)
+            for f in range(real_feat.shape[0]):
+                f_proc = normalize((real_feat[f]).cpu())
+                real_feat_proc[f] = f_proc.type(torch.FloatTensor)
+            real_feat = maybe_cuda(real_feat_proc, use_cuda=use_cuda)
 
             writer.add_image("Histogram real features",histogram(real_feat), gan_tot_it)
 
@@ -475,9 +479,14 @@ for i, train_batch in enumerate(dataset):
 
         with torch.no_grad():
             for c in cur_class:
-                test_feat = unnormalize(gen(fixed_noise[str(c)]))
-                writer.add_image("Histogram test features",histogram(test_feat), ep)
-                classes = model(None, latent_input=test_feat)
+                test_feat = gen(fixed_noise[str(c)])
+                test_feat_proc = torch.zeros([test_feat.size(0),test_feat.size(1),test_feat.size(2),test_feat.size(3)]).type(torch.FloatTensor)
+                for f in range(test_feat.shape[0]):
+                    f_proc = unnormalize((test_feat[f]).cpu())
+                    test_feat_proc[f] = f_proc.type(torch.FloatTensor)
+                test_feat_proc = maybe_cuda(test_feat_proc, use_cuda=use_cuda)
+                writer.add_image("Histogram test features",histogram(test_feat_proc), ep)
+                classes = model(None, latent_input=test_feat_proc)
                 _, pred_label = torch.max(classes, 1)
                 correct_test_cnt += (pred_label == c).sum()
                 print(pred_label)
