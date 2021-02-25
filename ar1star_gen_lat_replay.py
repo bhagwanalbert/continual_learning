@@ -44,7 +44,7 @@ def histogram(x):
     x_flat = x.view(x.shape[0]*x.shape[1]*x.shape[2]*x.shape[3])
     print("max feat: ", torch.max(x_flat).item())
     print("min feat: ", torch.min(x_flat).item())
-    print("sparse measurement: ", torch.sum(x_flat==0)/float(x_flat.shape[0]))
+    print("sparse measurement: ", torch.sum(x_flat==-1)/float(x_flat.shape[0]))
 
     plt.hist(np.array(x_flat.cpu().detach().numpy()), bins=100)
 
@@ -149,6 +149,9 @@ nz = 100 + n_class
 gan_train_ep = 100
 gan_tot_it = 0
 n_imag = 10
+
+normalize = transforms.Normalize(mean=[2.5, 2.5, 2.5], std=[2.5, 2.5, 2.5])
+unnormalize = transforms.Normalize(mean=[-1.0, -1.0, -1.0], std=[0.4, 0.4, 0.4])
 
 disc = conditioned_discriminator_feat(num_classes=n_class)
 gen = generator_feat(nz)
@@ -392,7 +395,9 @@ for i, train_batch in enumerate(dataset):
             disc.train()
             gen.eval()
 
-            real_feat = maybe_cuda(real_feat, use_cuda=use_cuda)
+            real_feat = maybe_cuda(normalize(real_feat), use_cuda=use_cuda)
+
+            writer.add_image("Histogram real features",histogram(real_feat), gan_tot_it)
 
             classes, source = disc(real_feat)
             _, pred_label = torch.max(classes, 1)
@@ -427,7 +432,7 @@ for i, train_batch in enumerate(dataset):
 
             fake_feat = gen(noise)
 
-            writer.add_image("Histogram features",histogram(fake_feat), gan_tot_it)
+            writer.add_image("Histogram fake features",histogram(fake_feat), gan_tot_it)
             writer.close()
 
             classes, source = disc(fake_feat.detach())
@@ -470,7 +475,8 @@ for i, train_batch in enumerate(dataset):
 
         with torch.no_grad():
             for c in cur_class:
-                test_feat = gen(fixed_noise[str(c)])
+                test_feat = unnormalize(gen(fixed_noise[str(c)]))
+                writer.add_image("Histogram test features",histogram(test_feat), ep)
                 classes = model(None, latent_input=test_feat)
                 _, pred_label = torch.max(classes, 1)
                 correct_test_cnt += (pred_label == c).sum()

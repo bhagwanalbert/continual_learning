@@ -33,8 +33,7 @@ class generator_feat(nn.Module):
             nn.ReLU(),
             # state size. (ngf*8) x 8 x 8
             nn.ConvTranspose2d(ngf * 8, ngf * 8, 3, 1, 1, bias=False),
-            nn.BatchNorm2d(ngf * 8),
-            nn.ReLU(),
+            nn.Tanh()
             # state size. (ngf*8) x 8 x 8
         )
 
