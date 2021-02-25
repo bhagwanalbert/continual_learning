@@ -144,7 +144,7 @@ optimizer = torch.optim.SGD(
 criterion = torch.nn.CrossEntropyLoss()
 
 # GAN stuff
-gan_lr = 0.00005
+gan_lr = 0.0001
 nz = 100 + n_class
 gan_train_ep = 100
 gan_tot_it = 0
