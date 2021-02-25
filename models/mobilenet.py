@@ -84,8 +84,8 @@ class MyMobilenetV1(nn.Module):
                 lat_acts = orig_acts
         else:
             lat_acts = latent_input
-            
-        x = self.end_features(lat_acts)
+
+        x = self.end_features(nn.Tanh(lat_acts))
         x = x.view(x.size(0), -1)
         logits = self.output(x)
 
