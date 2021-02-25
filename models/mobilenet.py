@@ -69,7 +69,6 @@ class MyMobilenetV1(nn.Module):
                 # ABB: Canviar estructura!
                 end_list.append(layer)
 
-        lat_list.append(nn.Threshold(5,5))
         self.lat_features = nn.Sequential(*lat_list)
         self.end_features = nn.Sequential(*end_list)
 
@@ -86,6 +85,7 @@ class MyMobilenetV1(nn.Module):
         else:
             lat_acts = latent_input
 
+        lat_acts.clamp(0,5)
         x = self.end_features(lat_acts)
         x = x.view(x.size(0), -1)
         logits = self.output(x)
