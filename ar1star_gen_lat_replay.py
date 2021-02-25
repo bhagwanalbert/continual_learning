@@ -150,8 +150,8 @@ gan_train_ep = 100
 gan_tot_it = 0
 n_imag = 10
 
-normalize = transforms.Normalize(mean=[2.5, 2.5, 2.5], std=[2.5, 2.5, 2.5])
-unnormalize = transforms.Normalize(mean=[-1.0, -1.0, -1.0], std=[0.4, 0.4, 0.4])
+normalize = transforms.Normalize(mean=[2.5]*512, std=[2.5]*512)
+unnormalize = transforms.Normalize(mean=[-1.0]*512, std=[0.4]*512)
 
 disc = conditioned_discriminator_feat(num_classes=n_class)
 gen = generator_feat(nz)
