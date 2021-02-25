@@ -185,8 +185,8 @@ for c in range(n_class):
 for i, train_batch in enumerate(dataset):
 
     # ABB: for the moment only train one batch
-    if i > 0:
-        break
+    # if i > 0:
+    #     break
 
     if reg_lambda != 0:
         init_batch(model, ewcData, synData)
