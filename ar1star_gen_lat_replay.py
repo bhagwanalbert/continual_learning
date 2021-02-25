@@ -42,7 +42,11 @@ from torchvision import transforms
 def histogram(x):
     figure = plt.figure(figsize=(10,10))
     x_flat = x.view(x.shape[0]*x.shape[1]*x.shape[2]*x.shape[3])
-    plt.hist(np.array(x_flat), bins=100)
+    print("max feat: %d", torch.max(x_flat))
+    print("min feat: %d", torch.min(x_flat))
+    print("sparse measurement: %d", torch.sum(x_flat==0)/float(x_flat.shape[0]))
+
+    plt.hist(np.array(x_flat), bins=1000)
 
     plt.show()
     # Save the plot to a PNG in memory.
@@ -335,7 +339,7 @@ for i, train_batch in enumerate(dataset):
     print("cur_acts sz:", cur_acts.shape)
     writer.add_image("Histogram",histogram(cur_acts),0)
     writer.close()
-    
+
     idxs_cur = np.random.choice(
         cur_acts.size(0), h, replace=False
     )
@@ -422,6 +426,9 @@ for i, train_batch in enumerate(dataset):
             label = maybe_cuda(label, use_cuda=use_cuda)
 
             fake_feat = gen(noise)
+
+            writer.add_image("Histogram features",histogram(fake_feat), gan_tot_it)
+            writer.close()
 
             classes, source = disc(fake_feat.detach())
             _, pred_label = torch.max(classes, 1)
